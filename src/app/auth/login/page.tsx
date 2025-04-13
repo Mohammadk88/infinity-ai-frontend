@@ -1,196 +1,244 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import api from '@/app/lib/axios';
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/store/useUserStore';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, ChevronRight, Globe, SparklesIcon } from 'lucide-react';
-import Image from 'next/image';
-
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
+import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Zap, LogIn, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { LanguageSelector } from '@/components/ui/language-selector';
+import { useUserStore } from '@/store/useUserStore';
+import api from '@/app/lib/axios';
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { setUser } = useUserStore();
-  const { t, i18n } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({ resolver: zodResolver(schema) });
-
-  type FormData = z.infer<typeof schema>;
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  const onSubmit = async (data: FormData) => {
-    setLoading(true);
+  // Animation background circles
+  const circles = Array.from({ length: 10 }).map((_, i) => ({
+    size: Math.floor(Math.random() * 120) + 40,
+    left: Math.floor(Math.random() * 100),
+    top: Math.floor(Math.random() * 100),
+    animationDuration: Math.floor(Math.random() * 20) + 15,
+    animationDelay: Math.floor(Math.random() * 5),
+  }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
     try {
-      await api.post('/auth/login', data, { withCredentials: true });
+      // Fake login for demonstration
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // In a real implementation you would call your auth API here
+       const response = await api.post('/auth/login', { email, password });
+      // بعد تسجيل الدخول:
       const res = await api.get('/auth/me', { withCredentials: true });
       setUser(res.data);
       router.push('/dashboard');
+      
+      // Show success state
+      // Redirect to dashboard
     } catch (err) {
-      console.error(err);
+      console.error('Login failed:', err);
+      setError(t('login.error.invalidCredentials', 'Invalid email or password'));
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  // Language toggle handler
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'ar' : 'en';
-    i18n.changeLanguage(newLang);
-    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-  };
-
   return (
-    <div
-      dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
-      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-background/95 p-4 md:p-8"
-    >
-      {/* Language toggle */}
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={toggleLanguage} 
-        className="fixed top-4 right-4 text-xs flex items-center gap-1"
-      >
-        <Globe className="h-3.5 w-3.5" />
-        {i18n.language === 'en' ? 'عربي' : 'English'}
-      </Button>
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-br from-background to-background/95 p-4">
+      {/* Animated background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {circles.map((circle, index) => (
+          <div
+            key={index}
+            className="absolute rounded-full bg-primary/5 dark:bg-primary/10"
+            style={{
+              width: `${circle.size}px`,
+              height: `${circle.size}px`,
+              left: `${circle.left}%`,
+              top: `${circle.top}%`,
+              animationDuration: `${circle.animationDuration}s`,
+              animationDelay: `${circle.animationDelay}s`,
+            }}
+            aria-hidden="true"
+          />
+        ))}
+      </div>
       
-      <div className="w-full max-w-md animate__animated animate__fadeIn">
-        <div className="mb-8 text-center">
-          <div className="flex justify-center items-center mb-2">
-            <div className="bg-primary/10 p-3 rounded-xl">
-              <SparklesIcon className="h-6 w-6 text-primary" />
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold tracking-tighter">
-            <span className="text-primary">Infinity</span> AI
-          </h1>
-          <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
-            {t('login.welcome')}
-          </p>
+      {/* Logo */}
+      <div className="absolute left-8 top-8 flex items-center gap-2 animate__animated animate__fadeIn">
+        <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70">
+          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/70 opacity-75 blur-sm" />
+          <span className="relative z-10 text-primary-foreground">
+            <Zap className="h-4 w-4" />
+          </span>
         </div>
-        
-        <Card className="w-full border rounded-xl shadow-lg animate__animated animate__fadeInUp animate__delay-100ms overflow-hidden bg-card/50 backdrop-blur">
-          <CardHeader className="pb-2">
-            <h1 className="text-xl font-semibold text-center">{t('login.title')}</h1>
-            <p className="text-muted-foreground text-sm text-center">{t('login.subtitle')}</p>
+        <div className="flex flex-col">
+          <span className="font-semibold leading-none tracking-tight">
+            Infinity<span className="text-primary">AI</span>
+          </span>
+          <span className="text-[10px] text-muted-foreground">
+            {t('login.marketing', 'Marketing Platform')}
+          </span>
+        </div>
+      </div>
+      
+      {/* Login card */}
+      <div className="w-full max-w-md animate__animated animate__fadeInUp">
+        <Card className="border-border/40 bg-card/90 backdrop-blur-sm">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl animate__animated animate__fadeIn">
+              {t('login.title', 'Welcome back')}
+            </CardTitle>
+            <CardDescription className="animate__animated animate__fadeIn animate__delay-1s">
+              {t('login.description', 'Sign in to access your account')}
+            </CardDescription>
           </CardHeader>
-          
-          <CardContent className="pb-0">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs font-medium">
-                  {t('login.email')}
+                <Label htmlFor="email" className="text-sm font-medium">
+                  {t('login.email', 'Email')}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    className="pl-10 bg-background/50" 
-                    placeholder={t('login.emailPlaceholder')}
-                    {...register('email')} 
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                    autoComplete="email"
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-destructive text-xs">{errors.email.message as string}</p>
-                )}
               </div>
-              
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs font-medium">
-                  {t('login.password')}
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-sm font-medium">
+                    {t('login.password', 'Password')}
+                  </Label>
+                  <Link 
+                    href="#" 
+                    className="text-xs text-primary hover:underline"
+                  >
+                    {t('login.forgotPassword', 'Forgot password?')}
+                  </Link>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="password" 
-                    type={showPassword ? "text" : "password"} 
-                    className="pl-10 pr-10 bg-background/50"
-                    placeholder={t('login.passwordPlaceholder')}
-                    {...register('password')} 
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10"
+                    required
+                    autoComplete="current-password"
                   />
-                  <button 
-                    type="button"
-                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground transition-colors"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
                 </div>
-                {errors.password && (
-                  <p className="text-destructive text-xs">{errors.password.message as string}</p>
-                )}
               </div>
               
-              <div className="text-right">
-                <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
-                  {t('login.forgotPassword')}
-                </Link>
+              {error && (
+                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive animate__animated animate__fadeIn">
+                  <div className="flex gap-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{error}</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <Button 
+                type="submit" 
+                className="w-full group" 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t('login.signingIn', 'Signing in...')}
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4 group-hover:animate-pulse" />
+                    {t('login.signIn', 'Sign in')}
+                  </>
+                )}
+              </Button>
+              
+              <div className="relative flex items-center justify-center py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <span className="relative bg-card px-4 text-xs text-muted-foreground">
+                  {t('login.or', 'OR')}
+                </span>
               </div>
               
               <Button 
-                type="submit" 
-                className="w-full group transition-all" 
-                disabled={loading}
+                type="button" 
+                variant="outline"
+                className="w-full"
               >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 border-2 border-current border-r-transparent rounded-full animate-spin" />
-                    <span>{t('login.loading')}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-1 group-hover:gap-2 transition-all duration-200">
-                    <span>{t('login.button')}</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </div>
-                )}
+                <svg className="mr-2 h-4 w-4" aria-hidden="true" viewBox="0 0 24 24">
+                  <path
+                    d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z"
+                    fill="#EA4335"
+                  />
+                  <path
+                    d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.2654 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z"
+                    fill="#34A853"
+                  />
+                </svg>
+                {t('login.continueWithGoogle', 'Continue with Google')}
               </Button>
-            </form>
-          </CardContent>
-          
-          <CardFooter className="flex flex-col pt-2 pb-4">
-            <div className="text-xs text-center text-muted-foreground mt-4">
-              {t('login.noAccount')}{' '}
-              <Link href="/auth/register" className="text-primary hover:underline font-medium">
-                {t('login.register')}
-              </Link>
-            </div>
-          </CardFooter>
+              
+              <p className="text-center text-sm text-muted-foreground">
+                {t('login.noAccount', 'Don\'t have an account?')}{' '}
+                <Link href="/auth/register" className="text-primary hover:underline">
+                  {t('login.register', 'Create account')}
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
         </Card>
         
-        {/* Decorative elements */}
-        <div className="fixed left-20 top-40 w-32 h-32 bg-primary/20 rounded-full filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="fixed right-20 bottom-20 w-56 h-56 bg-blue-500/20 rounded-full filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="fixed left-1/3 bottom-1/3 w-40 h-40 bg-purple-500/20 rounded-full filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="mt-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            © 2025 Infinity Marketing AI. {t('login.allRights', 'All rights reserved.')}
+          </p>
+        </div>
+      </div>
+      
+      {/* Language selector (bottom right) */}
+      <div className="absolute bottom-6 right-6 animate__animated animate__fadeIn animate__delay-2s">
+        <LanguageSelector />
       </div>
     </div>
   );
