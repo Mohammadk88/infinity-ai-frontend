@@ -55,6 +55,27 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     };
   }, []);
 
+  // Apply RTL styling to document body when component mounts
+  useEffect(() => {
+    if (isRTL) {
+      // Add a custom attribute to help style the layout correctly
+      document.documentElement.setAttribute('dir', 'rtl');
+      document.body.classList.add('rtl-layout');
+      
+      // Add specific style for RTL layout to prevent content going under sidebar
+      const sidebarWidth = isCollapsed ? '70px' : '260px';
+      document.documentElement.style.setProperty('--sidebar-width', sidebarWidth);
+    } else {
+      document.documentElement.setAttribute('dir', 'ltr');
+      document.body.classList.remove('rtl-layout');
+    }
+    
+    return () => {
+      // Cleanup if component unmounts
+      document.documentElement.style.removeProperty('--sidebar-width');
+    };
+  }, [isRTL, isCollapsed]);
+
   // Notify parent component when sidebar state changes
   useEffect(() => {
     if (onStateChange) {
@@ -144,6 +165,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
           "animate__animated animate__fadeIn animate__faster",
           className
         )}
+        style={{
+          // Force the correct position based on RTL
+          [isRTL ? 'right' : 'left']: 0,
+          [isRTL ? 'left' : 'right']: 'auto',
+        }}
       >
         <div className="flex h-16 items-center border-b px-3">
           <div className={cn(

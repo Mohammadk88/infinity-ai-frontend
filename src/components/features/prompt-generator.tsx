@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,7 @@ type PromptOption = {
 };
 
 export default function PromptGenerator() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [promptValue, setPromptValue] = useState('');
@@ -38,6 +38,8 @@ export default function PromptGenerator() {
   const [selectedType, setSelectedType] = useState<PromptType>('text');
   const [isExpanded, setIsExpanded] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const isRTL = i18n.dir() === 'rtl';
 
   const promptTypes: PromptOption[] = [
     { 
@@ -69,6 +71,10 @@ export default function PromptGenerator() {
       placeholder: t('promptGenerator.placeholders.social', 'Describe your social media post topic...') 
     }
   ];
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const toggleWidget = () => {
     setIsOpen(!isOpen);
@@ -132,16 +138,19 @@ export default function PromptGenerator() {
 
   const currentOption = promptTypes.find(p => p.id === selectedType) || promptTypes[0];
 
+  if (!isMounted) return null;
+
   return (
     <>
       {/* Floating toggle button */}
       <Button
         onClick={toggleWidget}
         className={cn(
-          "fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600",
+          "fixed bottom-6 z-50 h-14 w-14 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600",
           "shadow-lg hover:shadow-xl transition-all duration-300 text-white",
           "flex items-center justify-center",
           isOpen ? "rotate-45" : "animate__animated animate__pulse animate__infinite animate__slower",
+          isRTL ? "left-6 right-auto" : "right-6 left-auto",
         )}
         aria-label={isOpen ? "Close AI prompt generator" : "Open AI prompt generator"}
       >
@@ -151,7 +160,8 @@ export default function PromptGenerator() {
       {/* Prompt Generator Widget */}
       <div
         className={cn(
-          "fixed bottom-24 right-6 z-40 w-80 md:w-96 transition-all duration-300 transform",
+          "fixed bottom-24 z-40 w-80 md:w-96 transition-all duration-300 transform",
+          isRTL ? "left-6 right-auto" : "right-6 left-auto",
           isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none",
           "animate__animated",
           isOpen ? "animate__zoomIn" : "animate__zoomOut",
