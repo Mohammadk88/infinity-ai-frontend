@@ -28,6 +28,14 @@
     "changeLanguage": "تبديل اللغة",
     "logout": "تسجيل الخروج"
     },
+    "socialAccounts": {
+    "title": "حسابات التواصل الاجتماعي",
+    "platform": "المنصة",
+    "username": "اسم المستخدم",
+    "add": "إضافة حساب",
+    "delete": "حذف"
+    },
+
     "dashboard": {
     "loading": "جارٍ التحميل...",
     "welcome": "أهلًا",

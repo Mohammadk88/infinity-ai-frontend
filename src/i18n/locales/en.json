@@ -28,6 +28,13 @@
     "changeLanguage": "Change Language",
     "logout": "Logout"
     },
+    "socialAccounts": {
+        "title": "Social Accounts",
+        "platform": "Platform",
+        "username": "Username",
+        "add": "Add Account",
+        "delete": "Delete"
+    },
     "dashboard": {
     "loading": "Loading...",
     "welcome": "Welcome",

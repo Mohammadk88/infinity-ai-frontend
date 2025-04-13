@@ -16,7 +16,7 @@ import {
   Globe, 
   Youtube, 
   Play, 
-  IceCream, 
+  ImageIcon, 
   Check, 
   AlertCircle, 
   RefreshCw,
@@ -65,7 +65,7 @@ export default function SocialAccountsPage() {
     { id: 'linkedin', name: 'LinkedIn', icon: <Linkedin className="h-5 w-5" />, color: 'bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400' },
     { id: 'youtube', name: 'YouTube', icon: <Youtube className="h-5 w-5" />, color: 'bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400' },
     { id: 'tiktok', name: 'TikTok', icon: <Play className="h-5 w-5" />, color: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-950/50 dark:text-neutral-400' },
-    { id: 'pinterest', name: 'Pinterest', icon: <IceCream className="h-5 w-5" />, color: 'bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400' },
+    { id: 'pinterest', name: 'Pinterest', icon: <ImageIcon className="h-5 w-5" />, color: 'bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400' },
   ];
 
   // Mock account data - would be replaced with API calls in production
@@ -108,7 +108,9 @@ export default function SocialAccountsPage() {
       lastSync: '2025-04-12T10:30:00Z',
     }
   ];
-
+  const handelClick = (url: string) => {
+    window.location.href = url
+  }
   // Fetch social accounts on component mount
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -279,7 +281,7 @@ export default function SocialAccountsPage() {
             <Settings className="h-4 w-4" />
             {t('socialAccounts.settings', 'Account Settings')}
           </Button>
-          <Button className="gap-2">
+          <Button onClick={() => handelClick("/dashboard/social-accounts/create")} className="gap-2">
             <PlusCircle className="h-4 w-4" />
             {t('socialAccounts.connect', 'Connect Account')}
           </Button>
