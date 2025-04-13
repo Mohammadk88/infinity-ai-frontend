@@ -1,0 +1,50 @@
+{
+   "register": {
+        "title": "Create a new account",
+        "name": "Full Name",
+        "email": "Email",
+        "password": "Password",
+        "button": "Register",
+        "loading": "Registering...",
+        "success": "Registration successful!",
+        "failed": "Something went wrong"
+    },
+    "login": {
+    "title": "Login to your account",
+    "email": "Email",
+    "password": "Password",
+    "button": "Login",
+    "loading": "Logging in...",
+    "success": "Logged in successfully!",
+    "failed": "Login failed. Check your credentials"
+    },
+    "layout": {
+    "title": "Infinity AI",
+    "dashboard": "Dashboard",
+    "socialAccounts": "Social Accounts",
+    "posts": "Posts",
+    "campaigns": "Campaigns",
+    "settings": "Settings",
+    "changeLanguage": "Change Language",
+    "logout": "Logout"
+    },
+    "dashboard": {
+    "loading": "Loading...",
+    "welcome": "Welcome",
+    "accounts": {
+        "title": "Connected Accounts",
+        "subtitle": "Social media accounts"
+    },
+    "posts": {
+        "title": "Scheduled Posts",
+        "subtitle": "Will be published soon"
+    },
+    "campaigns": {
+        "title": "Marketing Campaigns",
+        "subtitle": "Currently active"
+    }
+    }
+
+
+  }
+  
