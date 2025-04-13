@@ -38,10 +38,12 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import NotificationCenter from '@/components/features/notification-center';
+import { useSessionLoader } from '@/hooks/useSessionLoader';
 
 type PromptType = 'text' | 'image' | 'social';
 
 export default function Header() {
+  useSessionLoader(); // ✅ تحميل الجلسة عند أول عرض
   const { t, i18n: i18next } = useTranslation();
   const router = useRouter();
   const { user, clearUser } = useUserStore();
@@ -388,7 +390,7 @@ export default function Header() {
                 <User className="h-3.5 w-3.5" />
               </div>
               <span className="text-sm font-medium hidden md:inline-block max-w-[100px] truncate">
-                {user?.name || 'User'}
+                {user?.name || <span className="opacity-50">User</span> || 'User'}
               </span>
               <ChevronDown className="h-3.5 w-3.5 opacity-50" />
             </Button>

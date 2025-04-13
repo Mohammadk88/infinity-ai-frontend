@@ -126,7 +126,7 @@
     font-family: var(--font-arabic);
   }
   
-  html[dir="rtl"] body {
+  html[dir="rtl"] body, p, h1, h2, h3, h4, h5, h6 , li, a, span, strong, em {
     font-family: var(--font-arabic);
     letter-spacing: -0.01em;
   }

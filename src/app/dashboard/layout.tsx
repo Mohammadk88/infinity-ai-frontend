@@ -5,12 +5,14 @@ import Sidebar from '@/components/layout/sidebar';
 import Header from '@/components/layout/header';
 import PromptGenerator from '@/components/features/prompt-generator';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const { i18n } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  
+  const isRTL = i18n.dir() === 'rtl';
   // Function to handle sidebar state changes - will be passed to Sidebar component
   const handleSidebarStateChange = (collapsed: boolean) => {
     setIsCollapsed(collapsed);
@@ -42,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           "flex flex-col flex-1 transition-all duration-300 ease-in-out",
           isCollapsed ? "ml-[70px]" : "ml-[260px]",
           isMobile && "ml-0",
-          "rtl:ml-0 rtl:mr-0",
+          isRTL ? "rtl:ml-0 rtl:mr-0" : "",
           isCollapsed ? "rtl:mr-[70px]" : "rtl:mr-[260px]",
           isMobile && "rtl:mr-0"
         )}

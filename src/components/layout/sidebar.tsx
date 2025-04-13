@@ -21,7 +21,7 @@ import {
   Layers
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Logo from './logo';
+import Logo from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
 
 interface SidebarProps {
