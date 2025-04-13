@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/app/lib/axios';
 import { useUserStore } from '@/store/useUserStore';
 import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Card,
   CardContent,
@@ -47,6 +48,7 @@ interface PlatformType {
   description: string;
   authMethod: 'oauth' | 'credentials' | 'api';
   permissions?: string[];
+  isConnected?: boolean; // Added for connection status
 }
 
 export default function CreateSocialAccountPage() {
@@ -79,7 +81,8 @@ export default function CreateSocialAccountPage() {
         'pages_read_engagement',
         'pages_manage_posts',
         'pages_manage_metadata'
-      ]
+      ],
+      isConnected: false
     },
     {
       id: 'instagram',
@@ -92,7 +95,8 @@ export default function CreateSocialAccountPage() {
         'instagram_basic',
         'instagram_content_publish',
         'instagram_manage_comments'
-      ]
+      ],
+      isConnected: true
     },
     {
       id: 'twitter',
@@ -105,7 +109,8 @@ export default function CreateSocialAccountPage() {
         'tweet.read',
         'tweet.write',
         'users.read'
-      ]
+      ],
+      isConnected: false
     },
     {
       id: 'linkedin',
@@ -119,7 +124,8 @@ export default function CreateSocialAccountPage() {
         'w_member_social',
         'r_organization_admin',
         'w_organization_social'
-      ]
+      ],
+      isConnected: false
     },
     {
       id: 'youtube',
@@ -132,7 +138,8 @@ export default function CreateSocialAccountPage() {
         'youtube.readonly',
         'youtube.upload',
         'youtube.force-ssl'
-      ]
+      ],
+      isConnected: false
     },
     {
       id: 'tiktok',
@@ -145,7 +152,8 @@ export default function CreateSocialAccountPage() {
         'user.info.basic',
         'video.upload',
         'video.list'
-      ]
+      ],
+      isConnected: false
     },
     {
       id: 'pinterest',
@@ -158,7 +166,8 @@ export default function CreateSocialAccountPage() {
         'boards:read',
         'pins:read',
         'pins:write'
-      ]
+      ],
+      isConnected: false
     },
   ];
 
@@ -271,82 +280,134 @@ export default function CreateSocialAccountPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {platforms.map((platform) => (
-                <Card 
+                <motion.div
                   key={platform.id}
-                  className={cn(
-                    "cursor-pointer border-border/60 hover:border-primary/30 transition-all overflow-hidden",
-                    "hover:shadow-md hover:-translate-y-0.5 duration-300"
-                  )}
-                  onClick={() => handleSelectPlatform(platform.id)}
+                  whileHover={{ 
+                    scale: 1.02,
+                    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)"
+                  }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 400, 
+                    damping: 17
+                  }}
                 >
-                  <div className={cn(
-                    "h-1.5 w-full",
-                    platform.color.split(' ')[0] // Use the bg color for the top bar
-                  )}></div>
-                  <CardContent className="p-5">
-                    <div className="flex flex-col items-center text-center mb-4">
-                      <div className={cn(
-                        "flex items-center justify-center rounded-full w-16 h-16 mb-3",
-                        platform.color
-                      )}>
-                        {platform.icon}
-                      </div>
-                      <h3 className="font-medium text-lg mb-2">{platform.name}</h3>
-                    </div>
+                  <Card 
+                    className={cn(
+                      "cursor-pointer overflow-hidden relative",
+                      "transition-all duration-300 hover:border-primary/50",
+                      "before:absolute before:inset-0 before:z-0 before:opacity-0 before:transition-opacity",
+                      "before:bg-gradient-to-br before:from-primary/5 before:to-primary/10",
+                      "hover:before:opacity-100"
+                    )}
+                    onClick={() => handleSelectPlatform(platform.id)}
+                  >
+                    <div className={cn(
+                      "h-1.5 w-full",
+                      platform.color.split(' ')[0] // Use the bg color for the top bar
+                    )}></div>
                     
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                      {platform.description}
-                    </p>
-                    
-                    <div>
-                      <button
-                        className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mb-3"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleDetails(platform.id);
-                        }}
-                      >
-                        {openDetails[platform.id] ? (
-                          <>
-                            <ChevronUp className="h-3 w-3" />
-                            {t('socialAccounts.create.hideDetails', 'Hide details')}
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDown className="h-3 w-3" />
-                            {t('socialAccounts.create.showDetails', 'Show details')}
-                          </>
-                        )}
-                      </button>
-                      
-                      {openDetails[platform.id] && (
-                        <div className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-md">
-                          <h4 className="font-medium mb-1">{t('socialAccounts.create.permissions', 'Required permissions')}</h4>
-                          <ul className="list-disc pl-5 space-y-1">
-                            {platform.permissions?.map((permission) => (
-                              <li key={permission} className="text-xs">{permission}</li>
-                            ))}
-                          </ul>
-                          <div className="flex items-center gap-1 mt-2 text-xs">
-                            <Lock className="h-3 w-3" />
-                            {t('socialAccounts.create.secure', 'Secure OAuth authentication')}
-                          </div>
-                        </div>
+                    {/* Connection Status Badge */}
+                    <div className="absolute top-3 right-3 z-10">
+                      {platform.isConnected ? (
+                        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50 px-2 py-0.5">
+                          <Check className="w-3 h-3 mr-1" />
+                          {t('socialAccounts.create.connected', 'Connected')}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700/50 px-2 py-0.5">
+                          {t('socialAccounts.create.notConnected', 'Not connected')}
+                        </Badge>
                       )}
                     </div>
                     
-                    <Button 
-                      className="w-full mt-4 gap-2 group"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelectPlatform(platform.id);
-                      }}
-                    >
-                      {t('socialAccounts.create.connect', 'Connect')}
-                      <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                    </Button>
-                  </CardContent>
-                </Card>
+                    <CardContent className="p-5">
+                      <div className="flex flex-col items-center text-center mb-4">
+                        <div className={cn(
+                          "flex items-center justify-center rounded-full w-16 h-16 mb-3",
+                          platform.color
+                        )}>
+                          {platform.icon}
+                        </div>
+                        <h3 className="font-medium text-lg mb-2">{platform.name}</h3>
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                        {platform.description}
+                      </p>
+                      
+                      <div>
+                        <button
+                          className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 mb-3"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleDetails(platform.id);
+                          }}
+                        >
+                          {openDetails[platform.id] ? (
+                            <>
+                              <ChevronUp className="h-3 w-3" />
+                              {t('socialAccounts.create.hideDetails', 'Hide details')}
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="h-3 w-3" />
+                              {t('socialAccounts.create.showDetails', 'Show details')}
+                            </>
+                          )}
+                        </button>
+                        
+                        <AnimatePresence>
+                          {openDetails[platform.id] && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3, ease: "easeInOut" }}
+                              className="overflow-hidden"
+                            >
+                              <div className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-md">
+                                <h4 className="font-medium mb-1">{t('socialAccounts.create.permissions', 'Required permissions')}</h4>
+                                <ul className="list-disc pl-5 space-y-1">
+                                  {platform.permissions?.map((permission) => (
+                                    <li key={permission} className="text-xs">{permission}</li>
+                                  ))}
+                                </ul>
+                                <div className="flex items-center gap-1 mt-2 text-xs">
+                                  <Lock className="h-3 w-3" />
+                                  {t('socialAccounts.create.secure', 'Secure OAuth authentication')}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      
+                      <Button 
+                        className={cn(
+                          "w-full mt-4 gap-2 group",
+                          platform.isConnected && "bg-green-600 hover:bg-green-700"
+                        )}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectPlatform(platform.id);
+                        }}
+                      >
+                        {platform.isConnected ? (
+                          <>
+                            {t('socialAccounts.create.reconnect', 'Reconnect')}
+                            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                          </>
+                        ) : (
+                          <>
+                            {t('socialAccounts.create.connect', 'Connect')}
+                            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </div>
