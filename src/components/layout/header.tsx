@@ -502,3 +502,17 @@ export default function Header() {
                   </>
                 ) : (
                   <>
+                    {t('header.generate', 'Generate')}
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground/70 text-center mt-2">
+              {t('header.promptHelp', 'Opens full generator for more options')}
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
