@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Zap, UserPlus, Lock, Mail, User, AlertCircle, Loader2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LanguageSelector } from '@/components/ui/language-selector';
+import api from '@/app/lib/axios';
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -50,7 +51,7 @@ export default function RegisterPage() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // In a real implementation you would call your auth API here
-      // const response = await api.post('/auth/register', { name, email, password });
+       const response = await api.post('/auth/register', { name, email, password });
       
       // Show success state
       setSuccess(true);

@@ -18,7 +18,15 @@ import {
   Share2,
   Sparkles,
   Megaphone,
-  Layers
+  Layers,
+  Users,
+  Building,
+  Briefcase,
+  ClipboardList,
+  UserPlus,
+  Bell,
+  Target,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/layout/logo';
@@ -83,13 +91,61 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     }
   }, [isCollapsed, onStateChange]);
 
-  // Navigation items
+  // CRM Navigation items
   const navItems = [
     {
       title: t('sidebar.dashboard', 'Dashboard'),
       href: '/dashboard',
       icon: <Home className="h-4 w-4" />,
       isActive: pathname === '/dashboard',
+    },
+    {
+      title: t('sidebar.userManagement', 'User Management'),
+      href: '/dashboard/users',
+      icon: <Users className="h-4 w-4" />,
+      isActive: pathname?.includes('/users'),
+    },
+    {
+      title: t('sidebar.companyAgency', 'Company/Agency'),
+      href: '/dashboard/companies',
+      icon: <Building className="h-4 w-4" />,
+      isActive: pathname?.includes('/companies'),
+    },
+    {
+      title: t('sidebar.clients', 'Client Management'),
+      href: '/dashboard/clients',
+      icon: <UserPlus className="h-4 w-4" />,
+      isActive: pathname?.includes('/clients'),
+    },
+    {
+      title: t('sidebar.projects', 'Projects & Sprints'),
+      href: '/dashboard/projects',
+      icon: <Briefcase className="h-4 w-4" />,
+      isActive: pathname?.includes('/projects'),
+    },
+    {
+      title: t('sidebar.tasks', 'Tasks'),
+      href: '/dashboard/tasks',
+      icon: <ClipboardList className="h-4 w-4" />,
+      isActive: pathname?.includes('/tasks'),
+    },
+    {
+      title: t('sidebar.leads', 'Lead Management'),
+      href: '/dashboard/leads',
+      icon: <Target className="h-4 w-4" />,
+      isActive: pathname?.includes('/leads'),
+    },
+    {
+      title: t('sidebar.leadActivities', 'Lead Activities'),
+      href: '/dashboard/lead-activities',
+      icon: <MessageSquare className="h-4 w-4" />,
+      isActive: pathname?.includes('/lead-activities'),
+    },
+    {
+      title: t('sidebar.reminders', 'Reminders'),
+      href: '/dashboard/reminders',
+      icon: <Bell className="h-4 w-4" />,
+      isActive: pathname?.includes('/reminders'),
     },
     {
       title: t('sidebar.campaigns', 'Campaigns'),
@@ -100,7 +156,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     {
       title: t('sidebar.posts', 'Posts'),
       href: '/dashboard/posts',
-      icon: <MessageSquare className="h-4 w-4" />,
+      icon: <Share2 className="h-4 w-4" />,
       isActive: pathname?.includes('/posts'),
     },
     {
@@ -111,22 +167,16 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       badge: 'New'
     },
     {
-      title: t('sidebar.socialAccounts', 'Social Accounts'),
-      href: '/dashboard/social-accounts',
-      icon: <Share2 className="h-4 w-4" />,
-      isActive: pathname?.includes('/social-accounts'),
+      title: t('sidebar.analytics', 'Analytics'),
+      href: '/dashboard/analytics',
+      icon: <BarChart2 className="h-4 w-4" />,
+      isActive: pathname?.includes('/analytics'),
     },
     {
       title: t('sidebar.calendar', 'Calendar'),
       href: '/dashboard/calendar',
       icon: <Calendar className="h-4 w-4" />,
       isActive: pathname?.includes('/calendar'),
-    },
-    {
-      title: t('sidebar.analytics', 'Analytics'),
-      href: '/dashboard/analytics',
-      icon: <BarChart2 className="h-4 w-4" />,
-      isActive: pathname?.includes('/analytics'),
     },
   ];
 
@@ -198,7 +248,243 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
         
         <div className="custom-scrollbar flex flex-col justify-between overflow-y-auto py-3 px-2 h-full">
           <nav className="space-y-1.5">
-            {navItems.map((item, index) => (
+            {/* Section: Main */}
+            <div className={cn(
+              "mb-2 px-3 text-xs font-semibold text-muted-foreground",
+              isCollapsed ? "sr-only" : "flex"
+            )}>
+              {t('sidebar.main', 'Main')}
+            </div>
+            
+            {navItems.slice(0, 2).map((item, index) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "group flex items-center gap-3 rounded-md px-3 py-2.5 transition-all relative",
+                  item.isActive 
+                    ? "bg-primary/10 text-primary font-medium animate__animated animate__pulse animate__faster" 
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  isCollapsed ? "justify-center" : "",
+                )}
+                style={{ 
+                  animationDelay: `${index * 50}ms`
+                }}
+                aria-label={item.title}
+              >
+                <div className={cn(
+                  "flex h-5 w-5 items-center justify-center transition-colors",
+                  item.isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
+                  item.isActive && "animate__animated animate__tada"
+                )}>
+                  {item.icon}
+                </div>
+                
+                <span className={cn(
+                  "text-sm transition-all duration-300",
+                  isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                  isRTL && "mr-1"
+                )}>
+                  {item.title}
+                </span>
+                
+                {item.badge && !isCollapsed && (
+                  <Badge variant="outline" className={cn(
+                    "ml-auto bg-primary/10 text-primary border-primary/20 text-[10px] h-5 px-1.5",
+                    "rtl:ml-0 rtl:mr-auto",
+                    "animate__animated animate__fadeInDown animate__faster"
+                  )}>
+                    {item.badge}
+                  </Badge>
+                )}
+                
+                {/* Tooltip for collapsed mode */}
+                {isCollapsed && (
+                  <span className={cn(
+                    "absolute z-50 rounded-md bg-popover px-2.5 py-1.5 text-xs font-medium text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 whitespace-nowrap border",
+                    isRTL ? "right-14" : "left-14",
+                    "animate__animated animate__fadeIn animate__faster"
+                  )}>
+                    {item.title}
+                    {item.badge && (
+                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/10 text-primary px-1.5 text-[9px]">
+                        {item.badge}
+                      </span>
+                    )}
+                  </span>
+                )}
+                
+                {/* Active indicator */}
+                {item.isActive && (
+                  <span className={cn(
+                    "absolute inset-y-0 w-0.5 bg-primary rounded-full",
+                    isRTL ? "right-0" : "left-0"
+                  )} />
+                )}
+              </Link>
+            ))}
+
+            {/* Section: Organization */}
+            <div className={cn(
+              "mt-6 mb-2 px-3 text-xs font-semibold text-muted-foreground",
+              isCollapsed ? "sr-only" : "flex"
+            )}>
+              {t('sidebar.organization', 'Organization')}
+            </div>
+            
+            {navItems.slice(2, 6).map((item, index) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "group flex items-center gap-3 rounded-md px-3 py-2.5 transition-all relative",
+                  item.isActive 
+                    ? "bg-primary/10 text-primary font-medium animate__animated animate__pulse animate__faster" 
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  isCollapsed ? "justify-center" : "",
+                )}
+                style={{ 
+                  animationDelay: `${index * 50}ms`
+                }}
+                aria-label={item.title}
+              >
+                <div className={cn(
+                  "flex h-5 w-5 items-center justify-center transition-colors",
+                  item.isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
+                  item.isActive && "animate__animated animate__tada"
+                )}>
+                  {item.icon}
+                </div>
+                
+                <span className={cn(
+                  "text-sm transition-all duration-300",
+                  isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                  isRTL && "mr-1"
+                )}>
+                  {item.title}
+                </span>
+                
+                {item.badge && !isCollapsed && (
+                  <Badge variant="outline" className={cn(
+                    "ml-auto bg-primary/10 text-primary border-primary/20 text-[10px] h-5 px-1.5",
+                    "rtl:ml-0 rtl:mr-auto",
+                    "animate__animated animate__fadeInDown animate__faster"
+                  )}>
+                    {item.badge}
+                  </Badge>
+                )}
+                
+                {/* Tooltip for collapsed mode */}
+                {isCollapsed && (
+                  <span className={cn(
+                    "absolute z-50 rounded-md bg-popover px-2.5 py-1.5 text-xs font-medium text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 whitespace-nowrap border",
+                    isRTL ? "right-14" : "left-14",
+                    "animate__animated animate__fadeIn animate__faster"
+                  )}>
+                    {item.title}
+                    {item.badge && (
+                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/10 text-primary px-1.5 text-[9px]">
+                        {item.badge}
+                      </span>
+                    )}
+                  </span>
+                )}
+                
+                {/* Active indicator */}
+                {item.isActive && (
+                  <span className={cn(
+                    "absolute inset-y-0 w-0.5 bg-primary rounded-full",
+                    isRTL ? "right-0" : "left-0"
+                  )} />
+                )}
+              </Link>
+            ))}
+
+            {/* Section: Sales */}
+            <div className={cn(
+              "mt-6 mb-2 px-3 text-xs font-semibold text-muted-foreground",
+              isCollapsed ? "sr-only" : "flex"
+            )}>
+              {t('sidebar.sales', 'Sales')}
+            </div>
+            
+            {navItems.slice(6, 9).map((item, index) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "group flex items-center gap-3 rounded-md px-3 py-2.5 transition-all relative",
+                  item.isActive 
+                    ? "bg-primary/10 text-primary font-medium animate__animated animate__pulse animate__faster" 
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  isCollapsed ? "justify-center" : "",
+                )}
+                style={{ 
+                  animationDelay: `${index * 50}ms`
+                }}
+                aria-label={item.title}
+              >
+                <div className={cn(
+                  "flex h-5 w-5 items-center justify-center transition-colors",
+                  item.isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
+                  item.isActive && "animate__animated animate__tada"
+                )}>
+                  {item.icon}
+                </div>
+                
+                <span className={cn(
+                  "text-sm transition-all duration-300",
+                  isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                  isRTL && "mr-1"
+                )}>
+                  {item.title}
+                </span>
+                
+                {item.badge && !isCollapsed && (
+                  <Badge variant="outline" className={cn(
+                    "ml-auto bg-primary/10 text-primary border-primary/20 text-[10px] h-5 px-1.5",
+                    "rtl:ml-0 rtl:mr-auto",
+                    "animate__animated animate__fadeInDown animate__faster"
+                  )}>
+                    {item.badge}
+                  </Badge>
+                )}
+                
+                {/* Tooltip for collapsed mode */}
+                {isCollapsed && (
+                  <span className={cn(
+                    "absolute z-50 rounded-md bg-popover px-2.5 py-1.5 text-xs font-medium text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 whitespace-nowrap border",
+                    isRTL ? "right-14" : "left-14",
+                    "animate__animated animate__fadeIn animate__faster"
+                  )}>
+                    {item.title}
+                    {item.badge && (
+                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/10 text-primary px-1.5 text-[9px]">
+                        {item.badge}
+                      </span>
+                    )}
+                  </span>
+                )}
+                
+                {/* Active indicator */}
+                {item.isActive && (
+                  <span className={cn(
+                    "absolute inset-y-0 w-0.5 bg-primary rounded-full",
+                    isRTL ? "right-0" : "left-0"
+                  )} />
+                )}
+              </Link>
+            ))}
+
+            {/* Section: Marketing */}
+            <div className={cn(
+              "mt-6 mb-2 px-3 text-xs font-semibold text-muted-foreground",
+              isCollapsed ? "sr-only" : "flex"
+            )}>
+              {t('sidebar.marketing', 'Marketing')}
+            </div>
+            
+            {navItems.slice(9).map((item, index) => (
               <Link
                 key={item.href}
                 href={item.href}
