@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,10 +12,13 @@ import { Zap, UserPlus, Lock, Mail, User, AlertCircle, Loader2, Check } from 'lu
 import { cn } from '@/lib/utils';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import api from '@/app/lib/axios';
+import { parseReferralFromUrl, getReferralCodeFromCookie, clearReferralCode } from '@/lib/referral-utils';
+import { Badge } from '@/components/ui/badge';
 
 export default function RegisterPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -24,6 +27,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | undefined>();
 
   // Animation background circles
   const circles = Array.from({ length: 10 }).map((_, i) => ({
@@ -33,6 +37,22 @@ export default function RegisterPage() {
     animationDuration: Math.floor(Math.random() * 20) + 15,
     animationDelay: Math.floor(Math.random() * 5),
   }));
+
+  // Process referral code from URL if present
+  useEffect(() => {
+    // Check URL for referral code param
+    if (searchParams?.has('ref')) {
+      const refCode = searchParams.get('ref')!;
+      parseReferralFromUrl(window.location.href);
+      setReferralCode(refCode);
+    } else {
+      // Check if referral code is in cookie from previous visit
+      const storedRefCode = getReferralCodeFromCookie();
+      if (storedRefCode) {
+        setReferralCode(storedRefCode);
+      }
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,8 +70,21 @@ export default function RegisterPage() {
       // Fake registration for demonstration
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // In a real implementation you would call your auth API here
-       const response = await api.post('/auth/register', { name, email, password });
+      // Get the referral code if it exists
+      const referrer = getReferralCodeFromCookie();
+      
+      // In a real implementation you would call your auth API here with the referral code
+      // const response = await api.post('/auth/register', { 
+      //   name, 
+      //   email, 
+      //   password,
+      //   referralCode: referrer // Send referral code to backend if present
+      // });
+      
+      // Clear the referral code after successful registration
+      if (referrer) {
+        clearReferralCode();
+      }
       
       // Show success state
       setSuccess(true);
@@ -140,6 +173,13 @@ export default function RegisterPage() {
               <CardDescription className="animate__animated animate__fadeIn animate__delay-1s">
                 {t('register.description', 'Enter your information to get started')}
               </CardDescription>
+              {referralCode && (
+                <div className="mt-2 flex justify-center">
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs py-1">
+                    {t('register.referredBy', 'Referred by')}: {referralCode}
+                  </Badge>
+                </div>
+              )}
             </CardHeader>
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
@@ -228,7 +268,7 @@ export default function RegisterPage() {
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="flex flex-col gap-4">
+              <CardFooter className="flex flex-col gap-4 pt-5">
                 <Button 
                   type="submit" 
                   className="w-full group" 

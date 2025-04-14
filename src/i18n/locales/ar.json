@@ -4,53 +4,167 @@
         "name": "الاسم الكامل",
         "email": "البريد الإلكتروني",
         "password": "كلمة المرور",
+        "confirmPassword": "تأكيد كلمة المرور",
         "button": "سجل",
         "loading": "جاري التسجيل...",
         "success": "تم التسجيل بنجاح!",
-        "failed": "حدث خطأ أثناء التسجيل"
+        "failed": "حدث خطأ أثناء التسجيل",
+        "passwordHint": "يجب أن تكون على الأقل 8 أحرف",
+        "haveAccount": "هل لديك حساب بالفعل؟",
+        "login": "تسجيل الدخول",
+        "termsText": "بإنشاء حساب، فإنك توافق على",
+        "terms": "شروط الخدمة",
+        "and": "و",
+        "privacy": "سياسة الخصوصية",
+        "marketing": "منصة التسويق",
+        "register": "إنشاء حساب",
+        "registering": "جاري إنشاء الحساب...",
+        "allRights": "جميع الحقوق محفوظة.",
+        "referredBy": "تمت الإحالة بواسطة",
+        "error": {
+            "passwordMatch": "كلمات المرور غير متطابقة",
+            "general": "فشل التسجيل. يرجى المحاولة مرة أخرى."
+        },
+        "success": {
+            "title": "تم التسجيل بنجاح!",
+            "description": "تم إنشاء حسابك. ستتم إعادة توجيهك إلى تسجيل الدخول قريباً.",
+            "login": "تسجيل الدخول الآن"
+        },
+        "description": "أدخل معلوماتك للبدء"
     },
     "login": {
-    "title": "تسجيل الدخول إلى حسابك",
-    "email": "البريد الإلكتروني",
-    "password": "كلمة المرور",
-    "button": "تسجيل الدخول",
-    "loading": "جاري الدخول...",
-    "success": "تم تسجيل الدخول بنجاح!",
-    "failed": "فشل تسجيل الدخول. تأكد من البيانات"
+        "title": "تسجيل الدخول إلى حسابك",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "button": "تسجيل الدخول",
+        "loading": "جاري الدخول...",
+        "success": "تم تسجيل الدخول بنجاح!",
+        "failed": "فشل تسجيل الدخول. تأكد من البيانات"
     },
     "layout": {
-    "title": "Infinity AI",
-    "dashboard": "لوحة التحكم",
-    "socialAccounts": "حسابات التواصل",
-    "posts": "المنشورات",
-    "campaigns": "الحملات التسويقية",
-    "settings": "الإعدادات",
-    "changeLanguage": "تبديل اللغة",
-    "logout": "تسجيل الخروج"
+        "title": "Infinity AI",
+        "dashboard": "لوحة التحكم",
+        "socialAccounts": "حسابات التواصل",
+        "posts": "المنشورات",
+        "campaigns": "الحملات التسويقية",
+        "settings": "الإعدادات",
+        "changeLanguage": "تبديل اللغة",
+        "logout": "تسجيل الخروج"
     },
     "socialAccounts": {
-    "title": "حسابات التواصل الاجتماعي",
-    "platform": "المنصة",
-    "username": "اسم المستخدم",
-    "add": "إضافة حساب",
-    "delete": "حذف"
+        "title": "حسابات التواصل الاجتماعي",
+        "platform": "المنصة",
+        "username": "اسم المستخدم",
+        "add": "إضافة حساب",
+        "delete": "حذف"
     },
-
     "dashboard": {
-    "loading": "جارٍ التحميل...",
-    "welcome": "أهلًا",
-    "accounts": {
-        "title": "الحسابات المرتبطة",
-        "subtitle": "حسابات سوشال ميديا"
+        "loading": "جارٍ التحميل...",
+        "welcome": "أهلًا",
+        "accounts": {
+            "title": "الحسابات المرتبطة",
+            "subtitle": "حسابات سوشال ميديا"
+        },
+        "posts": {
+            "title": "المنشورات المجدولة",
+            "subtitle": "سيتم نشرها قريباً"
+        },
+        "campaigns": {
+            "title": "الحملات التسويقية",
+            "subtitle": "نشطة حالياً"
+        }
     },
-    "posts": {
-        "title": "المنشورات المجدولة",
-        "subtitle": "سيتم نشرها قريباً"
+    "affiliate": {
+        "title": "برنامج التسويق بالعمولة",
+        "subtitle": "اربح عمولات عن طريق إحالة مستخدمين جدد إلى منصتنا",
+        "dashboard": "لوحة التحكم",
+        "referrals": "الإحالات",
+        "yourReferralLink": "رابط الإحالة الخاص بك",
+        "shareLink": "شارك هذا الرابط واكسب عمولة {percent}٪ لكل اشتراك مدفوع",
+        "copyLink": "نسخ الرابط",
+        "copied": "تم النسخ!",
+        "referralCode": "رمز الإحالة",
+        "totalEarnings": "إجمالي الأرباح",
+        "pendingCommissions": "معلقة",
+        "referredUsers": "المستخدمين المُحالين",
+        "conversionRate": "معدل التحويل",
+        "commissionRate": "نسبة العمولة",
+        "perPaidSubscription": "لكل اشتراك مدفوع",
+        "performance": "الأداء",
+        "convertedReferrals": "الإحالات المحولة",
+        "recentReferrals": "آخر الإحالات",
+        "recentReferralsDesc": "أحدث أنشطة الإحالة الخاصة بك",
+        "noReferralsYet": "لا توجد إحالات بعد. شارك رابطك للبدء بالربح!",
+        "pending": "قيد الانتظار",
+        "viewAllReferrals": "عرض جميع الإحالات",
+        "howItWorks": "كيف يعمل",
+        "step1Title": "١. شارك رابطك",
+        "step1Desc": "انسخ رابط الإحالة الفريد الخاص بك وشاركه مع الأصدقاء، على وسائل التواصل الاجتماعي، أو موقعك الإلكتروني",
+        "step2Title": "٢. تسجيل المستخدمين",
+        "step2Desc": "عندما ينقر شخص ما على رابطك وينشئ حسابًا، يتم تتبعه كإحالة لك",
+        "step3Title": "٣. اكسب العمولات",
+        "step3Desc": "اكسب عمولة {percent}٪ عندما يشترك المحالون في خطة مدفوعة",
+        "referralLogs": "سجلات الإحالة",
+        "allReferrals": "عرض جميع أنشطة الإحالة الخاصة بك",
+        "viewDetailedLogs": "عرض السجلات التفصيلية",
+        "error": "خطأ في تحميل بيانات الإحالة",
+        "retry": "حاول مرة أخرى",
+        "viewLogs": "عرض سجلات الإحالة",
+        "referralLogsDesc": "تتبع أنشطة إحالاتك وأرباحك",
+        "backToDashboard": "العودة إلى لوحة التحكم",
+        "viewManageReferrals": "عرض وإدارة المستخدمين المُحالين",
+        "searchByEmail": "البحث عن طريق البريد الإلكتروني...",
+        "filter": "تصفية",
+        "statusFilter": "تصفية حسب الحالة",
+        "converted": "تم التحويل",
+        "userEmail": "بريد المستخدم",
+        "status": "الحالة",
+        "registrationDate": "تاريخ التسجيل",
+        "commission": "العمولة",
+        "noMatchingReferrals": "لا توجد إحالات تطابق معايير البحث",
+        "clearFilters": "مسح التصفية",
+        "paginationInfo": "الصفحة {{current}} من {{total}}",
+        "total": "الإجمالي",
+        "export": "تصدير"
     },
-    "campaigns": {
-        "title": "الحملات التسويقية",
-        "subtitle": "نشطة حالياً"
+    "admin": {
+        "affiliateManagement": "إدارة التسويق بالعمولة",
+        "affiliateManagementDesc": "مراقبة وإدارة أداء المسوقين بالعمولة",
+        "totalAffiliates": "إجمالي المسوقين",
+        "activeAffiliates": "نشط",
+        "totalReferrals": "إجمالي الإحالات",
+        "avgPerAffiliate": "المتوسط لكل مسوق",
+        "totalCommissions": "إجمالي العمولات",
+        "paidToAffiliates": "المدفوعة للمسوقين",
+        "avgConversionRate": "متوسط معدل التحويل",
+        "programEffectiveness": "فعالية البرنامج",
+        "affiliates": "المسوقين بالعمولة",
+        "showing": "عرض",
+        "of": "من",
+        "export": "تصدير",
+        "affiliatesDesc": "إدارة المسوقين وأدائهم",
+        "searchAffiliates": "البحث عن المسوقين...",
+        "filter": "تصفية",
+        "statusFilter": "تصفية حسب الحالة",
+        "allAffiliates": "جميع المسوقين",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "affiliate": "المسوق",
+        "referrals": "الإحالات",
+        "conversionRate": "معدل التحويل",
+        "earnings": "الأرباح",
+        "joinedDate": "تاريخ الانضمام",
+        "status": "الحالة",
+        "openMenu": "فتح القائمة",
+        "actions": "الإجراءات",
+        "viewProfile": "عرض الملف الشخصي",
+        "viewReferrals": "عرض الإحالات",
+        "deactivate": "إلغاء التنشيط",
+        "activate": "تنشيط",
+        "noMatchingAffiliates": "لا يوجد مسوقين يطابقون معايير البحث",
+        "clearFilters": "مسح التصفية",
+        "noAffiliatesYet": "لم ينضم أي مسوقين إلى البرنامج بعد",
+        "paginationInfo": "الصفحة {{current}} من {{total}}",
+        "code": "الرمز"
     }
-    }
-  }
-  
+}

@@ -4,29 +4,52 @@
         "name": "Full Name",
         "email": "Email",
         "password": "Password",
+        "confirmPassword": "Confirm Password",
         "button": "Register",
         "loading": "Registering...",
         "success": "Registration successful!",
-        "failed": "Something went wrong"
+        "failed": "Something went wrong",
+        "passwordHint": "Must be at least 8 characters",
+        "haveAccount": "Already have an account?",
+        "login": "Log in",
+        "termsText": "By creating an account, you agree to our",
+        "terms": "Terms of Service",
+        "and": "and",
+        "privacy": "Privacy Policy",
+        "marketing": "Marketing Platform",
+        "register": "Create account",
+        "registering": "Creating account...",
+        "allRights": "All rights reserved.",
+        "referredBy": "Referred by",
+        "error": {
+            "passwordMatch": "Passwords do not match",
+            "general": "Registration failed. Please try again."
+        },
+        "success": {
+            "title": "Registration Successful!",
+            "description": "Your account has been created. You will be redirected to login shortly.",
+            "login": "Log in now"
+        },
+        "description": "Enter your information to get started"
     },
     "login": {
-    "title": "Login to your account",
-    "email": "Email",
-    "password": "Password",
-    "button": "Login",
-    "loading": "Logging in...",
-    "success": "Logged in successfully!",
-    "failed": "Login failed. Check your credentials"
+        "title": "Login to your account",
+        "email": "Email",
+        "password": "Password",
+        "button": "Login",
+        "loading": "Logging in...",
+        "success": "Logged in successfully!",
+        "failed": "Login failed. Check your credentials"
     },
     "layout": {
-    "title": "Infinity AI",
-    "dashboard": "Dashboard",
-    "socialAccounts": "Social Accounts",
-    "posts": "Posts",
-    "campaigns": "Campaigns",
-    "settings": "Settings",
-    "changeLanguage": "Change Language",
-    "logout": "Logout"
+        "title": "Infinity AI",
+        "dashboard": "Dashboard",
+        "socialAccounts": "Social Accounts",
+        "posts": "Posts",
+        "campaigns": "Campaigns",
+        "settings": "Settings",
+        "changeLanguage": "Change Language",
+        "logout": "Logout"
     },
     "socialAccounts": {
         "title": "Social Accounts",
@@ -36,22 +59,113 @@
         "delete": "Delete"
     },
     "dashboard": {
-    "loading": "Loading...",
-    "welcome": "Welcome",
-    "accounts": {
-        "title": "Connected Accounts",
-        "subtitle": "Social media accounts"
+        "loading": "Loading...",
+        "welcome": "Welcome",
+        "accounts": {
+            "title": "Connected Accounts",
+            "subtitle": "Social media accounts"
+        },
+        "posts": {
+            "title": "Scheduled Posts",
+            "subtitle": "Will be published soon"
+        },
+        "campaigns": {
+            "title": "Marketing Campaigns",
+            "subtitle": "Currently active"
+        }
     },
-    "posts": {
-        "title": "Scheduled Posts",
-        "subtitle": "Will be published soon"
+    "affiliate": {
+        "title": "Affiliate Program",
+        "subtitle": "Earn commissions by referring new users to our platform",
+        "dashboard": "Dashboard",
+        "referrals": "Referrals",
+        "yourReferralLink": "Your Referral Link",
+        "shareLink": "Share this link and earn {percent}% commission for each paid subscription",
+        "copyLink": "Copy Link",
+        "copied": "Copied!",
+        "referralCode": "Referral Code",
+        "totalEarnings": "Total Earnings",
+        "pendingCommissions": "pending",
+        "referredUsers": "Referred Users",
+        "conversionRate": "Conversion Rate",
+        "commissionRate": "Commission Rate",
+        "perPaidSubscription": "Per paid subscription",
+        "performance": "Performance",
+        "convertedReferrals": "Converted referrals",
+        "recentReferrals": "Recent Referrals",
+        "recentReferralsDesc": "Your most recent referral activities",
+        "noReferralsYet": "No referrals yet. Share your link to start earning!",
+        "pending": "Pending",
+        "viewAllReferrals": "View All Referrals",
+        "howItWorks": "How It Works",
+        "step1Title": "1. Share Your Link",
+        "step1Desc": "Copy your unique referral link and share it with friends, on social media, or your website",
+        "step2Title": "2. Users Sign Up",
+        "step2Desc": "When someone clicks your link and creates an account, they're tracked as your referral",
+        "step3Title": "3. Earn Commissions",
+        "step3Desc": "Earn {percent}% commission when your referrals subscribe to a paid plan",
+        "referralLogs": "Referral Logs",
+        "allReferrals": "View all your referral activities",
+        "viewDetailedLogs": "View Detailed Logs",
+        "error": "Error loading affiliate data",
+        "retry": "Try Again",
+        "viewLogs": "View Referral Logs",
+        "referralLogsDesc": "Track your referral activities and earnings",
+        "backToDashboard": "Back to Dashboard",
+        "allReferrals": "All Referrals",
+        "viewManageReferrals": "View and manage your referred users",
+        "searchByEmail": "Search by email...",
+        "filter": "Filter",
+        "statusFilter": "Filter by Status",
+        "converted": "Converted",
+        "userEmail": "User Email",
+        "status": "Status",
+        "registrationDate": "Registration Date",
+        "commission": "Commission",
+        "noMatchingReferrals": "No referrals match your search criteria",
+        "clearFilters": "Clear Filters",
+        "paginationInfo": "Page {{current}} of {{total}}",
+        "total": "Total",
+        "export": "Export"
     },
-    "campaigns": {
-        "title": "Marketing Campaigns",
-        "subtitle": "Currently active"
+    "admin": {
+        "affiliateManagement": "Affiliate Management",
+        "affiliateManagementDesc": "Monitor and manage affiliate performance",
+        "totalAffiliates": "Total Affiliates",
+        "activeAffiliates": "Active",
+        "totalReferrals": "Total Referrals",
+        "avgPerAffiliate": "Avg per Affiliate",
+        "totalCommissions": "Total Commissions",
+        "paidToAffiliates": "Paid to affiliates",
+        "avgConversionRate": "Avg Conversion Rate",
+        "programEffectiveness": "Program effectiveness",
+        "affiliates": "Affiliates",
+        "showing": "Showing",
+        "of": "of",
+        "export": "Export",
+        "affiliatesDesc": "Manage affiliate users and their performance",
+        "searchAffiliates": "Search affiliates...",
+        "filter": "Filter",
+        "statusFilter": "Filter by Status",
+        "allAffiliates": "All Affiliates",
+        "active": "Active",
+        "inactive": "Inactive",
+        "affiliate": "Affiliate",
+        "referrals": "Referrals",
+        "conversionRate": "Conv. Rate",
+        "earnings": "Earnings",
+        "joinedDate": "Joined",
+        "status": "Status",
+        "openMenu": "Open menu",
+        "actions": "Actions",
+        "viewProfile": "View Profile",
+        "viewReferrals": "View Referrals",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "noMatchingAffiliates": "No affiliates match your search criteria",
+        "clearFilters": "Clear Filters",
+        "noAffiliatesYet": "No affiliates have joined the program yet",
+        "paginationInfo": "Page {{current}} of {{total}}",
+        "code": "Code"
     }
-    }
-
-
-  }
-  
+}
