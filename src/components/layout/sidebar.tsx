@@ -26,7 +26,6 @@ import {
   UserPlus,
   Bell,
   Target,
-  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/layout/logo';
