@@ -23,7 +23,8 @@
         "referredBy": "Referred by",
         "error": {
             "passwordMatch": "Passwords do not match",
-            "general": "Registration failed. Please try again."
+            "general": "Registration failed. Please try again.",
+            "invalid_referral_code": "Invalid referral code."
         },
         "success": {
             "title": "Registration Successful!",
@@ -167,5 +168,60 @@
         "noAffiliatesYet": "No affiliates have joined the program yet",
         "paginationInfo": "Page {{current}} of {{total}}",
         "code": "Code"
+    },
+    "landing": {
+        "hero": {
+            "badge": "AI-Powered Platform",
+            "title": "Welcome to Infinity AI System",
+            "description": "Your all-in-one AI-powered platform to manage social media, marketing, scheduling, analytics, CRM, tasks, and more – powered by smart automation.",
+            "getStarted": "Get Started",
+            "learnMore": "Learn More"
+        },
+        "affiliate": {
+            "badge": "Affiliate Program",
+            "title": "Earn with Us – Join the Affiliate Program",
+            "description": "Become a partner and earn commissions by referring new users. Promote Infinity AI System and grow your income.",
+            "requestButton": "Request to Join",
+            "requested": "Request Submitted",
+            "success": "Your request has been submitted successfully! We'll review it shortly.",
+            "error": "An error occurred. Please try again later.",
+            "notice": "Your affiliate account will remain inactive until all conditions are met. We review each request manually.",
+            "requirements": {
+                "title": "Conditions to Join",
+                "description": "Meet these requirements to become an affiliate",
+                "socialAccount": "Must have at least 1 connected social media account",
+                "active": "Active for at least 3 days", 
+                "post": "Minimum 1 published post",
+                "verified": "Profile must be verified (email confirmed)",
+                "paidPlan": "Optional: Must be subscribed to a paid plan"
+            },
+            "cta": {
+                "title": "Ready to Start Earning?",
+                "description": "Apply to our affiliate program today"
+            },
+            "benefits": {
+                "title": "Why Join Our Affiliate Program?",
+                "commission": "Earn competitive commission on each referral",
+                "dashboard": "Access real-time analytics and reporting dashboard",
+                "resources": "Get marketing materials and dedicated support"
+            }
+        },
+        "features": {
+            "badge": "Platform Features",
+            "title": "Everything You Need In One Platform",
+            "description": "Discover how Infinity AI System can transform your digital presence",
+            "card1": {
+                "title": "Social Media Management",
+                "description": "Schedule posts, analyze engagement, and manage all your social accounts in one place"
+            },
+            "card2": {
+                "title": "AI-Powered Automation",
+                "description": "Let AI handle repetitive tasks, content generation, and audience targeting"
+            },
+            "card3": {
+                "title": "Analytics & Insights",
+                "description": "Make data-driven decisions with comprehensive analytics and customizable reports"
+            }
+        }
     }
 }
