@@ -14,6 +14,7 @@ import { LanguageSelector } from '@/components/ui/language-selector';
 import api from '@/app/lib/axios';
 import { parseReferralFromUrl, getReferralCodeFromCookie, clearReferralCode } from '@/lib/referral-utils';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -30,10 +31,14 @@ export default function RegisterPage() {
   const [referralCode, setReferralCode] = useState<string | undefined>();
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { user } = useAuth(false);
 
   // Process referral code from URL and detect theme
   useEffect(() => {
     setMounted(true);
+    if (user) {
+      router.push('/dashboard'); // أو أي صفحة بعد الدخول
+    }
     // Check URL for referral code param
     if (searchParams?.has('ref')) {
       const refCode = searchParams.get('ref')!;
@@ -52,7 +57,7 @@ export default function RegisterPage() {
       const isDark = document.documentElement.classList.contains('dark');
       setTheme(isDark ? 'dark' : 'light');
     }
-  }, [searchParams]);
+  }, [searchParams,user, router]);
 
   // Toggle theme function
   const toggleTheme = () => {

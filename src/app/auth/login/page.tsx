@@ -13,9 +13,11 @@ import { cn } from '@/lib/utils';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { useUserStore } from '@/store/useUserStore';
 import api from '@/app/lib/axios';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
   const { t } = useTranslation();
+  const { user } = useAuth(false);
   const router = useRouter();
   const { setUser } = useUserStore();
 
@@ -28,13 +30,15 @@ export default function LoginPage() {
   
   useEffect(() => {
     setMounted(true);
-    
+    if (user) {
+      router.push('/dashboard'); // أو أي صفحة بعد الدخول
+    }
     // Check for dark mode preference
     if (typeof window !== 'undefined') {
       const isDark = document.documentElement.classList.contains('dark');
       setTheme(isDark ? 'dark' : 'light');
     }
-  }, []);
+  }, [user, router]);
 
   // Toggle theme function
   const toggleTheme = () => {
@@ -57,7 +61,7 @@ export default function LoginPage() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // In a real implementation you would call your auth API here
-      const response = await api.post('/auth/login', { email, password });
+      await api.post('/auth/login', { email, password });
       // بعد تسجيل الدخول:
       const res = await api.get('/auth/me', { withCredentials: true });
       setUser(res.data);
