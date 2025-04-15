@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const { i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -50,7 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       >
         <Header />
-        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-6 lg:px-8 transition-all duration-300">
+        <main className="flex-1 scrollable-y px-4 py-6 md:px-6 lg:px-8 transition-all duration-300">
           <div className="mx-auto w-full max-w-[1600px] animate-fadeIn">
             {children}
           </div>

@@ -246,7 +246,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
           </Button>
         </div>
         
-        <div className="custom-scrollbar flex flex-col justify-between overflow-y-auto py-3 px-2 h-full">
+        <div className="scrollable-y flex flex-col justify-between py-3 px-2 h-full">
           <nav className="space-y-1.5">
             {/* Section: Main */}
             <div className={cn(
