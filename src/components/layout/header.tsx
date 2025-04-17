@@ -5,6 +5,7 @@ import i18n from 'i18next';
 import { useRouter } from 'next/navigation';
 import api from '@/app/lib/axios';
 import { useUserStore } from '@/store/useUserStore';
+import { useTheme } from '@/components/providers/theme-provider';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { 
-  Bell, 
   Moon, 
   Sun, 
   ChevronDown, 
@@ -30,10 +30,7 @@ import {
   FileText,
   Image,
   MessageSquare,
-  SendHorizontal,
-  Copy,
-  Check,
-  Megaphone
+  LaptopIcon
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
@@ -43,13 +40,12 @@ import { useSessionLoader } from '@/hooks/useSessionLoader';
 type PromptType = 'text' | 'image' | 'social';
 
 export default function Header() {
-  useSessionLoader(); // ✅ تحميل الجلسة عند أول عرض
+  useSessionLoader(); 
   const { t, i18n: i18next } = useTranslation();
   const router = useRouter();
   const { user, clearUser } = useUserStore();
-  const [darkMode, setDarkMode] = useState<boolean>(false);
-  const [unreadNotifications, setUnreadNotifications] = useState<number>(3);
-  const [scrolled, setScrolled] = useState<boolean>(false);
+  const { theme, setTheme } = useTheme();
+  const [scrolled] = useState<boolean>(false);
   const [mobileSearchVisible, setMobileSearchVisible] = useState<boolean>(false);
   const [searchFocused, setSearchFocused] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
@@ -57,46 +53,22 @@ export default function Header() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [activePromptMode, setActivePromptMode] = useState<boolean>(false);
-  const [activePromptValue, setActivePromptValue] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [generatedResult, setGeneratedResult] = useState<string | null>(null);
-  const [copySuccess, setCopySuccess] = useState<boolean>(false);
-  const activePromptRef = useRef<HTMLInputElement>(null);
+  const [, setGeneratedResult] = useState<string | null>(null);
+  // const [setCopySuccess] = useState<boolean>(false);
+  // const activePromptRef = useRef<HTMLInputElement>(null);
   const [promptType, setPromptType] = useState<PromptType>('text');
   const [miniPromptValue, setMiniPromptValue] = useState<string>('');
+  // const [unreadNotifications, setUnreadN otifications] = useState<number>(3);
 
+
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    const isDarkMode = localStorage.getItem('darkMode') === 'true' || 
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    setDarkMode(isDarkMode);
-    applyTheme(isDarkMode);
-
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    setMounted(true);
   }, []);
+
   
-  const applyTheme = (isDark: boolean) => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('darkMode', String(isDark));
-  };
-  
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    applyTheme(newMode);
-  };
+  if (!mounted) return null
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -154,25 +126,7 @@ export default function Header() {
     setPromptGeneratorOpen(!promptGeneratorOpen);
   };
 
-  const handleActivePromptSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!activePromptValue.trim() || isGenerating) return;
-
-    try {
-      setIsGenerating(true);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const mockResponse = `Generated marketing content for: "${activePromptValue}".\n\nThis is a sample response from the Infinity AI System based on your prompt.`;
-      
-      setGeneratedResult(mockResponse);
-    } catch (error) {
-      console.error('Error generating content:', error);
-      setGeneratedResult('Error generating content. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  // Removed unused function
 
   const handleMiniPromptSubmit = async () => {
     if (!miniPromptValue.trim() || isGenerating) return;
@@ -180,7 +134,7 @@ export default function Header() {
     try {
       setPromptGeneratorOpen(false);
       setActivePromptMode(true);
-      setActivePromptValue(miniPromptValue);
+      // setActivePromptValue(miniPromptValue);
       setIsGenerating(true);
       
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -210,26 +164,7 @@ export default function Header() {
     }
   };
   
-  const handleCopyToClipboard = async () => {
-    if (!generatedResult) return;
-    
-    try {
-      await navigator.clipboard.writeText(generatedResult);
-      setCopySuccess(true);
-      
-      setTimeout(() => {
-        setCopySuccess(false);
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy text:', err);
-    }
-  };
   
-  const closeActivePrompt = () => {
-    setActivePromptMode(false);
-    setActivePromptValue('');
-    setGeneratedResult(null);
-  };
 
   const handlePromptTypeChange = (type: PromptType) => {
     setPromptType(type);
@@ -344,18 +279,34 @@ export default function Header() {
 
         <NotificationCenter />
         
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleDarkMode}
-          className="h-9 w-9 rounded-full transition-transform hover:scale-105"
-          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          <Sun className={cn("h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all", 
-            darkMode ? "opacity-0" : "opacity-100")} />
-          <Moon className={cn("absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all", 
-            darkMode ? "rotate-0 scale-100 opacity-100" : "opacity-0")} />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full transition-transform hover:scale-105"
+              aria-label="Theme options"
+            >
+              {theme === 'dark' && <Moon className="h-[1.2rem] w-[1.2rem]" />}
+              {theme === 'light' && <Sun className="h-[1.2rem] w-[1.2rem]" />}
+              {theme === 'system' && <LaptopIcon className="h-[1.2rem] w-[1.2rem]" />}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="animate__animated animate__fadeInDown animate__faster">
+            <DropdownMenuItem onClick={() => setTheme('light')} className="cursor-pointer">
+              <Sun className="mr-2 h-4 w-4" />
+              <span>{t('theme.light', 'Light')}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme('dark')} className="cursor-pointer">
+              <Moon className="mr-2 h-4 w-4" />
+              <span>{t('theme.dark', 'Dark')}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme('system')} className="cursor-pointer">
+              <LaptopIcon className="mr-2 h-4 w-4" />
+              <span>{t('theme.system', 'System')}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -471,7 +422,7 @@ export default function Header() {
                   )}
                   onClick={() => handlePromptTypeChange('image')}
                 >
-                  <Image className="h-3 w-3 mr-1" />
+                  <Image className= "h-3 w-3 mr-1" />
                   Image
                 </Button>
                 <Button 

@@ -3,14 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/app/lib/axios';
+import { User } from '@/types/User';
 
 export function useAuth(protect: boolean = false) {
-  interface User {
-    id: string;
-    name: string;
-    email: string;
-    // Add other fields as needed
-  }
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);

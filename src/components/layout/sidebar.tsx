@@ -26,10 +26,12 @@ import {
   UserPlus,
   Bell,
   Target,
+  Award
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
+import { useUserStore } from '@/store/useUserStore';
 
 interface SidebarProps {
   className?: string;
@@ -43,7 +45,12 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const isRTL = i18n.dir() === 'rtl';
-
+  const { user } = useUserStore();
+  
+  // Check if user is an active affiliate
+  const isActiveAffiliate = user?.affiliate && user?.affiliate.status === 'approved' && user?.affiliate.isActive;
+// console.log('affiliate:', user?.affiliate);
+// console.log('affiliate.status:', user?.affiliate?.status);
   // Check if current device is mobile
   useEffect(() => {
     setIsMounted(true);
@@ -177,6 +184,16 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       icon: <Calendar className="h-4 w-4" />,
       isActive: pathname?.includes('/calendar'),
     },
+  ];
+
+  // Affiliate section item - only shown for active affiliates
+  const affiliateItems = [
+    {
+      title: t('sidebar.affiliateCenter', 'Affiliate Center'),
+      href: '/dashboard/affiliate',
+      icon: <Award className="h-4 w-4" />,
+      isActive: pathname?.includes('/affiliate'),
+    }
   ];
 
   // Utility navigation items (bottom)
@@ -474,6 +491,71 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 )}
               </Link>
             ))}
+            
+            {/* Section: Affiliate - Only shown for active affiliates */}
+            {isActiveAffiliate && (
+              <>
+                <div className={cn(
+                  "mt-6 mb-2 px-3 text-xs font-semibold text-muted-foreground",
+                  isCollapsed ? "sr-only" : "flex"
+                )}>
+                  {t('sidebar.affiliate', 'Affiliate')}
+                </div>
+                
+                {affiliateItems.map((item, index) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "group flex items-center gap-3 rounded-md px-3 py-2.5 transition-all relative",
+                      item.isActive 
+                        ? "bg-primary/10 text-primary font-medium animate__animated animate__pulse animate__faster" 
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      isCollapsed ? "justify-center" : "",
+                    )}
+                    style={{ 
+                      animationDelay: `${index * 50}ms`
+                    }}
+                    aria-label={item.title}
+                  >
+                    <div className={cn(
+                      "flex h-5 w-5 items-center justify-center transition-colors",
+                      item.isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
+                      item.isActive && "animate__animated animate__tada"
+                    )}>
+                      {item.icon}
+                    </div>
+                    
+                    <span className={cn(
+                      "text-sm transition-all duration-300",
+                      isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                      isRTL && "mr-1"
+                    )}>
+                      {item.title}
+                    </span>
+                    
+                    {/* Tooltip for collapsed mode */}
+                    {isCollapsed && (
+                      <span className={cn(
+                        "absolute z-50 rounded-md bg-popover px-2.5 py-1.5 text-xs font-medium text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 whitespace-nowrap border",
+                        isRTL ? "right-14" : "left-14",
+                        "animate__animated animate__fadeIn animate__faster"
+                      )}>
+                        {item.title}
+                      </span>
+                    )}
+                    
+                    {/* Active indicator */}
+                    {item.isActive && (
+                      <span className={cn(
+                        "absolute inset-y-0 w-0.5 bg-primary rounded-full",
+                        isRTL ? "right-0" : "left-0"
+                      )} />
+                    )}
+                  </Link>
+                ))}
+              </>
+            )}
 
             {/* Section: Marketing */}
             <div className={cn(

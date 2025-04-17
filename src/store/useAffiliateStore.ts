@@ -53,7 +53,7 @@ export const useAffiliateStore = create<AffiliateState>()(
         fetchStats: async () => {
           set({ isLoading: true, error: null });
           try {
-            const { data } = await api.get('/me/affiliate');
+            const { data } = await api.get('/affiliate/me');
             set({ stats: data, isLoading: false });
           } catch (error: unknown) {
             const errorMessage = error instanceof Error 
@@ -69,7 +69,7 @@ export const useAffiliateStore = create<AffiliateState>()(
         fetchLogs: async (page = 1, limit = 10, search = '') => {
           set({ isLoading: true, error: null });
           try {
-            const { data } = await api.get('/me/affiliate/logs', { 
+            const { data } = await api.get('/affiliate/me/logs', { 
               params: { page, limit, search }
             });
             set({ logs: data, isLoading: false });

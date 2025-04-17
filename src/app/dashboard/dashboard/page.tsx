@@ -22,7 +22,7 @@ import Link from 'next/link';
 export default function DashboardPage() {
   const { user, loading } = useAuth(true);
   const { t } = useTranslation();
-
+  console.log('User in dashboard:', user);
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">

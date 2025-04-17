@@ -1,67 +1,56 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import {  useState } from 'react';
 import Sidebar from '@/components/layout/sidebar';
 import Header from '@/components/layout/header';
-import PromptGenerator from '@/components/features/prompt-generator';
+import { useUserStore } from '@/store/useUserStore';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { ReferralLinkBanner } from '@/components/features/referral-link-banner';
+import AffiliateStatusAlert from '@/components/features/affiliate-status-alert';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { i18n } = useTranslation();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const {  i18n } = useTranslation();
+  const { user, isLoading } = useUserStore();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isRTL = i18n.dir() === 'rtl';
-  // Function to handle sidebar state changes - will be passed to Sidebar component
-  const handleSidebarStateChange = (collapsed: boolean) => {
-    setIsCollapsed(collapsed);
-  };
+
+  // Only show referral link banner if user is an active affiliate
+  const showReferralBanner = user?.affiliate?.isActive && user?.affiliate?.status === 'approved';
   
-  useEffect(() => {
-    setIsMounted(true);
-    const checkIfMobile = () => {
-      const mobileView = window.innerWidth < 768;
-      setIsMobile(mobileView);
-      setIsCollapsed(mobileView);
-    };
-    
-    checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkIfMobile);
-    };
-  }, []);
-  
-  if (!isMounted) return null;
+  // Redirect to login if not authenticated or error
+
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    </div>;
+  }
 
   return (
-    <div className="flex min-h-screen bg-background/50 text-foreground antialiased">
-      <Sidebar onStateChange={handleSidebarStateChange} />
-      <div 
+    <div className={cn("flex min-h-screen flex-col bg-muted/30", isRTL && "rtl-layout")}>
+      <Sidebar
+        onStateChange={(collapsed) => setSidebarCollapsed(collapsed)}
+      />
+      <div
         className={cn(
-          "flex flex-col flex-1 transition-all duration-300 ease-in-out",
-          isCollapsed ? "ml-[70px]" : "ml-[260px]",
-          isMobile && "ml-0",
-          isRTL ? "rtl:ml-0 rtl:mr-0" : "",
-          isCollapsed ? "rtl:mr-[70px]" : "rtl:mr-[260px]",
-          isMobile && "rtl:mr-0"
+          "flex flex-1 flex-col transition-all duration-300 ease-in-out",
+          sidebarCollapsed ? "md:ml-[70px]" : "md:ml-[260px]",
+          isRTL && (sidebarCollapsed ? "md:mr-[70px] md:ml-0" : "md:mr-[260px] md:ml-0"),
         )}
       >
         <Header />
-        <main className="flex-1 scrollable-y px-4 py-6 md:px-6 lg:px-8 transition-all duration-300">
-          <div className="mx-auto w-full max-w-[1600px] animate-fadeIn">
-            {children}
-          </div>
+        
+        {/* Affiliate Status Alert - shown on all pages when affiliate status is pending */}
+        <AffiliateStatusAlert status={user?.affiliate?.status} />
+        
+        {/* Referral Link Banner - only for active affiliates */}
+        { <ReferralLinkBanner />}
+        
+        <main className="flex-1 p-4 md:p-6">
+          {children}
         </main>
-        <footer className="border-t border-border/20 py-4 px-6 text-center text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} Infinity AI System. All rights reserved.</p>
-        </footer>
       </div>
-      
-      {/* AI Prompt Generator Widget */}
-      <PromptGenerator />
     </div>
   );
 }

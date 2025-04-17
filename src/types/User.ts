@@ -1,10 +1,17 @@
+import { Id } from './../../node_modules/@types/react-beautiful-dnd/index.d';
 export interface User {
-    id: string;
-    name: string;
-    email: string;
-    role?: string;
-    createdAt?: string;
-    updatedAt?: string;
-    [key: string]: unknown; // لتوسعة النوع مستقبلاً بدون مشاكل
-  }
-  
+  avatar: any;
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  referralCode?: string;
+  affiliateId?: string;
+  affiliate?: {
+    Id: Id;
+    status: string;
+    commission: string;
+    isActive: boolean;
+    tierId: string;
+  };
+}

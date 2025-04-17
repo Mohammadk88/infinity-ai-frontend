@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
   Plus,
@@ -13,12 +12,8 @@ import {
   Building,
   Shield,
   Mail,
-  Phone,
-  CalendarClock,
   CheckCircle,
-  AlertTriangle,
   Ban,
-  Download,
   ArrowUpDown,
   Edit,
   Trash2,
@@ -47,18 +42,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useUserStore } from '@/store/useUserStore';
 
 // Mock data for user management
 interface UserType {
@@ -222,7 +214,6 @@ const roles = [
 
 export default function UserManagementPage() {
   const { t } = useTranslation();
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState('all-users');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredUsers, setFilteredUsers] = useState<UserType[]>(users);

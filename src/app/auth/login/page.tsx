@@ -8,48 +8,39 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Zap, LogIn, Lock, Mail, AlertCircle, Loader2, Sparkles, Moon, Sun } from 'lucide-react';
+import { Zap, LogIn, Lock, Mail, AlertCircle, Loader2, Sparkles, Moon, Sun, LaptopIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { useUserStore } from '@/store/useUserStore';
 import api from '@/app/lib/axios';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/components/providers/theme-provider';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const { user } = useAuth(false);
   const router = useRouter();
   const { setUser } = useUserStore();
+  const { theme, setTheme } = useTheme();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   
   useEffect(() => {
     setMounted(true);
     if (user) {
-      router.push('/dashboard'); // أو أي صفحة بعد الدخول
-    }
-    // Check for dark mode preference
-    if (typeof window !== 'undefined') {
-      const isDark = document.documentElement.classList.contains('dark');
-      setTheme(isDark ? 'dark' : 'light');
+      router.push('/dashboard');
     }
   }, [user, router]);
-
-  // Toggle theme function
-  const toggleTheme = () => {
-    if (theme === 'light') {
-      document.documentElement.classList.add('dark');
-      setTheme('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      setTheme('light');
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +56,7 @@ export default function LoginPage() {
       // بعد تسجيل الدخول:
       const res = await api.get('/auth/me', { withCredentials: true });
       setUser(res.data);
+      console.log('User data:', res.data);
       router.push('/dashboard');
       
     } catch (err) {
@@ -83,35 +75,34 @@ export default function LoginPage() {
         <div className="absolute inset-0">
           <div className="absolute h-[300px] w-[300px] rounded-full bg-primary/20 blur-3xl -top-20 -left-20 animate-blob animation-delay-2000" />
           <div className="absolute h-[250px] w-[250px] rounded-full bg-indigo-500/20 blur-3xl top-1/2 left-1/3 animate-blob animation-delay-4000" />
-          <div className="absolute h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-3xl bottom-0 right-0 animate-blob animation-delay-3000" />
+          <div className="absolute h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-3xl -bottom-40 -right-10 animate-blob animation-delay-7000" />
         </div>
         
-        {/* Main logo and branding */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-8 animate-float">
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 mb-6 shadow-lg">
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary to-primary/70 opacity-75 blur-lg" />
-            <span className="relative z-10 text-primary-foreground">
-              <Sparkles className="h-12 w-12" />
-            </span>
+        <div className={cn(
+          "relative z-10 max-w-md mx-auto text-center px-4",
+          mounted && "animate-fade-in-left"
+        )}>
+          <div className="mb-8">
+            <h1 className="text-4xl font-extrabold tracking-tight mb-2">
+              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent">Infinity</span> AI
+            </h1>
+            <p className="text-xl text-muted-foreground">{t('login.marketingPlatform', 'Marketing Platform')}</p>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-3">
-            Infinity<span className="text-primary">AI</span>
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-md">
-            {t('login.tagline', 'AI-powered marketing automation to scale your business')}
-          </p>
-          <div className="space-y-4 w-full max-w-xs">
+          
+          <h2 className="text-2xl font-bold mb-6">{t('login.tagline', 'Revolutionize your marketing with AI')}</h2>
+          
+          <div className="space-y-4">
             <div className="flex items-center gap-2 bg-card/30 backdrop-blur-sm p-3 rounded-lg shadow-sm">
               <div className="bg-primary/20 p-2 rounded-full">
-                <Zap className="h-4 w-4 text-primary" />
+                <Sparkles className="h-4 w-4 text-primary" />
               </div>
               <p className="text-sm font-medium">
-                {t('login.feature1', 'Smart AI content generation')}
+                {t('login.feature1', 'AI-powered content generation')}
               </p>
             </div>
             <div className="flex items-center gap-2 bg-card/30 backdrop-blur-sm p-3 rounded-lg shadow-sm">
               <div className="bg-primary/20 p-2 rounded-full">
-                <Zap className="h-4 w-4 text-primary" />
+                <Sparkles className="h-4 w-4 text-primary" />
               </div>
               <p className="text-sm font-medium">
                 {t('login.feature2', 'Automated social scheduling')}
@@ -136,48 +127,29 @@ export default function LoginPage() {
       )}>
         {/* Mobile logo (visible only on small screens) */}
         <div className="md:hidden flex items-center gap-3 mb-8">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70">
-            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/70 opacity-75 blur-sm" />
-            <span className="relative z-10 text-primary-foreground">
-              <Sparkles className="h-5 w-5" />
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-semibold tracking-tight">
-              Infinity<span className="text-primary">AI</span>
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {t('login.marketing', 'Marketing Platform')}
-            </span>
-          </div>
+          <h1 className="text-2xl font-bold">
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Infinity</span> AI
+          </h1>
         </div>
         
-        {/* Login card */}
         <div className="w-full max-w-md">
-          <Card className={cn(
-            "border-border/40 bg-card/70 backdrop-blur-md shadow-xl",
-            mounted && "animate-fade-in-up"
-          )}>
-            <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-2xl font-bold">
-                {t('login.title', 'Welcome back')}
-              </CardTitle>
+          <Card className="border-border/50 shadow-lg">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold tracking-tight">{t('login.welcomeBack', 'Welcome back')}</CardTitle>
               <CardDescription>
-                {t('login.description', 'Sign in to access your account')}
+                {t('login.continueWithEmail', 'Continue with your email and password')}
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-5">
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">
-                    {t('login.email', 'Email')}
-                  </Label>
+                  <Label htmlFor="email">{t('login.email', 'Email')}</Label>
                   <div className="relative group">
                     <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <Input
                       id="email"
                       type="email"
-                      placeholder="name@example.com"
+                      placeholder="example@domain.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10 h-11 border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
@@ -256,31 +228,34 @@ export default function LoginPage() {
                 <Button 
                   type="button" 
                   variant="outline"
-                  className="w-full h-11 border-border/50 hover:bg-primary/5 transition-colors"
+                  className="w-full h-11 relative"
                 >
-                  <svg className="mr-2 h-4 w-4" aria-hidden="true" viewBox="0 0 24 24">
-                    <path
-                      d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z"
-                      fill="#EA4335"
-                    />
-                    <path
-                      d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z"
-                      fill="#4285F4"
-                    />
-                    <path
-                      d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z"
-                      fill="#FBBC05"
-                    />
-                    <path
-                      d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.2654 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z"
-                      fill="#34A853"
-                    />
-                  </svg>
-                  {t('login.continueWithGoogle', 'Continue with Google')}
+                  <div className="absolute left-3 flex items-center justify-center rtl:left-auto rtl:right-3">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z"
+                        fill="#4285F4"
+                      />
+                      <path
+                        d="M12 24C15.24 24 17.95 22.92 19.945 21.1L16.08 18.1C15 18.85 13.62 19.28 12 19.28C8.875 19.28 6.255 17.16 5.285 14.28L1.27 17.34C3.25 21.33 7.31 24 12 24Z"
+                        fill="#34A853"
+                      />
+                      <path
+                        d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z"
+                        fill="#FBBC05"
+                      />
+                      <path
+                        d="M12 4.71997C13.77 4.71997 15.35 5.35997 16.59 6.54997L20.04 3.11997C17.9512 1.18833 15.0188 0.0606504 12 0.129971C7.31 0.129971 3.25 2.79997 1.27 6.78997L5.265 9.89497C6.255 7.01497 8.875 4.71997 12 4.71997Z"
+                        fill="#EA4335"
+                      />
+                    </svg>
+                  </div>
+                  
+                  <span>{t('login.continueWithGoogle', 'Continue with Google')}</span>
                 </Button>
                 
                 <p className="text-center text-sm text-muted-foreground">
-                  {t('login.noAccount', 'Don\'t have an account?')}{' '}
+                  {t('login.dontHaveAccount', "Don't have an account?")}{' '}
                   <Link href="/auth/register" className="text-primary hover:text-primary/80 hover:underline transition-colors font-medium">
                     {t('login.register', 'Create account')}
                   </Link>
@@ -300,17 +275,32 @@ export default function LoginPage() {
       
       {/* Theme toggle and language selector fixed to bottom right for better accessibility */}
       <div className="absolute bottom-6 right-6 flex items-center gap-3 z-50">
-        <button 
-          onClick={toggleTheme}
-          className="bg-background/80 backdrop-blur-md p-2 rounded-full shadow-md hover:shadow-lg transition-all"
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          {theme === 'dark' ? (
-            <Sun className="h-5 w-5 text-foreground" />
-          ) : (
-            <Moon className="h-5 w-5 text-foreground" />
-          )}
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="bg-background/80 backdrop-blur-md p-2 rounded-full shadow-md hover:shadow-lg transition-all"
+              aria-label="Theme options"
+            >
+              {theme === 'dark' && <Moon className="h-5 w-5 text-foreground" />}
+              {theme === 'light' && <Sun className="h-5 w-5 text-foreground" />}
+              {theme === 'system' && <LaptopIcon className="h-5 w-5 text-foreground" />}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setTheme('light')} className="cursor-pointer">
+              <Sun className="mr-2 h-4 w-4" />
+              <span>{t('theme.light', 'Light')}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme('dark')} className="cursor-pointer">
+              <Moon className="mr-2 h-4 w-4" />
+              <span>{t('theme.dark', 'Dark')}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme('system')} className="cursor-pointer">
+              <LaptopIcon className="mr-2 h-4 w-4" />
+              <span>{t('theme.system', 'System')}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <div className="bg-background/80 backdrop-blur-md rounded-md shadow-md p-1 hover:shadow-lg transition-all">
           <LanguageSelector />
         </div>
