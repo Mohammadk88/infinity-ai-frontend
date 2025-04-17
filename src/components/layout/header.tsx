@@ -36,6 +36,7 @@ import { cn } from '@/lib/utils';
 import NotificationCenter from '@/components/features/notification-center';
 import { useSessionLoader } from '@/hooks/useSessionLoader';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserStore } from '@/store/useUserStore';
 
 type PromptType = 'text' | 'image' | 'social';
 
@@ -61,7 +62,8 @@ export default function Header() {
   const [miniPromptValue, setMiniPromptValue] = useState<string>('');
   // const [unreadNotifications, setUnreadN otifications] = useState<number>(3);
 
-  const {loading, user} = useAuth();
+  useSessionLoader();
+  const {isLoading, user} = useUserStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -69,10 +71,10 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.push('/auth/login');
     }
-  }, [loading, router, user]);
+  }, [isLoading, router, user]);
   if (!mounted) return null
 
   const changeLanguage = (lang: string) => {
@@ -427,7 +429,7 @@ export default function Header() {
                   )}
                   onClick={() => handlePromptTypeChange('image')}
                 >
-                  <Image className="h-3 w-3 mr-1" alt="Image generation" />
+                  <Image className= "h-3 w-3 mr-1" />
                   Image
                 </Button>
                 <Button 
