@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import i18n from 'i18next';
 import { useRouter } from 'next/navigation';
 import api from '@/app/lib/axios';
-import { useUserStore } from '@/store/useUserStore';
 import { useTheme } from '@/components/providers/theme-provider';
 import {
   DropdownMenu,
@@ -36,6 +35,7 @@ import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import NotificationCenter from '@/components/features/notification-center';
 import { useSessionLoader } from '@/hooks/useSessionLoader';
+import { useAuth } from '@/hooks/useAuth';
 
 type PromptType = 'text' | 'image' | 'social';
 
@@ -43,7 +43,7 @@ export default function Header() {
   useSessionLoader(); 
   const { t, i18n: i18next } = useTranslation();
   const router = useRouter();
-  const { user, clearUser } = useUserStore();
+  // const { user, clearUser } = useUserStore();
   const { theme, setTheme } = useTheme();
   const [scrolled] = useState<boolean>(false);
   const [mobileSearchVisible, setMobileSearchVisible] = useState<boolean>(false);
@@ -61,13 +61,18 @@ export default function Header() {
   const [miniPromptValue, setMiniPromptValue] = useState<string>('');
   // const [unreadNotifications, setUnreadN otifications] = useState<number>(3);
 
-
+  const {loading, user} = useAuth();
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+    }
+  }, [loading, router, user]);
   if (!mounted) return null
 
   const changeLanguage = (lang: string) => {
@@ -354,7 +359,7 @@ export default function Header() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer transition-colors hover:bg-accent/70">
+            <DropdownMenuItem onClick={() => router.push('/dashboard/me')} className="cursor-pointer transition-colors hover:bg-accent/70">
               <User className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
               <span>Profile</span>
             </DropdownMenuItem>
@@ -422,7 +427,7 @@ export default function Header() {
                   )}
                   onClick={() => handlePromptTypeChange('image')}
                 >
-                  <Image className= "h-3 w-3 mr-1" />
+                  <Image className="h-3 w-3 mr-1" alt="Image generation" />
                   Image
                 </Button>
                 <Button 
@@ -469,3 +474,7 @@ export default function Header() {
     </header>
   );
 }
+function clearUser() {
+  throw new Error('Function not implemented.');
+}
+

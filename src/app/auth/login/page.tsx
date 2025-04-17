@@ -34,7 +34,12 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
-  
+  const [csrfToken, setCsrfToken] = useState('');
+
+useEffect(() => {
+  api.get(`/auth/csrf-token`,{ withCredentials: true })
+    .then(res => setCsrfToken(res.data.csrfToken));
+}, []);
   useEffect(() => {
     setMounted(true);
     if (user) {
@@ -52,7 +57,7 @@ export default function LoginPage() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // In a real implementation you would call your auth API here
-      await api.post('/auth/login', { email, password });
+      await api.post('/auth/login', { email, password ,_csrf: csrfToken},{ withCredentials: true });
       // بعد تسجيل الدخول:
       const res = await api.get('/auth/me', { withCredentials: true });
       setUser(res.data);
