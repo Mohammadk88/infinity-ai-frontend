@@ -36,6 +36,7 @@ import { cn } from '@/lib/utils';
 import NotificationCenter from '@/components/features/notification-center';
 import { useSessionLoader } from '@/hooks/useSessionLoader';
 import { useUserStore } from '@/store/useUserStore';
+import { LanguageSelector } from '@/components/ui/language-selector';
 
 type PromptType = 'text' | 'image' | 'social';
 
@@ -78,7 +79,8 @@ export default function Header() {
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    // Update RTL based on language
+    document.documentElement.dir = ['ar', 'fa', 'ur'].includes(lang) ? 'rtl' : 'ltr';
   };
 
   const handleLogout = async () => {
@@ -91,9 +93,16 @@ export default function Header() {
     }
   };
 
-  const languageLabel = {
+  const languageLabel: {[key: string]: string} = {
     en: 'English',
     ar: 'العربية',
+    fr: 'Français',
+    es: 'Español',
+    tr: 'Türkçe',
+    ru: 'Русский',
+    de: 'Deutsch',
+    fa: 'فارسی',
+    ur: 'اردو'
   };
 
   const toggleMobileSearch = () => {
@@ -318,27 +327,7 @@ export default function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              className="px-2 flex items-center gap-1 text-sm h-9 hover:bg-primary/5 transition-colors" 
-              aria-label="Language selection"
-            >
-              <Globe className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0" />
-              <span className="hidden sm:inline-block">{languageLabel[i18next.language as 'en' | 'ar']}</span>
-              <ChevronDown className="h-3.5 w-3.5 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40 animate__animated animate__fadeInDown animate__faster">
-            <DropdownMenuItem onClick={() => changeLanguage('en')} className="cursor-pointer">
-              English
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => changeLanguage('ar')} className="cursor-pointer">
-              العربية
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <LanguageSelector />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

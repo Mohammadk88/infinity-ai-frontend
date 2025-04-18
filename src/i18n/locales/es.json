@@ -1,0 +1,55 @@
+{
+   "register": {
+        "title": "Crear una nueva cuenta",
+        "name": "Nombre completo",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "confirmPassword": "Confirmar contraseña",
+        "button": "Registrarse",
+        "loading": "Registrando...",
+        "success": "¡Registro exitoso!",
+        "failed": "Algo salió mal",
+        "passwordHint": "Debe tener al menos 8 caracteres",
+        "haveAccount": "¿Ya tienes una cuenta?",
+        "login": "Iniciar sesión",
+        "termsText": "Al crear una cuenta, aceptas nuestros",
+        "terms": "Términos de servicio",
+        "and": "y",
+        "privacy": "Política de privacidad",
+        "marketing": "Plataforma de marketing",
+        "register": "Crear cuenta",
+        "registering": "Creando cuenta...",
+        "allRights": "Todos los derechos reservados.",
+        "referredBy": "Referido por",
+        "error": {
+            "passwordMatch": "Las contraseñas no coinciden",
+            "general": "El registro falló. Por favor, inténtalo de nuevo.",
+            "invalid_referral_code": "Código de referido inválido."
+        },
+        "success": {
+            "title": "¡Registro exitoso!",
+            "description": "Tu cuenta ha sido creada. Serás redirigido al inicio de sesión en breve.",
+            "login": "Iniciar sesión ahora"
+        },
+        "description": "Ingresa tu información para comenzar"
+    },
+    "login": {
+        "title": "Iniciar sesión en tu cuenta",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "button": "Iniciar sesión",
+        "loading": "Iniciando sesión...",
+        "success": "¡Sesión iniciada con éxito!",
+        "failed": "Error al iniciar sesión. Verifica tus credenciales"
+    },
+    "layout": {
+        "title": "Infinity AI",
+        "dashboard": "Panel de control",
+        "socialAccounts": "Cuentas sociales",
+        "posts": "Publicaciones",
+        "campaigns": "Campañas",
+        "settings": "Configuración",
+        "changeLanguage": "Cambiar idioma",
+        "logout": "Cerrar sesión"
+    }
+}

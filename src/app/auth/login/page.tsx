@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default function LoginPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth(false);
   const router = useRouter();
   const { setUser } = useUserStore();
@@ -36,10 +36,10 @@ export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
 
-useEffect(() => {
-  api.get(`/auth/csrf-token`,{ withCredentials: true })
-    .then(res => setCsrfToken(res.data.csrfToken));
-}, []);
+  useEffect(() => {
+    api.get(`/auth/csrf-token`, { withCredentials: true })
+      .then(res => setCsrfToken(res.data.csrfToken));
+  }, []);
   useEffect(() => {
     setMounted(true);
     if (user) {
@@ -55,15 +55,15 @@ useEffect(() => {
     try {
       // Fake login for demonstration
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // In a real implementation you would call your auth API here
-      await api.post('/auth/login', { email, password ,_csrf: csrfToken},{ withCredentials: true });
+      await api.post('/auth/login', { email, password, _csrf: csrfToken }, { withCredentials: true });
       // بعد تسجيل الدخول:
       const res = await api.get('/auth/me', { withCredentials: true });
       setUser(res.data);
       console.log('User data:', res.data);
       router.push('/dashboard');
-      
+
     } catch (err) {
       console.error('Login failed:', err);
       setError(t('login.error.invalidCredentials', 'Invalid email or password'));
@@ -82,7 +82,7 @@ useEffect(() => {
           <div className="absolute h-[250px] w-[250px] rounded-full bg-indigo-500/20 blur-3xl top-1/2 left-1/3 animate-blob animation-delay-4000" />
           <div className="absolute h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-3xl -bottom-40 -right-10 animate-blob animation-delay-7000" />
         </div>
-        
+
         <div className={cn(
           "relative z-10 max-w-md mx-auto text-center px-4",
           mounted && "animate-fade-in-left"
@@ -93,9 +93,9 @@ useEffect(() => {
             </h1>
             <p className="text-xl text-muted-foreground">{t('login.marketingPlatform', 'Marketing Platform')}</p>
           </div>
-          
+
           <h2 className="text-2xl font-bold mb-6">{t('login.tagline', 'Revolutionize your marketing with AI')}</h2>
-          
+
           <div className="space-y-4">
             <div className="flex items-center gap-2 bg-card/30 backdrop-blur-sm p-3 rounded-lg shadow-sm">
               <div className="bg-primary/20 p-2 rounded-full">
@@ -124,7 +124,7 @@ useEffect(() => {
           </div>
         </div>
       </div>
-      
+
       {/* Right side - Login form */}
       <div className={cn(
         "w-full md:w-1/2 flex flex-col items-center justify-center px-6 py-12 md:px-12 relative",
@@ -136,7 +136,7 @@ useEffect(() => {
             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Infinity</span> AI
           </h1>
         </div>
-        
+
         <div className="w-full max-w-md">
           <Card className="border-border/50 shadow-lg">
             <CardHeader className="space-y-1">
@@ -168,8 +168,8 @@ useEffect(() => {
                     <Label htmlFor="password" className="text-sm font-medium">
                       {t('login.password', 'Password')}
                     </Label>
-                    <Link 
-                      href="#" 
+                    <Link
+                      href="#"
                       className="text-xs text-primary hover:text-primary/80 hover:underline transition-colors"
                     >
                       {t('login.forgotPassword', 'Forgot password?')}
@@ -189,7 +189,7 @@ useEffect(() => {
                     />
                   </div>
                 </div>
-                
+
                 {error && (
                   <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive animate-fade-in">
                     <div className="flex gap-2">
@@ -200,9 +200,9 @@ useEffect(() => {
                 )}
               </CardContent>
               <CardFooter className="flex flex-col gap-5 pt-2">
-                <Button 
-                  type="submit" 
-                  className="w-full h-11 group relative overflow-hidden transition-all hover:shadow-md hover:shadow-primary/20" 
+                <Button
+                  type="submit"
+                  className="w-full h-11 group relative overflow-hidden transition-all hover:shadow-md hover:shadow-primary/20"
                   disabled={isLoading}
                 >
                   <span className="relative z-10 flex items-center">
@@ -220,7 +220,7 @@ useEffect(() => {
                   </span>
                   <span className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Button>
-                
+
                 <div className="relative flex items-center justify-center py-2">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
@@ -229,9 +229,9 @@ useEffect(() => {
                     {t('login.or', 'OR')}
                   </span>
                 </div>
-                
-                <Button 
-                  type="button" 
+
+                <Button
+                  type="button"
                   variant="outline"
                   className="w-full h-11 relative"
                 >
@@ -255,10 +255,10 @@ useEffect(() => {
                       />
                     </svg>
                   </div>
-                  
+
                   <span>{t('login.continueWithGoogle', 'Continue with Google')}</span>
                 </Button>
-                
+
                 <p className="text-center text-sm text-muted-foreground">
                   {t('login.dontHaveAccount', "Don't have an account?")}{' '}
                   <Link href="/auth/register" className="text-primary hover:text-primary/80 hover:underline transition-colors font-medium">
@@ -269,7 +269,7 @@ useEffect(() => {
             </form>
           </Card>
         </div>
-        
+
         {/* Copyright */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
@@ -277,7 +277,7 @@ useEffect(() => {
           </p>
         </div>
       </div>
-      
+
       {/* Theme toggle and language selector fixed to bottom right for better accessibility */}
       <div className="absolute bottom-6 right-6 flex items-center gap-3 z-50">
         <DropdownMenu>
@@ -306,8 +306,9 @@ useEffect(() => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        
         <div className="bg-background/80 backdrop-blur-md rounded-md shadow-md p-1 hover:shadow-lg transition-all">
-          <LanguageSelector />
+          <LanguageSelector variant="minimal" />
         </div>
       </div>
     </div>

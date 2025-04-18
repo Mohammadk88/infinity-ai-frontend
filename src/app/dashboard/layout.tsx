@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { ReferralLinkBanner } from '@/components/features/referral-link-banner';
 import AffiliateStatusAlert from '@/components/features/affiliate-status-alert';
+import PromptGenerator from '@/components/features/prompt-generator';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const {  i18n } = useTranslation();
@@ -45,8 +46,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <AffiliateStatusAlert status={user?.affiliate?.status} />
         
         {/* Referral Link Banner - only for active affiliates */}
-        { <ReferralLinkBanner />}
-        
+         <ReferralLinkBanner />
+        <PromptGenerator />
         <main className="flex-1 p-4 md:p-6">
           {children}
         </main>

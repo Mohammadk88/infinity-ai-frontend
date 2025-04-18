@@ -1,0 +1,55 @@
+{
+   "register": {
+        "title": "Neues Konto erstellen",
+        "name": "Vollständiger Name",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "confirmPassword": "Passwort bestätigen",
+        "button": "Registrieren",
+        "loading": "Registrierung läuft...",
+        "success": "Registrierung erfolgreich!",
+        "failed": "Etwas ist schiefgelaufen",
+        "passwordHint": "Muss mindestens 8 Zeichen lang sein",
+        "haveAccount": "Haben Sie bereits ein Konto?",
+        "login": "Anmelden",
+        "termsText": "Durch die Erstellung eines Kontos stimmen Sie unseren",
+        "terms": "Nutzungsbedingungen",
+        "and": "und",
+        "privacy": "Datenschutzrichtlinie",
+        "marketing": "Marketing-Plattform",
+        "register": "Konto erstellen",
+        "registering": "Konto wird erstellt...",
+        "allRights": "Alle Rechte vorbehalten.",
+        "referredBy": "Empfohlen von",
+        "error": {
+            "passwordMatch": "Passwörter stimmen nicht überein",
+            "general": "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+            "invalid_referral_code": "Ungültiger Empfehlungscode."
+        },
+        "success": {
+            "title": "Registrierung erfolgreich!",
+            "description": "Ihr Konto wurde erstellt. Sie werden in Kürze zur Anmeldung weitergeleitet.",
+            "login": "Jetzt anmelden"
+        },
+        "description": "Geben Sie Ihre Informationen ein, um zu beginnen"
+    },
+    "login": {
+        "title": "Bei Ihrem Konto anmelden",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "button": "Anmelden",
+        "loading": "Anmeldung läuft...",
+        "success": "Erfolgreich angemeldet!",
+        "failed": "Anmeldung fehlgeschlagen. Überprüfen Sie Ihre Anmeldedaten"
+    },
+    "layout": {
+        "title": "Infinity AI",
+        "dashboard": "Dashboard",
+        "socialAccounts": "Soziale Konten",
+        "posts": "Beiträge",
+        "campaigns": "Kampagnen",
+        "settings": "Einstellungen",
+        "changeLanguage": "Sprache ändern",
+        "logout": "Abmelden"
+    }
+}

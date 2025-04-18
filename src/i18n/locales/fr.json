@@ -1,0 +1,55 @@
+{
+   "register": {
+        "title": "Créer un nouveau compte",
+        "name": "Nom complet",
+        "email": "Email",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "button": "S'inscrire",
+        "loading": "Inscription en cours...",
+        "success": "Inscription réussie !",
+        "failed": "Quelque chose s'est mal passé",
+        "passwordHint": "Doit contenir au moins 8 caractères",
+        "haveAccount": "Vous avez déjà un compte?",
+        "login": "Se connecter",
+        "termsText": "En créant un compte, vous acceptez nos",
+        "terms": "Conditions d'utilisation",
+        "and": "et",
+        "privacy": "Politique de confidentialité",
+        "marketing": "Plateforme de marketing",
+        "register": "Créer un compte",
+        "registering": "Création du compte...",
+        "allRights": "Tous droits réservés.",
+        "referredBy": "Parrainé par",
+        "error": {
+            "passwordMatch": "Les mots de passe ne correspondent pas",
+            "general": "L'inscription a échoué. Veuillez réessayer.",
+            "invalid_referral_code": "Code de parrainage invalide."
+        },
+        "success": {
+            "title": "Inscription réussie !",
+            "description": "Votre compte a été créé. Vous serez redirigé vers la connexion sous peu.",
+            "login": "Se connecter maintenant"
+        },
+        "description": "Entrez vos informations pour commencer"
+    },
+    "login": {
+        "title": "Connexion à votre compte",
+        "email": "Email",
+        "password": "Mot de passe",
+        "button": "Se connecter",
+        "loading": "Connexion en cours...",
+        "success": "Connecté avec succès !",
+        "failed": "Échec de la connexion. Vérifiez vos identifiants"
+    },
+    "layout": {
+        "title": "Infinity AI",
+        "dashboard": "Tableau de bord",
+        "socialAccounts": "Comptes sociaux",
+        "posts": "Publications",
+        "campaigns": "Campagnes",
+        "settings": "Paramètres",
+        "changeLanguage": "Changer de langue",
+        "logout": "Déconnexion"
+    }
+}

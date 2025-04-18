@@ -1,0 +1,55 @@
+{
+   "register": {
+        "title": "Yeni hesap oluştur",
+        "name": "Tam Ad",
+        "email": "E-posta",
+        "password": "Şifre",
+        "confirmPassword": "Şifreyi Onayla",
+        "button": "Kaydol",
+        "loading": "Kaydolunuyor...",
+        "success": "Kayıt başarılı!",
+        "failed": "Bir şeyler yanlış gitti",
+        "passwordHint": "En az 8 karakter olmalı",
+        "haveAccount": "Zaten hesabınız var mı?",
+        "login": "Giriş yap",
+        "termsText": "Bir hesap oluşturarak, şunları kabul etmiş olursunuz:",
+        "terms": "Hizmet Şartları",
+        "and": "ve",
+        "privacy": "Gizlilik Politikası",
+        "marketing": "Pazarlama Platformu",
+        "register": "Hesap oluştur",
+        "registering": "Hesap oluşturuluyor...",
+        "allRights": "Tüm hakları saklıdır.",
+        "referredBy": "Tarafından önerildi",
+        "error": {
+            "passwordMatch": "Şifreler eşleşmiyor",
+            "general": "Kayıt başarısız oldu. Lütfen tekrar deneyin.",
+            "invalid_referral_code": "Geçersiz referans kodu."
+        },
+        "success": {
+            "title": "Kayıt Başarılı!",
+            "description": "Hesabınız oluşturuldu. Kısa süre içinde giriş sayfasına yönlendirileceksiniz.",
+            "login": "Şimdi giriş yap"
+        },
+        "description": "Başlamak için bilgilerinizi girin"
+    },
+    "login": {
+        "title": "Hesabınıza giriş yapın",
+        "email": "E-posta",
+        "password": "Şifre",
+        "button": "Giriş Yap",
+        "loading": "Giriş yapılıyor...",
+        "success": "Başarıyla giriş yapıldı!",
+        "failed": "Giriş başarısız. Kimlik bilgilerinizi kontrol edin"
+    },
+    "layout": {
+        "title": "Infinity AI",
+        "dashboard": "Gösterge Paneli",
+        "socialAccounts": "Sosyal Hesaplar",
+        "posts": "Gönderiler",
+        "campaigns": "Kampanyalar",
+        "settings": "Ayarlar",
+        "changeLanguage": "Dil Değiştir",
+        "logout": "Çıkış Yap"
+    }
+}

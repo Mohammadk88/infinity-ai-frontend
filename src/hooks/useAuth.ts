@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import  api  from "@/app/lib/axios";
 
 // This is a mock implementation. You'll want to replace this with your actual implementation.
-export function useAuth() {
+export function useAuth(p0: boolean) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 

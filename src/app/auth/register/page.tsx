@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Lock, Mail, Check, AlertCircle, Moon, Sun, LaptopIcon, User, UserPlus } from 'lucide-react';
+import { Loader2, Lock, Mail, Check, AlertCircle, Moon, Sun, LaptopIcon, User, UserPlus, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import api from '@/app/lib/axios';
@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default function RegisterPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -404,7 +404,7 @@ export default function RegisterPage() {
           </DropdownMenuContent>
         </DropdownMenu>
         <div className="bg-background/80 backdrop-blur-md rounded-md shadow-md p-1 hover:shadow-lg transition-all">
-          <LanguageSelector />
+          <LanguageSelector variant="minimal" />
         </div>
       </div>
     </div>
