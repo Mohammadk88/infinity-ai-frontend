@@ -35,13 +35,12 @@ import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import NotificationCenter from '@/components/features/notification-center';
 import { useSessionLoader } from '@/hooks/useSessionLoader';
-import { useAuth } from '@/hooks/useAuth';
 import { useUserStore } from '@/store/useUserStore';
 
 type PromptType = 'text' | 'image' | 'social';
 
 export default function Header() {
-  useSessionLoader(); 
+  useSessionLoader();
   const { t, i18n: i18next } = useTranslation();
   const router = useRouter();
   // const { user, clearUser } = useUserStore();
@@ -52,7 +51,7 @@ export default function Header() {
   const [searchValue, setSearchValue] = useState<string>('');
   const [promptGeneratorOpen, setPromptGeneratorOpen] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
-
+  const { clearUser } = useUserStore();
   const [activePromptMode, setActivePromptMode] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [, setGeneratedResult] = useState<string | null>(null);
@@ -83,9 +82,13 @@ export default function Header() {
   };
 
   const handleLogout = async () => {
-    await api.post('/auth/logout', {}, { withCredentials: true });
-    clearUser();
-    router.push('/auth/login');
+    try {
+      await api.post('/auth/logout'); // فرضًا عندك endpoint لهذا
+      clearUser(); // تنظيف الواجهة من بيانات المستخدم
+      router.push('/auth/login');
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
   };
 
   const languageLabel = {
@@ -429,7 +432,7 @@ export default function Header() {
                   )}
                   onClick={() => handlePromptTypeChange('image')}
                 >
-                  <Image className= "h-3 w-3 mr-1" />
+                  <Image src="/images/logo.png" className= "h-3 w-3 mr-1" />
                   Image
                 </Button>
                 <Button 
@@ -475,8 +478,5 @@ export default function Header() {
       )}
     </header>
   );
-}
-function clearUser() {
-  throw new Error('Function not implemented.');
 }
 
