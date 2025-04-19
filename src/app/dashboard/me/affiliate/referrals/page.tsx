@@ -3,7 +3,7 @@
 import {  useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import { CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertCircle, User } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 // import { cn } from '@/lib/utils';
 import { useAffiliateStore } from '@/store/useAffiliateStore';
+import { Button } from '@/components/ui/button';
 
 export default function ReferralHistoryPage() {
   const { t } = useTranslation();
@@ -66,13 +67,23 @@ export default function ReferralHistoryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          {t('affiliate.referrals.title', 'My Referrals')}
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          {t('affiliate.referrals.subtitle', 'Track the status of people you\'ve referred')}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+            {t('affiliate.referrals.title', 'My Referrals')}
+            </h1>
+            <p className="text-muted-foreground mt-1">
+            {t('affiliate.referrals.subtitle', 'Track the status of people you\'ve referred')}
+            </p>
+        </div>
+        <Button 
+            variant="outline" 
+            className="gap-2"
+            onClick={() => window.location.href = '/dashboard/me'}
+          >
+            <User className="h-4 w-4" />
+            {t('userProfile.profile', 'Back to Profile')}
+          </Button>
       </div>
 
       {/* Referrals Table Card */}

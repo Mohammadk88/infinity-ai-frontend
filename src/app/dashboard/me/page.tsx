@@ -71,6 +71,18 @@ if (!mounted || !user) return null;
             {t('userProfile.subtitle', 'Manage your account settings and preferences')}
           </p>
         </div>
+        
+        {/* Add referrals link in header if user is an active affiliate */}
+        {user?.affiliate?.status === 'approved' && (
+          <Button 
+            variant="outline" 
+            className="gap-2"
+            onClick={() => window.location.href = '/dashboard/me/affiliate/referrals'}
+          >
+            <User className="h-4 w-4" />
+            {t('userProfile.viewReferrals', 'View Referrals')}
+          </Button>
+        )}
       </div>
 
       {/* Main content with tabs */}
