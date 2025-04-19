@@ -3,7 +3,8 @@
 import {  useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import { CheckCircle, XCircle, Clock, AlertCircle, User } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertCircle, User, DollarSign, ArrowLeftCircle } from 'lucide-react';
+import Link from 'next/link';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
@@ -76,14 +77,20 @@ export default function ReferralHistoryPage() {
             {t('affiliate.referrals.subtitle', 'Track the status of people you\'ve referred')}
             </p>
         </div>
-        <Button 
-            variant="outline" 
-            className="gap-2"
-            onClick={() => window.location.href = '/dashboard/me'}
-          >
-            <User className="h-4 w-4" />
-            {t('userProfile.profile', 'Back to Profile')}
-          </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link href="/dashboard/me/affiliate">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <ArrowLeftCircle className="h-4 w-4 mr-2" />
+              {t('affiliate.backToAffiliate', 'Back to Affiliate')}
+            </Button>
+          </Link>
+          <Link href="/dashboard/me/affiliate/earnings">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <DollarSign className="h-4 w-4 mr-2" />
+              {t('affiliate.viewEarnings', 'View Earnings')}
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Referrals Table Card */}

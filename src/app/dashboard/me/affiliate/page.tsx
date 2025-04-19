@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Shield, Copy, Check, AlertCircle, AlertTriangle, Link as LinkIcon } from 'lucide-react';
+import { Shield, Copy, Check, AlertCircle, AlertTriangle, Link as LinkIcon, DollarSign, Users } from 'lucide-react';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,6 +78,26 @@ export default function AffiliatePage() {
           <p className="text-muted-foreground mt-1">
             {t('userProfile.affiliateSubtitle', 'Manage your affiliate settings and track referrals')}
           </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link href="/dashboard/me/affiliate/earnings">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <DollarSign className="h-4 w-4 mr-2" />
+              {t('affiliate.viewEarnings', 'View Earnings')}
+            </Button>
+          </Link>
+          <Link href="/dashboard/me/affiliate/referrals">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <Users className="h-4 w-4 mr-2" />
+              {t('affiliate.viewReferrals', 'View Referrals')}
+            </Button>
+          </Link>
+          <Link href="/dashboard/me">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <Users className="h-4 w-4 mr-2" />
+              {t('affiliate.viewProfile', 'Back to Profile')}
+            </Button>
+          </Link>
         </div>
       </div>
 

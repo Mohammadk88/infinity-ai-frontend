@@ -77,10 +77,10 @@ if (!mounted || !user) return null;
           <Button 
             variant="outline" 
             className="gap-2"
-            onClick={() => window.location.href = '/dashboard/me/affiliate/referrals'}
+            onClick={() => window.location.href = '/dashboard/me/affiliate'}
           >
             <User className="h-4 w-4" />
-            {t('userProfile.viewReferrals', 'View Referrals')}
+            {t('userProfile.viewAffiliateAccount', 'View Affiliate Account')}
           </Button>
         )}
       </div>

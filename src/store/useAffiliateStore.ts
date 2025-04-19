@@ -1,27 +1,18 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import api from '@/app/lib/axios';
+import { AffiliateStats } from '@/types/AffiliateStats';
 
 interface ReferralLog {
-  referredName: any;
+  referredName: string;
   earnings: undefined;
-  referredAt(referredAt: any): import("react").ReactNode | Iterable<import("react").ReactNode>;
+  referredAt: string;
   id: string;
   referredEmail: string;
   status: 'pending' | 'converted';
   registrationDate: string;
   commission?: number;
   plan?: string;
-}
-
-interface AffiliateStats {
-  referralCode: string;
-  totalEarnings: number;
-  pendingEarnings: number;
-  referralCount: number;
-  convertedCount: number;
-  commissionRate: number;
-  currency: string;
 }
 
 interface AffiliateState {
@@ -42,6 +33,12 @@ const initialStats: AffiliateStats = {
   convertedCount: 0,
   commissionRate: 10, // Default 10%
   currency: 'USD',
+  totalApprovedEarnings: 0,
+  totalPendingEarnings: 0,
+  totalRejectedEarnings: 0,
+  totalConvertedReferrals: 0,
+  totalApprovedReferrals: 0,
+  totalRejectedReferrals: 0
 };
 
 export const useAffiliateStore = create<AffiliateState>()(
