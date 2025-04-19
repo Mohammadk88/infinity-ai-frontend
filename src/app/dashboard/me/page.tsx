@@ -212,7 +212,7 @@ if (!mounted || !user) return null;
                     {t('userProfile.affiliate.pendingDesc', 'You can use the platform normally while we review your application.')}
                   </AlertDescription>
                 </Alert>
-              ) : user.affiliate.status === 'active' ? (
+              ) : user.affiliate.status === 'approved' ? (
                 <div className="space-y-6">
                   <div className="p-4 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/30 text-green-600 dark:text-green-400">
                     <div className="flex items-center gap-2 mb-1">
