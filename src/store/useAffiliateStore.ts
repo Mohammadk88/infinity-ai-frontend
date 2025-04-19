@@ -3,6 +3,9 @@ import { devtools, persist } from 'zustand/middleware';
 import api from '@/app/lib/axios';
 
 interface ReferralLog {
+  referredName: any;
+  earnings: undefined;
+  referredAt(referredAt: any): import("react").ReactNode | Iterable<import("react").ReactNode>;
   id: string;
   referredEmail: string;
   status: 'pending' | 'converted';

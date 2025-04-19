@@ -1,30 +1,31 @@
-import { User } from "@/types/User";
-import { useEffect, useState } from "react";
-import  api  from "@/app/lib/axios";
+'use client';
 
-// This is a mock implementation. You'll want to replace this with your actual implementation.
-export function useAuth(p0: boolean) {
-  const [loading, setLoading] = useState(true);
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import api from '@/app/lib/axios';
+import { User } from '@/types/User';
+
+export function useAuth(protect: boolean = false) {
+
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Simulate loading user data
-    const loadUser = async () => {
+    const checkAuth = async () => {
       try {
-        const response = await api.get('/auth/me', { withCredentials: true });
-        if (response.status === 200) {
-          setUser(response.data.user);
-        }
-      } catch (error) {
-        console.error('Error loading user:', error);
-        setUser(null);
-      } finally {
+        const res = await api.get('/auth/me', { withCredentials: true });
+        setUser(res.data);
         setLoading(false);
+      } catch (err) {
+        setUser(null);
+        setLoading(false);
+        console.error(err);
+        if (protect) router.push('/auth/login');
       }
     };
+    checkAuth();
+  }, [protect, router]);
 
-    loadUser();
-  }, []);
-
-  return { user, loading, setUser };
+  return { user, loading };
 }

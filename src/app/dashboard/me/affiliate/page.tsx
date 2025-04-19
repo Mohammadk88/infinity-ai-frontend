@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
 import { Shield, Copy, Check, AlertCircle, AlertTriangle, Link as LinkIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,8 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function AffiliatePage() {
   const { t } = useTranslation();
-  const router = useRouter();
-  const { user: authUser, loading } = useAuth();
+  const { user: authUser, loading } = useAuth(true);
   const { user, setUser } = useUserStore();
   
   const [mounted, setMounted] = useState(false);

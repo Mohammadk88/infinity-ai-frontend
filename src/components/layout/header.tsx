@@ -37,6 +37,7 @@ import NotificationCenter from '@/components/features/notification-center';
 import { useSessionLoader } from '@/hooks/useSessionLoader';
 import { useUserStore } from '@/store/useUserStore';
 import { LanguageSelector } from '@/components/ui/language-selector';
+import { useAuth } from '@/hooks/useAuth';
 
 type PromptType = 'text' | 'image' | 'social';
 
@@ -63,7 +64,7 @@ export default function Header() {
   // const [unreadNotifications, setUnreadN otifications] = useState<number>(3);
 
   useSessionLoader();
-  const {isLoading, user} = useUserStore();
+  const {loading, user} = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -71,18 +72,18 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!loading && !user) {
       router.push('/auth/login');
     }
-  }, [isLoading, router, user]);
+  }, [loading, router, user]);
   if (!mounted) return null
+
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
     // Update RTL based on language
     document.documentElement.dir = ['ar', 'fa', 'ur'].includes(lang) ? 'rtl' : 'ltr';
   };
-
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout'); // فرضًا عندك endpoint لهذا
@@ -92,6 +93,7 @@ export default function Header() {
       console.error('Logout failed', err);
     }
   };
+
 
   const languageLabel: {[key: string]: string} = {
     en: 'English',

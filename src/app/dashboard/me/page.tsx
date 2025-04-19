@@ -34,7 +34,7 @@ export default function UserProfilePage() {
 
   const { t } = useTranslation();
   const { user } = useUserStore();
-  console.log('profile user', user);
+  // console.log('profile user', user);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [referralLinkCopied, setReferralLinkCopied] = useState(false);
@@ -264,6 +264,17 @@ if (!mounted || !user) return null;
                     <p className="text-xs text-muted-foreground mt-1">
                       {t('userProfile.affiliate.shareDesc', 'Share this link with others to earn commissions when they sign up.')}
                     </p>
+                  </div>
+
+                  <div className="pt-2 border-t">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start bg-muted/30 hover:bg-muted/50 mt-2"
+                      onClick={() => window.location.href = '/dashboard/me/affiliate/referrals'}
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      {t('userProfile.affiliate.viewReferrals', 'View My Referrals History')}
+                    </Button>
                   </div>
                 </div>
               ) : (
