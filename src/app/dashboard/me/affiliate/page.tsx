@@ -15,7 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function AffiliatePage() {
   const { t } = useTranslation();
-  const { user: authUser, loading } = useAuth(true);
+  const { user: authUser, loading } = useAuth();
   const { user, setUser } = useUserStore();
   
   const [mounted, setMounted] = useState(false);

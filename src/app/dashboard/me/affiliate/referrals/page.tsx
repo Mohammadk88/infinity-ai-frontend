@@ -1,35 +1,67 @@
 'use client';
 
-import {  useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import { CheckCircle, XCircle, Clock, AlertCircle, User, DollarSign, ArrowLeftCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertCircle, User, ArrowLeftCircle, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import api from '@/app/lib/axios'; // أو حسب مسار الملف يلي عندك
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-// import { cn } from '@/lib/utils';
-import { useAffiliateStore } from '@/store/useAffiliateStore';
 import { Button } from '@/components/ui/button';
+import { cn, formatCurrency } from '@/lib/utils';
+import { Referral } from '@/types/AffiliateStats';
 
 export default function ReferralHistoryPage() {
   const { t } = useTranslation();
-  const { logs, isLoading, error, fetchLogs } = useAffiliateStore();
+  const [referrals, setReferrals] = useState<Referral[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
-  // Fetch referral data on page load
+  // Function to fetch referrals
+  const fetchReferrals = useCallback(async () => {
+    try {
+      setIsRefreshing(true);
+      const { data } = await api.get('/me/affiliates/referrals');
+      // Ensure data is an array before setting state
+      if (Array.isArray(data)) {
+        setReferrals(data);
+      } else {
+        console.error('API did not return an array:', data);
+        setReferrals([]);
+        setError(t('affiliate.referrals.invalidData', 'Received invalid data format from server'));
+      }
+    } catch (err) {
+      console.error('Failed to fetch referrals:', err);
+      setReferrals([]);
+      setError(t('affiliate.referrals.error', 'Failed to load referral data'));
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [t]);
+  
+  // Fetch referral data on mount
   useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+    setMounted(true);
+    fetchReferrals();
+  }, [fetchReferrals]);
   
-  // Format currency function
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(amount);
+  // Don't render until client-side to prevent hydration issues
+  if (!mounted) return null;
+  
+  // Format date function
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy');
+    } catch (e) {
+      return dateString;
+    }
   };
 
   // Helper function to determine status badge styling
@@ -56,26 +88,17 @@ export default function ReferralHistoryPage() {
     }
   };
 
-  // Format date function
-  const formatDate = (dateString: string | Date | unknown) => {
-    if (dateString === null || dateString === undefined) {
-      return 'N/A';
-    }
-    const date = typeof dateString === 'string' ? new Date(dateString) : dateString as Date;
-    return format(date, 'MMM d, yyyy');
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight">
             {t('affiliate.referrals.title', 'My Referrals')}
-            </h1>
-            <p className="text-muted-foreground mt-1">
+          </h1>
+          <p className="text-muted-foreground mt-1">
             {t('affiliate.referrals.subtitle', 'Track the status of people you\'ve referred')}
-            </p>
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <Link href="/dashboard/me/affiliate">
@@ -84,12 +107,16 @@ export default function ReferralHistoryPage() {
               {t('affiliate.backToAffiliate', 'Back to Affiliate')}
             </Button>
           </Link>
-          <Link href="/dashboard/me/affiliate/earnings">
-            <Button variant="outline" size="sm" className="w-full sm:w-auto">
-              <DollarSign className="h-4 w-4 mr-2" />
-              {t('affiliate.viewEarnings', 'View Earnings')}
-            </Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full sm:w-auto"
+            onClick={() => fetchReferrals()}
+            disabled={isLoading || isRefreshing}
+          >
+            <RefreshCw className={cn("h-4 w-4 mr-2", (isLoading || isRefreshing) && "animate-spin")} />
+            {t('affiliate.refreshData', 'Refresh Data')}
+          </Button>
         </div>
       </div>
 
@@ -107,42 +134,56 @@ export default function ReferralHistoryPage() {
             <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive mb-4">
               <div className="flex gap-2 items-center">
                 <AlertCircle className="h-4 w-4" />
-                <span>{t('affiliate.referrals.error', 'Error loading referral data')}</span>
+                <span>{error}</span>
               </div>
             </div>
           )}
 
           {/* Table for displaying referrals */}
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('affiliate.referrals.user', 'User')}</TableHead>
                   <TableHead>{t('affiliate.referrals.status', 'Status')}</TableHead>
-                  <TableHead className="text-right">{t('affiliate.referrals.earnings', 'Earnings')}</TableHead>
+                  <TableHead className="text-right">{t('affiliate.referrals.reward', 'Reward')}</TableHead>
                   <TableHead className="hidden md:table-cell">{t('affiliate.referrals.date', 'Date')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {/* Loading state */}
-                {isLoading && logs.length === 0 && (
+                {isLoading && (
                   Array.from({ length: 5 }).map((_, index) => (
                     <TableRow key={`loading-${index}`}>
-                      <TableCell><Skeleton className="h-5 w-[180px]" /></TableCell>
-                      <TableCell><Skeleton className="h-5 w-[100px]" /></TableCell>
-                      <TableCell className="text-right"><Skeleton className="h-5 w-[80px] ml-auto" /></TableCell>
-                      <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-[100px]" /></TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="h-8 w-8 rounded-full" />
+                          <div className="space-y-1">
+                            <Skeleton className="h-4 w-[150px]" />
+                            <Skeleton className="h-3 w-[120px]" />
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-6 w-20" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="h-4 w-16 ml-auto" />
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
-                
-                {/* Empty state when no referrals */}
-                {!isLoading && logs.length === 0 && (
+
+                {/* Empty state */}
+                {!isLoading && (!referrals || referrals.length === 0) && (
                   <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
-                      <div className="flex flex-col items-center justify-center py-4">
-                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground mb-2">
-                          <AlertCircle className="h-5 w-5" />
+                    <TableCell colSpan={4} className="h-32 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                          <User className="h-6 w-6 text-muted-foreground" />
                         </div>
                         <h3 className="font-medium text-sm">{t('affiliate.referrals.noReferralsYet', 'No Referrals Yet')}</h3>
                         <p className="text-xs text-muted-foreground mt-1 max-w-sm">
@@ -154,37 +195,38 @@ export default function ReferralHistoryPage() {
                 )}
                 
                 {/* Actual referral data */}
-                {!isLoading && logs.map((referral) => {
+                {!isLoading && referrals && Array.isArray(referrals) && referrals.map((referral) => {
+                  if (!referral) return null;
+                  
                   const badge = getStatusBadge(referral.status);
                   return (
-                    <TableRow key={referral.id}>
+                    <TableRow key={referral.id || Math.random().toString()}>
                       <TableCell className="font-medium">
-                        {referral.referredEmail}
-                        {referral.referredName && (
-                          <div className="text-xs text-muted-foreground">
-                            {referral.referredName}
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                            {referral.referredUser?.name ? referral.referredUser.name.charAt(0).toUpperCase() : '?'}
                           </div>
-                        )}
+                          <div>
+                            <div>{referral.referredUser?.name || t('affiliate.referrals.unknownUser', 'Unknown User')}</div>
+                            <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                              {referral.referredUser?.email || ''}
+                            </div>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={badge.variant} className={badge.className}>
-                          <span className="flex items-center">
+                          <div className="flex items-center">
                             {badge.icon}
-                            {t(`affiliate.status.${referral.status}`, referral.status)}
-                          </span>
+                            {t(`affiliate.status.${referral.status}`, referral.status.charAt(0).toUpperCase() + referral.status.slice(1))}
+                          </div>
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
-                        {referral.earnings !== undefined ? (
-                          formatCurrency(referral.earnings)
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            {t('affiliate.referrals.pending', 'Pending')}
-                          </span>
-                        )}
+                      <TableCell className="text-right font-mono text-sm">
+                        {formatCurrency(referral.reward)}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {formatDate(referral.referredAt)}
+                      <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                        {referral.createdAt ? formatDate(referral.createdAt) : '-'}
                       </TableCell>
                     </TableRow>
                   );
@@ -193,6 +235,19 @@ export default function ReferralHistoryPage() {
             </Table>
           </div>
         </CardContent>
+        <CardFooter className="flex justify-between border-t pt-4">
+          <span className="text-xs text-muted-foreground">
+            {t('affiliate.referrals.lastUpdated', 'Last updated: {time}', 
+              { time: new Date().toLocaleTimeString() })
+            }
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {referrals && referrals.length > 0 && 
+              t('affiliate.referrals.showing', 'Showing {count} referrals', 
+                { count: referrals.length })
+            }
+          </span>
+        </CardFooter>
       </Card>
     </div>
   );

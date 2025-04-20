@@ -79,11 +79,6 @@ export default function Header() {
   if (!mounted) return null
 
 
-  const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang);
-    // Update RTL based on language
-    document.documentElement.dir = ['ar', 'fa', 'ur'].includes(lang) ? 'rtl' : 'ltr';
-  };
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout'); // فرضًا عندك endpoint لهذا

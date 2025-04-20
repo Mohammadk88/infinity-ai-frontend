@@ -33,7 +33,14 @@ export const fadeAnimationVariants = {
     }
   }
 };
-
+export const formatCurrency = (amount?: number) => {
+  if (amount === undefined) return '-';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
 /**
  * Shimmer effect animation for loading states
  * @param width - Width of the shimmer (default: 100%)

@@ -15,3 +15,15 @@
     totalApprovedReferrals: number;
     totalRejectedReferrals: number;
   }
+
+  export interface Referral {
+    id: string
+    referredUser: {
+      id: string
+      name: string
+      email: string
+    }
+    status: 'pending' | 'approved' | 'rejected'
+    reward?: number
+    createdAt: string
+  }
