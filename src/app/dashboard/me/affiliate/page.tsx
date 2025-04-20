@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Shield, Copy, Check, AlertCircle, AlertTriangle, Link as LinkIcon, DollarSign, Users } from 'lucide-react';
+import { Shield, Copy, Check, AlertCircle, AlertTriangle, Link as LinkIcon, DollarSign, Users, Settings, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,23 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/use-toast';
 import { useUserStore } from '@/store/useUserStore';
 import { useAuth } from '@/hooks/useAuth';
+import api from '@/app/lib/axios';
+import { cn } from '@/lib/utils';
 
 export default function AffiliatePage() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { user: authUser, loading } = useAuth();
   const { user, setUser } = useUserStore();
   
   const [mounted, setMounted] = useState(false);
   const [referralLinkCopied, setReferralLinkCopied] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [isLiking, setIsLiking] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -27,7 +34,46 @@ export default function AffiliatePage() {
     if (authUser && !user) {
       setUser(authUser);
     }
+    // Load initial like status and count
+    fetchLikeStatus();
   }, [authUser, user, setUser]);
+
+  const fetchLikeStatus = async () => {
+    try {
+      const { data } = await api.get('/me/affiliate/likes', { withCredentials: true });
+      setIsLiked(data.isLiked);
+      setLikeCount(data.count);
+    } catch (error) {
+      console.error('Failed to fetch like status:', error);
+    }
+  };
+
+  const handleLike = async () => {
+    if (isLiking) return;
+    
+    try {
+      setIsLiking(true);
+      const { data } = await api.post('/me/affiliate/like', {}, { withCredentials: true });
+      setIsLiked(data.isLiked);
+      setLikeCount(data.count);
+      
+      toast({
+        title: data.isLiked ? t('affiliate.liked', 'Liked!') : t('affiliate.unliked', 'Unliked'),
+        description: data.isLiked 
+          ? t('affiliate.likedDesc', 'Thanks for showing your support!')
+          : t('affiliate.unlikedDesc', 'Successfully removed your like'),
+      });
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+      toast({
+        title: t('affiliate.error', 'Error'),
+        description: t('affiliate.likeError', 'Failed to process your like'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLiking(false);
+    }
+  };
 
   const copyReferralLink = () => {
     if (!user?.referralCode) return;
@@ -80,16 +126,47 @@ export default function AffiliatePage() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLike}
+            disabled={isLiking}
+            className={cn(
+              "w-full sm:w-auto gap-2",
+              isLiked && "bg-pink-500/10 text-pink-500 border-pink-500/20 hover:bg-pink-500/20 hover:text-pink-600"
+            )}
+          >
+            <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
+            <span>{likeCount}</span>
+          </Button>
+          <Link href="/dashboard/me/affiliate/payouts">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <DollarSign className="h-4 w-4 mr-2" />
+              {t('affiliate.viewPayouts', 'View Payouts')}
+            </Button>
+          </Link>
           <Link href="/dashboard/me/affiliate/earnings">
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <DollarSign className="h-4 w-4 mr-2" />
               {t('affiliate.viewEarnings', 'View Earnings')}
             </Button>
           </Link>
+          <Link href="/dashboard/me/affiliate/commissions">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <DollarSign className="h-4 w-4 mr-2" />
+              {t('affiliate.viewCommissions', 'View Commissions')}
+            </Button>
+          </Link>
           <Link href="/dashboard/me/affiliate/referrals">
             <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Users className="h-4 w-4 mr-2" />
               {t('affiliate.viewReferrals', 'View Referrals')}
+            </Button>
+          </Link>
+          <Link href="/dashboard/me/affiliate/settings">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+              <Settings className="h-4 w-4 mr-2" />
+              {t('affiliate.settings.manage', 'Settings')}
             </Button>
           </Link>
           <Link href="/dashboard/me">

@@ -1,145 +1,119 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { 
-  PercentIcon, 
-  ArrowLeftCircle, 
-  Users, 
-  TrendingUp, 
-  DollarSign, 
-  Calculator,
-  InfoIcon
+import { format } from 'date-fns';
+import {
+  ArrowLeftCircle,
+  RefreshCw,
+  Search,
+  ChevronDown,
+  Filter,
+  DollarSign,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useAffiliateStore } from '@/store/useAffiliateStore';
-// import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import api from '@/app/lib/axios';
 
-// Simple chart component to show earnings growth
-const SimpleBarChart = ({ data, height = 40 }: { data: number[], height?: number }) => {
-  const max = Math.max(...data);
-  
-  return (
-    <div className="flex items-end gap-1 h-[40px]">
-      {data.map((value, index) => (
-        <div 
-          key={index} 
-          className="bg-primary/80 hover:bg-primary rounded-sm w-full transition-all"
-          style={{ 
-            height: `${max ? (value / max) * height : 0}px`,
-            minHeight: value > 0 ? '4px' : '0'
-          }}
-          title={`${value}`}
-        />
-      ))}
-    </div>
-  );
-};
-
-// Stats card component for metrics
-const StatCard = ({
-  title,
-  value,
-  description,
-  icon: Icon,
-  chartData,
-  loading = false,
-  formatter = (val: number | string) => val,
-}: {
-  title: string,
-  value: number | string,
-  description?: string,
-  icon: React.ElementType,
-  chartData?: number[],
-  loading?: boolean,
-  formatter?: (val: number | string) => React.ReactNode,
-}) => {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          <div className="rounded-full bg-muted/50 p-1">
-            <Icon className="h-4 w-4 text-muted-foreground" />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <Skeleton className="h-8 w-24" />
-        ) : (
-          <div className="space-y-1">
-            <div className="text-2xl font-bold">
-              {formatter(value)}
-            </div>
-            {description && (
-              <p className="text-xs text-muted-foreground">
-                {description}
-              </p>
-            )}
-          </div>
-        )}
-        {chartData && !loading && (
-          <div className="mt-3">
-            <SimpleBarChart data={chartData} />
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
+interface Commission {
+  id: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  status: 'pending' | 'approved' | 'paid';
+  type: 'referral' | 'bonus' | 'payout';
+  paymentDate: string;
+}
 
 export default function CommissionsPage() {
   const { t } = useTranslation();
-  const { stats, isLoading, error, fetchStats } = useAffiliateStore();
   const [mounted, setMounted] = useState(false);
-  
-  // Fetch affiliate data on page load
+  const [isLoading, setIsLoading] = useState(true);
+  const [commissions, setCommissions] = useState<Commission[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   useEffect(() => {
     setMounted(true);
-    fetchStats();
-  }, [fetchStats]);
-  
-  // Don't render until client-side to prevent hydration issues
-  if (!mounted) {
-    return null;
-  }
-  
-  // Format currency function
-  const formatCurrency = (amount: number | string) => {
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    fetchCommissions();
+  }, []);
+
+  const fetchCommissions = async () => {
+    try {
+      setIsRefreshing(true);
+      const { data } = await api.get('/affiliate/commissions', { withCredentials: true });
+      setCommissions(data);
+    } catch (error) {
+      console.error('Failed to fetch commissions:', error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  const formatCurrency = (amount: number, currency: string = 'USD') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: stats?.currency || 'USD',
-      minimumFractionDigits: 2,
-    }).format(numAmount);
-  };
-  
-  // Format percentage
-  const formatPercentage = (value: number | string) => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    return `${numValue}%`;
+      currency: currency
+    }).format(amount);
   };
 
-  // Derived stats for the cards
-  const commissionData = {
-    currentRate: stats?.commissionRate || 0,
-    totalConvertedReferrals: stats?.totalConvertedReferrals || 0,
-    totalApprovedEarnings: stats?.totalApprovedEarnings || 0,
-    averageCommission: stats?.totalConvertedReferrals 
-      ? (stats.totalApprovedEarnings / stats.totalConvertedReferrals) 
-      : 0,
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+      case 'paid':
+        return (
+          <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/30">
+            <CheckCircle className="h-3.5 w-3.5 mr-1" />
+            {t('affiliate.commissions.paid', 'Paid')}
+          </Badge>
+        );
+      case 'approved':
+        return (
+          <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/30">
+            <CheckCircle className="h-3.5 w-3.5 mr-1" />
+            {t('affiliate.commissions.approved', 'Approved')}
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/30">
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            {t('affiliate.commissions.pending', 'Pending')}
+          </Badge>
+        );
+    }
   };
 
-  // Mock data for earnings chart - in a real app this would come from API
-  const mockEarningsGrowth = [12, 18, 24, 32, 28, 36, 42, 48, 52, 58, 64, 72];
+  const filteredCommissions = commissions.filter(commission => {
+    if (searchQuery && !commission.id.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+    if (statusFilter && commission.status !== statusFilter) {
+      return false;
+    }
+    if (typeFilter && commission.type !== typeFilter) {
+      return false;
+    }
+    return true;
+  });
+
+  if (!mounted) return null;
 
   return (
     <div className="space-y-6">
@@ -147,146 +121,170 @@ export default function CommissionsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {t('affiliates.commissions.title', 'Commission Summary')}
+            {t('affiliate.commissions.title', 'Commissions History')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {t('affiliates.commissions.subtitle', 'View your commission rates and earnings statistics')}
+            {t('affiliate.commissions.subtitle', 'Track your commission payments and status')}
           </p>
         </div>
-        <Link href="/dashboard/me/affiliate">
-          <Button variant="outline" size="sm">
-            <ArrowLeftCircle className="h-4 w-4 mr-2" />
-            {t('affiliates.backToAffiliate', 'Back to Affiliate')}
-          </Button>
-        </Link>
-      </div>
-
-      {/* Error message */}
-      {error && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive mb-4">
-          <div className="flex gap-2 items-center">
-            <InfoIcon className="h-4 w-4" />
-            <span>{t('affiliates.commissions.error', 'Error loading commission data')}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Commission Rate Card */}
-        <StatCard
-          title={t('affiliates.commissions.currentRate', 'Current Commission Rate')}
-          value={commissionData.currentRate}
-          description={t('affiliates.commissions.rateDescription', 'Your earnings percentage per conversion')}
-          icon={PercentIcon}
-          loading={isLoading && !stats}
-          formatter={formatPercentage}
-        />
-
-        {/* Converted Referrals Card */}
-        <StatCard
-          title={t('affiliates.commissions.totalReferrals', 'Total Converted Referrals')}
-          value={commissionData.totalConvertedReferrals}
-          description={t('affiliates.commissions.referralDescription', 'Users who subscribed through your link')}
-          icon={Users}
-          loading={isLoading && !stats}
-        />
-
-        {/* Total Approved Earnings Card */}
-        <StatCard
-          title={t('affiliates.commissions.approvedEarnings', 'Total Approved Earnings')}
-          value={commissionData.totalApprovedEarnings}
-          description={t('affiliates.commissions.earningsDescription', 'Total commissions paid out to date')}
-          icon={DollarSign}
-          chartData={mockEarningsGrowth}
-          loading={isLoading && !stats}
-          formatter={formatCurrency}
-        />
-
-        {/* Average Commission Card */}
-        <StatCard
-          title={t('affiliates.commissions.averageCommission', 'Average Commission')}
-          value={commissionData.averageCommission}
-          description={t('affiliates.commissions.averageDescription', 'Average earnings per converted referral')}
-          icon={Calculator}
-          loading={isLoading && !stats}
-          formatter={formatCurrency}
-        />
-      </div>
-
-      {/* Commission Details Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('affiliates.commissions.details', 'Commission Details')}</CardTitle>
-          <CardDescription>
-            {t('affiliates.commissions.detailsDescription', 'Additional information about your commission structure')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {isLoading && !stats ? (
-            <div className="space-y-4">
-              <Skeleton className="h-5 w-full" />
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-5 w-5/6" />
-            </div>
-          ) : (
-            <div className="prose prose-sm max-w-none dark:prose-invert">
-              <p>
-                {t('affiliates.commissions.explainer', 
-                  'As an affiliate partner, you earn {rate}% commission on all qualifying purchases made by users who sign up through your referral link. Commissions are calculated based on the subscription fee paid by the referred user.',
-                  { rate: commissionData.currentRate }
-                )}
-              </p>
-              
-              <div className="my-4 p-4 rounded-md bg-muted">
-                <h4 className="font-medium text-base">
-                  {t('affiliates.commissions.howCalculated', 'How commissions are calculated')}
-                </h4>
-                <p className="text-sm">
-                  {t('affiliates.commissions.calculationExample', 
-                    'Example: If a user purchases a $99/month subscription through your link, you would earn ${earned} per month for as long as they remain subscribed.',
-                    { earned: ((99 * commissionData.currentRate) / 100).toFixed(2) }
-                  )}
-                </p>
-              </div>
-
-              <p className="text-sm">
-                {t('affiliates.commissions.paymentSchedule', 'Commissions are processed at the end of each month and paid out according to your chosen payment method. The minimum payout threshold is $50.')}
-              </p>
-              
-              <div className="flex items-center my-4 gap-2 text-sm">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {t('affiliates.commissions.performanceTip', 'Higher conversion rates may qualify you for increased commission percentages.')}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <p className="text-muted-foreground">
-                  {t('affiliates.commissions.performanceBased', 'Commission rates are performance-based and may be adjusted over time.')}
-                </p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="border-t pt-4 flex justify-between">
-          <span className="text-xs text-muted-foreground">
-            {isLoading ? 
-              t('affiliates.commissions.loading', 'Loading data...') :
-              t('affiliates.commissions.lastUpdated', 'Last updated: {date}', { date: new Date().toLocaleDateString() })
-            }
-          </span>
-          <Link href="/dashboard/me/affiliate/earnings">
-            <Button variant="ghost" size="sm">
-              {t('affiliates.commissions.viewEarningsHistory', 'View Earnings History')}
-              <TrendingUp className="ml-2 h-4 w-4" />
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link href="/dashboard/me/affiliate">
+            <Button variant="outline" size="sm">
+              <ArrowLeftCircle className="h-4 w-4 mr-2" />
+              {t('affiliate.backToAffiliate', 'Back to Affiliate')}
             </Button>
           </Link>
-        </CardFooter>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchCommissions}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={cn("h-4 w-4 mr-2", isRefreshing && "animate-spin")} />
+            {t('affiliate.refreshData', 'Refresh')}
+          </Button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={t('affiliate.commissions.search', 'Search commissions...')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <Filter className="h-4 w-4 mr-2" />
+                    {statusFilter || t('affiliate.commissions.status', 'Status')}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setStatusFilter(null)}>
+                    {t('affiliate.commissions.allStatuses', 'All Statuses')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter('pending')}>
+                    {t('affiliate.commissions.pending', 'Pending')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter('approved')}>
+                    {t('affiliate.commissions.approved', 'Approved')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter('paid')}>
+                    {t('affiliate.commissions.paid', 'Paid')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <Filter className="h-4 w-4 mr-2" />
+                    {typeFilter || t('affiliate.commissions.type', 'Type')}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setTypeFilter(null)}>
+                    {t('affiliate.commissions.allTypes', 'All Types')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTypeFilter('referral')}>
+                    {t('affiliate.commissions.referral', 'Referral')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTypeFilter('bonus')}>
+                    {t('affiliate.commissions.bonus', 'Bonus')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTypeFilter('payout')}>
+                    {t('affiliate.commissions.payout', 'Payout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </CardContent>
       </Card>
+
+      {/* Commissions Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {isLoading ? (
+          // Loading skeletons
+          Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-6 w-32" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : filteredCommissions.length === 0 ? (
+          <Card className="md:col-span-2 lg:col-span-3">
+            <CardContent className="p-6 text-center">
+              <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                <DollarSign className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="font-medium text-lg mb-2">
+                {t('affiliate.commissions.noCommissions', 'No commissions found')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t('affiliate.commissions.startEarning', 'Start sharing your referral link to earn commissions')}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredCommissions.map((commission) => (
+            <Card key={commission.id}>
+              <CardHeader className="pb-2">
+                <CardDescription>
+                  {format(new Date(commission.paymentDate), 'MMM d, yyyy')}
+                </CardDescription>
+                <CardTitle className="text-lg">
+                  {formatCurrency(commission.amount, commission.currency)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      {t('affiliate.commissions.method', 'Method')}
+                    </span>
+                    <span className="text-sm font-medium">
+                      {commission.paymentMethod}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      {t('affiliate.commissions.type', 'Type')}
+                    </span>
+                    <span className="text-sm font-medium capitalize">
+                      {commission.type}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      {t('affiliate.commissions.status', 'Status')}
+                    </span>
+                    {getStatusBadge(commission.status)}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </div>
   );
 }
