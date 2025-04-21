@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 export function middleware(request: NextRequest) {
   const isLoggedIn = request.cookies.has('jwt');
   const { pathname } = request.nextUrl;
-
+  console.log('isLoggedIn:', isLoggedIn);
+  console.log('pathname:', pathname);
+  // ✅ إذا المستخدم مو داخل (ما عنده توكن) وعم يحاول يدخل على /dashboard أو أي مسار بعده
   // 🔐 نحمي فقط /dashboard وما بعده
   if (pathname.startsWith('/dashboard') && !isLoggedIn) {
     return NextResponse.redirect(new URL('/auth/login', request.url));

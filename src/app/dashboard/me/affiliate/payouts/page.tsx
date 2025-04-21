@@ -49,6 +49,8 @@ export default function PayoutsPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [requestAmount, setRequestAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('paypal');
+  const [currency, setCurrency] = useState('USD');
 
   const fetchPayouts = useCallback(async () => {
     try {
@@ -95,10 +97,19 @@ export default function PayoutsPage() {
 
     try {
       setIsRequesting(true);
-      await api.post('/affiliate/payouts/request', { amount }, { withCredentials: true });
+      await api.post('/affiliate/commissions', {
+        type: 'payout',
+        amount,
+        currency,
+        paymentMethod
+      }, { withCredentials: true });
+      
       setShowRequestDialog(false);
       setRequestAmount('');
+      setCurrency('USD');
+      setPaymentMethod('paypal');
       fetchPayouts();
+      
       toast({
         title: t('affiliate.payouts.success', 'Success'),
         description: t('affiliate.payouts.requestSubmitted', 'Payout request submitted successfully'),
@@ -208,21 +219,23 @@ export default function PayoutsPage() {
                   {t('affiliate.payouts.requestPayout', 'Request Payout')}
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>{t('affiliate.payouts.requestTitle', 'Request Payout')}</DialogTitle>
                   <DialogDescription>
-                    {t('affiliate.payouts.requestDesc', 'Enter the amount you want to withdraw')}
+                    {t('affiliate.payouts.requestDesc', 'Enter your payout request details')}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
-                    <Label>{t('affiliate.payouts.amount', 'Amount')}</Label>
+                    <Label htmlFor="amount">{t('affiliate.payouts.amount', 'Amount')}</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
+                        id="amount"
                         type="number"
-                        min="50"
+                        min="0.01"
+                        step="0.01"
                         max={stats?.pendingEarnings || 0}
                         value={requestAmount}
                         onChange={(e) => setRequestAmount(e.target.value)}
@@ -236,12 +249,40 @@ export default function PayoutsPage() {
                       })}
                     </p>
                   </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="currency">{t('affiliate.payouts.currency', 'Currency')}</Label>
+                    <select
+                      id="currency"
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                    </select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="paymentMethod">{t('affiliate.payouts.paymentMethod', 'Payment Method')}</Label>
+                    <select
+                      id="paymentMethod"
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="paypal">PayPal</option>
+                      <option value="bank">Bank Transfer</option>
+                    </select>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setShowRequestDialog(false)}>
                     {t('common.cancel', 'Cancel')}
                   </Button>
-                  <Button onClick={handleRequestPayout} disabled={isRequesting}>
+                  <Button 
+                    onClick={handleRequestPayout} 
+                    disabled={isRequesting || !requestAmount || Number(requestAmount) <= 0}
+                  >
                     {isRequesting ? t('common.requesting', 'Requesting...') : t('common.submit', 'Submit')}
                   </Button>
                 </DialogFooter>
