@@ -3,336 +3,305 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { format } from 'date-fns';
 import {
   DollarSign,
-  TrendingUp,
   CheckCircle,
-  XCircle,
+  Clock,
   ArrowLeftCircle,
-  Users,
-  BarChart4,
-  Calendar,
-  ChevronDown,
-  Filter,
-  Download
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MetricCard, StatsCard } from '@/components/features/metric-card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAffiliateStore } from '@/store/useAffiliateStore';
 import { cn } from '@/lib/utils';
 import api from '@/app/lib/axios';
-import { AffiliateStats } from '@/types/AffiliateStats';
-
-interface DateRange {
-  start: Date;
-  end: Date;
-}
+import type { Commission } from '@/types/Commission';
 
 export default function AffiliateEarningsPage() {
   const { t } = useTranslation();
-  const { stats, error, fetchStats } = useAffiliateStore();
-  const [data, setData] = useState<AffiliateStats | null>(null);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState<DateRange>({
-    start: startOfMonth(subMonths(new Date(), 1)),
-    end: endOfMonth(new Date())
-  });
-  const [chartFilter, setChartFilter] = useState<'all' | 'approved' | 'pending'>('all');
+  const [error, setError] = useState<string | null>(null);
+  const [commissions, setCommissions] = useState<Commission[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { stats } = useAffiliateStore();
 
-  const fetchEarningsData = useCallback(async () => {
-    setLoading(true);
+  const fetchEarnings = useCallback(async () => {
     try {
-      const { data } = await api.get('/affiliate/earnings', {
-        params: {
-          startDate: format(dateRange.start, 'yyyy-MM-dd'),
-          endDate: format(dateRange.end, 'yyyy-MM-dd')
-        }
-      });
-      setData(data);
-      await fetchStats();
+      setIsRefreshing(true);
+      const response = await api.get('/affiliate/referrals/earnings');
+      setCommissions(response.data?.commissions || []);
+      setError(null);
     } catch (err) {
-      console.error('Failed to load earnings:', err);
+      setError(t('affiliate.earnings.error', 'Failed to load earnings data'));
+      console.error('Failed to fetch earnings:', err);
+      setCommissions([]);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
-  }, [dateRange, fetchStats]);
+  }, [t]);
 
-  // Fetch affiliate data on mount and when date range changes
   useEffect(() => {
     setMounted(true);
-    fetchEarningsData();
-  }, [fetchEarningsData]);
+    fetchEarnings();
+  }, [fetchEarnings]);
 
-  const formatCurrency = (amount: number | string) => {
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const formatCurrency = (amount: number, currency: string = 'USD') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: stats?.currency || 'USD',
-      minimumFractionDigits: 2,
-    }).format(numAmount);
+      currency: currency,
+      minimumFractionDigits: 2
+    }).format(amount);
   };
 
-  const getDateRangePreset = (months: number) => {
-    return {
-      start: startOfMonth(subMonths(new Date(), months)),
-      end: endOfMonth(new Date())
-    };
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return (
+          <Badge variant="outline" className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/30">
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            {t('affiliate.status.pending', 'Pending')}
+          </Badge>
+        );
+      case 'approved':
+        return (
+          <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/30">
+            <CheckCircle className="h-3.5 w-3.5 mr-1" />
+            {t('affiliate.status.approved', 'Approved')}
+          </Badge>
+        );
+      case 'paid':
+        return (
+          <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/30">
+            <DollarSign className="h-3.5 w-3.5 mr-1" />
+            {t('affiliate.status.paid', 'Paid')}
+          </Badge>
+        );
+      default:
+        return null;
+    }
   };
 
   if (!mounted) return null;
-
-  if (!data && !loading) {
-    return (
-      <div className="p-6 center text-center bg-red-50 dark:bg-red-900/20 rounded-md border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400">
-        {t('affiliate.earnings.noData', 'No earnings data found.')}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('affiliate.earnings.title', 'My Affiliate Earnings')}
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            {t('affiliate.earnings.title', 'Earnings')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {t('affiliate.earnings.subtitle', 'Track your affiliate performance and earnings')}
+            {t('affiliate.earnings.subtitle', 'Track all your affiliate income')}
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href="/dashboard/me/affiliate">
             <Button variant="outline" size="sm">
               <ArrowLeftCircle className="h-4 w-4 mr-2" />
               {t('affiliate.backToAffiliate', 'Back to Affiliate')}
             </Button>
           </Link>
-          <Link href="/dashboard/me/affiliate/referrals">
-            <Button variant="outline" size="sm">
-              <Users className="h-4 w-4 mr-2" />
-              {t('affiliate.viewReferrals', 'View Referrals')}
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchEarnings}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={cn("h-4 w-4 mr-2", isRefreshing && "animate-spin")} />
+            {t('affiliate.refreshData', 'Refresh')}
+          </Button>
         </div>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  {format(dateRange.start, 'MMM d, yyyy')} - {format(dateRange.end, 'MMM d, yyyy')}
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem onClick={() => setDateRange(getDateRangePreset(1))}>
-                  {t('affiliate.earnings.lastMonth', 'Last Month')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setDateRange(getDateRangePreset(3))}>
-                  {t('affiliate.earnings.last3Months', 'Last 3 Months')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setDateRange(getDateRangePreset(6))}>
-                  {t('affiliate.earnings.last6Months', 'Last 6 Months')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setDateRange(getDateRangePreset(12))}>
-                  {t('affiliate.earnings.lastYear', 'Last Year')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <div className="flex gap-2 ml-auto">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
-                    <Filter className="h-4 w-4 mr-2" />
-                    {t('affiliate.earnings.filterBy', 'Filter Chart')}
-                    <ChevronDown className="h-4 w-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setChartFilter('all')}>
-                    {t('affiliate.earnings.showAll', 'Show All')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setChartFilter('approved')}>
-                    {t('affiliate.earnings.showApproved', 'Approved Only')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setChartFilter('pending')}>
-                    {t('affiliate.earnings.showPending', 'Pending Only')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                {t('affiliate.earnings.export', 'Export')}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Error alert if needed */}
+      {/* Error Alert */}
       {error && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive mb-4">
-          <div className="flex gap-2 items-center">
-            <XCircle className="h-4 w-4" />
-            <span>{t('affiliate.earnings.error', 'Error loading affiliate data')}</span>
-          </div>
-        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t('affiliate.error.title', 'Error')}</AlertTitle>
+          <AlertDescription className="flex items-center justify-between">
+            <span>{error}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchEarnings}
+              className="bg-destructive-foreground text-destructive hover:bg-destructive-foreground/90"
+            >
+              {t('affiliate.retry', 'Retry')}
+            </Button>
+          </AlertDescription>
+        </Alert>
       )}
 
-      {/* Main metrics cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Approved Earnings */}
-        <MetricCard 
-          title={t('affiliate.earnings.approved', 'Approved Earnings')}
-          value={data?.totalApprovedEarnings || 0}
-          description={t('affiliate.earnings.approvedDesc', 'Earnings ready for payout')}
-          icon={DollarSign}
-          iconColor="text-green-500"
-          gradientColors="from-green-400 to-green-600"
-          loading={loading}
-          formatter={formatCurrency}
-        />
+      {/* Metrics Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        {/* Total Earnings */}
+        <Card className="border-muted/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('affiliate.metrics.totalEarnings', 'Total Earnings')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-7 w-24" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold flex items-center">
+                  <DollarSign className="h-5 w-5 mr-1 text-green-500" />
+                  {formatCurrency(stats?.totalEarnings || 0)}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('affiliate.metrics.allTimeEarnings', 'All-time earnings')}
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Pending Earnings */}
-        <MetricCard 
-          title={t('affiliate.earnings.pending', 'Pending Earnings')}
-          value={data?.totalPendingEarnings || 0}
-          description={t('affiliate.earnings.pendingDesc', 'Earnings awaiting approval')}
-          icon={DollarSign}
-          iconColor="text-amber-500"
-          gradientColors="from-amber-400 to-amber-600"
-          loading={loading}
-          formatter={formatCurrency}
-        />
+        <Card className="border-muted/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('affiliate.metrics.pendingEarnings', 'Pending Earnings')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-7 w-24" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold flex items-center">
+                  <Clock className="h-5 w-5 mr-1 text-yellow-500" />
+                  {formatCurrency(stats?.pendingEarnings || 0)}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('affiliate.metrics.awaitingApproval', 'Awaiting approval')}
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
-        {/* Average Earnings */}
-        <MetricCard 
-          title={t('affiliate.earnings.average', 'Average Per Referral')}
-          value={data?.totalConvertedReferrals ? (data.totalApprovedEarnings / data.totalConvertedReferrals) : 0}
-          description={t('affiliate.earnings.averageDesc', 'Average earnings per converted referral')}
-          icon={DollarSign}
-          iconColor="text-blue-500"
-          gradientColors="from-blue-400 to-blue-600"
-          loading={loading}
-          formatter={formatCurrency}
-        />
+        {/* Commission Rate */}
+        <Card className="border-muted/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('affiliate.metrics.commissionRate', 'Commission Rate')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-7 w-24" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold flex items-center">
+                  {stats?.commissionRate || 0}%
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('affiliate.metrics.currentRate', 'Your current rate')}
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Total Referrals */}
+        <Card className="border-muted/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('affiliate.metrics.totalReferrals', 'Total Referrals')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <Skeleton className="h-7 w-24" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {stats?.referralCount || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('affiliate.metrics.referralCount', 'People referred')}
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Referral Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Total Converted Referrals */}
-        <StatsCard 
-          title={t('affiliate.metrics.converted', 'Converted Referrals')}
-          value={data?.totalConvertedReferrals || 0}
-          description={t('affiliate.metrics.subscribedUsers', 'Subscribed users')}
-          icon={TrendingUp}
-          iconBackground="bg-blue-50 dark:bg-blue-900/20" 
-          iconColor="text-blue-600 dark:text-blue-400"
-          loading={loading}
-        />
-
-        {/* Approved Referrals */}
-        <StatsCard 
-          title={t('affiliate.metrics.approved', 'Approved Referrals')}
-          value={data?.totalApprovedReferrals || 0}
-          description={t('affiliate.metrics.earnedCommission', 'Earned commission')}
-          icon={CheckCircle}
-          iconBackground="bg-green-50 dark:bg-green-900/20" 
-          iconColor="text-green-600 dark:text-green-400"
-          loading={loading}
-        />
-
-        {/* Success Rate */}
-        <StatsCard 
-          title={t('affiliate.metrics.successRate', 'Success Rate')}
-          value={data?.totalConvertedReferrals && data.totalApprovedReferrals 
-            ? `${Math.round((data.totalApprovedReferrals / data.totalConvertedReferrals) * 100)}%`
-            : '0%'}
-          description={t('affiliate.metrics.approvalRate', 'Referral approval rate')}
-          icon={TrendingUp}
-          iconBackground="bg-purple-50 dark:bg-purple-900/20" 
-          iconColor="text-purple-600 dark:text-purple-400"
-          loading={loading}
-        />
-      </div>
-
-      {/* Earnings Breakdown Chart */}
+      {/* Commissions Table */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('affiliate.earnings.breakdown', 'Earnings Breakdown')}</CardTitle>
+          <CardTitle>{t('affiliate.earnings.commissions', 'Commission History')}</CardTitle>
           <CardDescription>
-            {t('affiliate.earnings.breakdownDesc', 'Visual representation of your earnings by status')}
+            {t('affiliate.earnings.commissionsDesc', 'Your latest commission earnings')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="w-full h-[200px] flex items-center justify-center">
-              <Skeleton className="h-full w-[80%] max-w-[500px]" />
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : commissions.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                <DollarSign className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="font-medium text-lg mb-2">
+                {t('affiliate.earnings.noEarnings', 'No earnings yet')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {t('affiliate.earnings.startEarning', 'Start referring to earn commissions')}
+              </p>
             </div>
           ) : (
-            <div className="relative h-[200px] w-full flex items-center justify-center">
-              {/* Earnings visualization based on chartFilter */}
-              <div className="flex items-end justify-center w-full gap-6 h-full pt-4 pb-8">
-                {(chartFilter === 'all' || chartFilter === 'approved') && (
-                  <div className="flex flex-col items-center gap-2">
-                    <div 
-                      className={cn(
-                        "w-16 bg-green-500 rounded-t-md transition-all duration-500",
-                        data && data.totalApprovedEarnings > 0 ? "h-[60%]" : "h-[10%]" 
-                      )}
-                    ></div>
-                    <span className="text-xs font-medium">{t('affiliate.status.approved', 'Approved')}</span>
-                    <span className="text-xs text-muted-foreground">{formatCurrency(data?.totalApprovedEarnings || 0)}</span>
-                  </div>
-                )}
-                
-                {(chartFilter === 'all' || chartFilter === 'pending') && (
-                  <div className="flex flex-col items-center gap-2">
-                    <div 
-                      className={cn(
-                        "w-16 bg-amber-500 rounded-t-md transition-all duration-500",
-                        data && data.totalPendingEarnings > 0 ? "h-[40%]" : "h-[5%]" 
-                      )}
-                    ></div>
-                    <span className="text-xs font-medium">{t('affiliate.status.pending', 'Pending')}</span>
-                    <span className="text-xs text-muted-foreground">{formatCurrency(data?.totalPendingEarnings || 0)}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="absolute bottom-4 right-4 text-muted-foreground">
-                <BarChart4 className="h-5 w-5" />
-              </div>
+            <div className="relative overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('affiliate.earnings.date', 'Date')}</TableHead>
+                    <TableHead>{t('affiliate.earnings.type', 'Type')}</TableHead>
+                    <TableHead>{t('affiliate.earnings.amount', 'Amount')}</TableHead>
+                    <TableHead>{t('affiliate.earnings.status', 'Status')}</TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      {t('affiliate.earnings.method', 'Method')}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {commissions.map((commission) => (
+                    <TableRow key={commission.id}>
+                      <TableCell>
+                        {format(new Date(commission.createdAt), 'MMM d, yyyy')}
+                      </TableCell>
+                      <TableCell className="capitalize">{commission.type}</TableCell>
+                      <TableCell className="font-mono">
+                        {formatCurrency(commission.amount, commission.currency)}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(commission.status)}</TableCell>
+                      <TableCell className="hidden sm:table-cell capitalize">
+                        {commission.paymentMethod.replace('_', ' ')}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
       </Card>
-
-      {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-4 sm:justify-end mt-6">
-        <Button className="w-full sm:w-auto flex gap-2 items-center" onClick={fetchEarningsData}>
-          <TrendingUp className="h-4 w-4" />
-          {t('affiliate.earnings.refreshData', 'Refresh Data')}
-        </Button>
-      </div>
     </div>
   );
 }

@@ -22,8 +22,7 @@ export default function ReferralHistoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
-  // Function to fetch referrals
+
   const fetchReferrals = useCallback(async () => {
     try {
       setIsRefreshing(true);
@@ -45,7 +44,7 @@ export default function ReferralHistoryPage() {
       setIsRefreshing(false);
     }
   }, [t]);
-  
+
   // Fetch referral data on mount
   useEffect(() => {
     setMounted(true);
@@ -59,7 +58,8 @@ export default function ReferralHistoryPage() {
   const formatDate = (dateString: string) => {
     try {
       return format(new Date(dateString), 'MMM d, yyyy');
-    } catch (e) {
+    } catch {
+      // If date parsing fails, return the original string
       return dateString;
     }
   };
