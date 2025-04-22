@@ -3,7 +3,7 @@
 import { useUserStore } from '@/store/useUserStore';
 import { useState } from 'react';
 
-export function useAuth() {
+export function useAuth(p0: boolean) {
   const { user } = useUserStore();
   const [loading] = useState(true);
 
