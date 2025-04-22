@@ -26,7 +26,8 @@ import {
   UserPlus,
   Bell,
   Target,
-  Award
+  Award,
+  Gift
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/layout/logo';
@@ -173,6 +174,12 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       badge: 'New'
     },
     {
+      title: t('sidebar.rewards', 'Rewards'),
+      href: '/dashboard/me/rewards/points',
+      icon: <Gift className="h-4 w-4" />,
+      isActive: pathname?.includes('/rewards'),
+    },
+    {
       title: t('sidebar.analytics', 'Analytics'),
       href: '/dashboard/analytics',
       icon: <BarChart2 className="h-4 w-4" />,
@@ -190,7 +197,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
   const affiliateItems = [
     {
       title: t('sidebar.affiliateCenter', 'Affiliate Center'),
-      href: '/dashboard/affiliate',
+      href: '/dashboard/me/affiliate',
       icon: <Award className="h-4 w-4" />,
       isActive: pathname?.includes('/affiliate'),
     }

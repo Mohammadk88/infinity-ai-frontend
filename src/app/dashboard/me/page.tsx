@@ -11,7 +11,8 @@ import {
   Check,
   AlertCircle, 
   AlertTriangle,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Gift
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,8 +45,7 @@ export default function UserProfilePage() {
   }, []);
 
   // Don't render until mounted to avoid hydration issues
-if (!mounted || !user) return null;
-
+  if (!mounted || !user) return null;
 
   const copyReferralLink = () => {
     if (!user?.referralCode) return;
@@ -72,17 +72,27 @@ if (!mounted || !user) return null;
           </p>
         </div>
         
-        {/* Add referrals link in header if user is an active affiliate */}
-        {user?.affiliate?.status === 'approved' && (
+        <div className="flex flex-wrap gap-2">
+          {/* Add referrals link in header if user is an active affiliate */}
+          {user?.affiliate?.status === 'approved' && (
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => window.location.href = '/dashboard/me/affiliate'}
+            >
+              <Shield className="h-4 w-4" />
+              {t('userProfile.viewAffiliateAccount', 'View Affiliate Account')}
+            </Button>
+          )}
           <Button 
             variant="outline" 
             className="gap-2"
-            onClick={() => window.location.href = '/dashboard/me/affiliate'}
+            onClick={() => window.location.href = '/dashboard/me/rewards/points'}
           >
-            <User className="h-4 w-4" />
-            {t('userProfile.viewAffiliateAccount', 'View Affiliate Account')}
+            <Gift className="h-4 w-4" />
+            {t('userProfile.viewRewards', 'View Rewards')}
           </Button>
-        )}
+        </div>
       </div>
 
       {/* Main content with tabs */}
@@ -96,6 +106,10 @@ if (!mounted || !user) return null;
             <TabsTrigger value="affiliate" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Shield className="h-4 w-4 mr-2" />
               {t('userProfile.tabs.affiliate', 'Affiliate')}
+            </TabsTrigger>
+            <TabsTrigger value="rewards" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Gift className="h-4 w-4 mr-2" />
+              {t('userProfile.tabs.rewards', 'Rewards')}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -300,6 +314,37 @@ if (!mounted || !user) return null;
                   </AlertDescription>
                 </Alert>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="rewards" className="space-y-4">
+          <Card className="border-muted/40">
+            <CardHeader>
+              <CardTitle>{t('userProfile.rewards.title', 'Rewards Program')}</CardTitle>
+              <CardDescription>
+                {t('userProfile.rewards.description', 'Earn and track your reward points')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 rounded-md bg-muted/50 border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Gift className="h-5 w-5 text-primary" />
+                  <h4 className="font-medium">
+                    {t('userProfile.rewards.availablePoints', 'Available Points')}
+                  </h4>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t('userProfile.rewards.pointsDescription', 'View your points balance and rewards history in the rewards dashboard.')}
+                </p>
+                <Button
+                  onClick={() => window.location.href = '/dashboard/me/rewards/points'}
+                  className="w-full sm:w-auto"
+                >
+                  <Gift className="h-4 w-4 mr-2" />
+                  {t('userProfile.rewards.viewDashboard', 'View Rewards Dashboard')}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
