@@ -114,9 +114,9 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     },
     {
       title: t('sidebar.companyAgency', 'Company/Agency'),
-      href: '/dashboard/companies',
+      href: '/dashboard/company',
       icon: <Building className="h-4 w-4" />,
-      isActive: pathname?.includes('/companies'),
+      isActive: pathname?.includes('/company'),
     },
     {
       title: t('sidebar.clients', 'Client Management'),
@@ -245,26 +245,42 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
         }}
       >
         <div className="flex h-16 items-center border-b px-3">
-          <div className={cn(
-            "overflow-hidden transition-all duration-300",
-            isCollapsed ? "w-0 opacity-0" : "w-[180px] opacity-100"
-          )}>
-            <Logo />
-          </div>
+          <Link 
+            href="/dashboard" 
+            className={cn(
+              "flex items-center transition-all duration-300 hover:opacity-80",
+              isCollapsed ? "justify-center w-full" : "overflow-hidden w-[180px]"
+            )}
+          >
+            <div className={cn(
+              "relative flex items-center justify-center transition-all duration-300",
+              isCollapsed ? "w-9 h-9" : "w-[180px]"
+            )}>
+              {isCollapsed ? (
+                <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
+              ) : (
+                <Logo />
+              )}
+            </div>
+          </Link>
           <Button 
             variant="ghost" 
             size="icon" 
             className={cn(
-              "h-7 w-7 rounded-full hover:bg-primary/10 hover:text-primary animate__animated animate__fadeIn",
+              "h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary animate__animated animate__fadeIn",
               !isCollapsed && (isRTL ? "mr-auto" : "ml-auto"),
+              "hover:shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             )}
             onClick={toggleSidebar}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-pressed={isCollapsed ? "false" : "true"}
           >
             {isCollapsed ? (
-              isRTL ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />
+              isRTL ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
             ) : (
-              isRTL ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />
+              isRTL ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />
             )}
           </Button>
         </div>

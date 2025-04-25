@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -21,13 +21,13 @@ import { AuthBackground } from '@/components/ui/auth-background';
 import api from '@/app/lib/axios';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { CountrySelect, Country } from '@/components/ui/country-select';
 
 // Form validation schema
 const companySchema = z.object({
   companyName: z.string().min(2, 'Company name is required'),
   email: z.string().email('Invalid email address'),
   country: z.string().min(2, 'Country is required'),
-  city: z.string().min(2, 'City is required'),
   companyType: z.enum(['COMPANY', 'AGENCY']),
   ownerName: z.string().min(2, 'Owner name is required'),
   ownerEmail: z.string().email('Invalid owner email'),
@@ -54,11 +54,14 @@ export default function RegisterCompanyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
+    control,
+    setValue,
     formState: { errors }
   } = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
@@ -70,6 +73,7 @@ export default function RegisterCompanyPage() {
   const companyType = watch('companyType');
 
   const onSubmit = async (data: CompanyFormData) => {
+    console.log("Form data being submitted:", data);
     setIsLoading(true);
     try {
       const response = await api.post('/auth/register-company', data);
@@ -84,6 +88,7 @@ export default function RegisterCompanyPage() {
 
       router.push('/dashboard');
     } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
         variant: "destructive",
         title: t('register.error.title', 'Registration failed'),
@@ -92,6 +97,12 @@ export default function RegisterCompanyPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // For manual form submission
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(onSubmit)(e);
   };
 
   const getCompanyTypeDescription = (type: 'COMPANY' | 'AGENCY') => {
@@ -161,7 +172,7 @@ export default function RegisterCompanyPage() {
               </div>
             </CardHeader>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleManualSubmit}>
               <CardContent className="space-y-6">
                 {/* Company Information Section */}
                 <div className="space-y-4">
@@ -211,49 +222,50 @@ export default function RegisterCompanyPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="country">{t('register.company.country', 'Country')} *</Label>
-                      <div className="relative">
-                        <Globe className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          {...register('country')}
-                          id="country"
-                          placeholder={t('register.company.countryPlaceholder', 'Enter country')}
-                          className="pl-9 h-11"
-                        />
-                      </div>
-                      {errors.country && (
-                        <p className="text-sm text-destructive flex items-center gap-1 mt-1">
-                          <AlertCircle className="h-3 w-3" />
-                          {errors.country.message}
-                        </p>
-                      )}
+                      <Controller
+                        name="country"
+                        control={control}
+                        render={({ field }) => (
+                          <CountrySelect
+                            label={`${t('register.company.country', 'Country')} *`}
+                            placeholder={t('register.company.countryPlaceholder', 'Select country')}
+                            onSelect={(country) => {
+                              if (country) {
+                                // Set both name (for API) and keep track of selected country
+                                field.onChange(country.name);
+                                setSelectedCountry(country);
+                                setValue('country', country.id);
+                              } else {
+                              }
+                            }}
+                            error={errors.country?.message}
+                            required
+                          />
+                        )}
+                      />
                     </div>
                     <div className="space-y-2">
-                    <Label htmlFor="companyType">{t('register.company.companyType', 'Company Type')} *</Label>
-                    <Select
-                      onValueChange={(value) => {
-                        const event = { target: { name: 'companyType', value } };
-                        register('companyType').onChange(event);
-                      }}
-                      defaultValue="COMPANY"
-                    >
-                      <SelectTrigger className="h-11 w-full">
-                        <SelectValue placeholder={t('register.company.selectType', 'Select company type')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="COMPANY">{t('register.company.typeCompanyOption', 'Business')}</SelectItem>
-                        <SelectItem value="AGENCY">{t('register.company.typeAgencyOption', 'Agency')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="mt-2 text-sm text-muted-foreground flex items-start gap-2">
-                      <Info className="h-4 w-4 mt-0.5 shrink-0" />
-                      <span>{getCompanyTypeDescription(companyType as 'COMPANY' | 'AGENCY')}</span>
+                      <Label htmlFor="companyType">{t('register.company.companyType', 'Company Type')} *</Label>
+                      <Select
+                        onValueChange={(value) => {
+                          setValue('companyType', value as 'COMPANY' | 'AGENCY');
+                        }}
+                        defaultValue="COMPANY"
+                      >
+                        <SelectTrigger className="h-11 w-full">
+                          <SelectValue placeholder={t('register.company.selectType', 'Select company type')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="COMPANY">{t('register.company.typeCompanyOption', 'Business')}</SelectItem>
+                          <SelectItem value="AGENCY">{t('register.company.typeAgencyOption', 'Agency')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="mt-2 text-sm text-muted-foreground flex items-start gap-2">
+                        <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                        <span>{getCompanyTypeDescription(companyType as 'COMPANY' | 'AGENCY')}</span>
+                      </div>
                     </div>
                   </div>
-
-                  </div>
-
-                
                 </div>
 
                 {/* Owner Information Section */}

@@ -158,7 +158,7 @@ export default function CompanyMembersPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href="/dashboard/companies">
+          <Link href="/dashboard/compani">
             <Button variant="outline">
               {t('company.members.backToCompany', 'Back to Company')}
             </Button>
