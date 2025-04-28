@@ -27,12 +27,17 @@ import {
   Bell,
   Target,
   Award,
-  Gift
+  Gift,
+  Globe2,
+  Eye,
+  Settings2,
+  UserCog
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
 import { useUserStore } from '@/store/useUserStore';
+import { useCompanyStore } from '@/store/useCompanyStore';
 
 interface SidebarProps {
   className?: string;
@@ -47,11 +52,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
   const [isMobile, setIsMobile] = useState(false);
   const isRTL = i18n.dir() === 'rtl';
   const { user } = useUserStore();
+  const { currentCompany } = useCompanyStore();
   
   // Check if user is an active affiliate
   const isActiveAffiliate = user?.affiliate && user?.affiliate.status === 'approved' && user?.affiliate.isActive;
-// console.log('affiliate:', user?.affiliate);
-// console.log('affiliate.status:', user?.affiliate?.status);
+
   // Check if current device is mobile
   useEffect(() => {
     setIsMounted(true);
@@ -116,7 +121,27 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       title: t('sidebar.companyAgency', 'Company/Agency'),
       href: '/dashboard/company',
       icon: <Building className="h-4 w-4" />,
-      isActive: pathname?.includes('/company'),
+      isActive: pathname?.includes('/company') && !pathname?.includes('/settings') && !pathname?.includes('/members') && !pathname?.includes('/view'),
+      submenu: currentCompany ? [
+        {
+          title: t('sidebar.companyView', 'View Company'),
+          href: currentCompany.id ? `/dashboard/company/view/${currentCompany.id}` : '/dashboard/company',
+          icon: <Eye className="h-4 w-4" />,
+          isActive: pathname?.includes('/company/view'),
+        },
+        {
+          title: t('sidebar.companyMembers', 'Company Members'),
+          href: '/dashboard/company/members',
+          icon: <UserCog className="h-4 w-4" />,
+          isActive: pathname?.includes('/company/members'),
+        },
+        {
+          title: t('sidebar.companySettings', 'Settings'),
+          href: currentCompany.id ? `/dashboard/company/${currentCompany.id}/setting` : '/dashboard/company/settings',
+          icon: <Settings2 className="h-4 w-4" />,
+          isActive: pathname?.includes('/company/settings') || pathname?.includes('/company/') && pathname?.includes('/setting'),
+        },
+      ] : [],
     },
     {
       title: t('sidebar.clients', 'Client Management'),
@@ -295,6 +320,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               {t('sidebar.main', 'Main')}
             </div>
             
+            {/* Main nav items */}
             {navItems.slice(0, 2).map((item, index) => (
               <Link
                 key={item.href}
@@ -371,7 +397,113 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               {t('sidebar.organization', 'Organization')}
             </div>
             
-            {navItems.slice(2, 6).map((item, index) => (
+            {/* Render Company/Agency with submenu if available */}
+            {navItems.slice(2, 3).map((item, index) => (
+              <div key={item.href} className="flex flex-col">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "group flex items-center gap-3 rounded-md px-3 py-2.5 transition-all relative",
+                    item.isActive 
+                      ? "bg-primary/10 text-primary font-medium animate__animated animate__pulse animate__faster" 
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    isCollapsed ? "justify-center" : "",
+                  )}
+                  style={{ 
+                    animationDelay: `${index * 50}ms`
+                  }}
+                  aria-label={item.title}
+                >
+                  <div className={cn(
+                    "flex h-5 w-5 items-center justify-center transition-colors",
+                    item.isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
+                    item.isActive && "animate__animated animate__tada"
+                  )}>
+                    {item.icon}
+                  </div>
+                  
+                  <span className={cn(
+                    "text-sm transition-all duration-300",
+                    isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                    isRTL && "mr-1"
+                  )}>
+                    {item.title}
+                  </span>
+                  
+                  {item.badge && !isCollapsed && (
+                    <Badge variant="outline" className={cn(
+                      "ml-auto bg-primary/10 text-primary border-primary/20 text-[10px] h-5 px-1.5",
+                      "rtl:ml-0 rtl:mr-auto",
+                      "animate__animated animate__fadeInDown animate__faster"
+                    )}>
+                      {item.badge}
+                    </Badge>
+                  )}
+                  
+                  {/* Tooltip for collapsed mode */}
+                  {isCollapsed && (
+                    <span className={cn(
+                      "absolute z-50 rounded-md bg-popover px-2.5 py-1.5 text-xs font-medium text-popover-foreground opacity-0 shadow-md transition-opacity group-hover:opacity-100 whitespace-nowrap border",
+                      isRTL ? "right-14" : "left-14",
+                      "animate__animated animate__fadeIn animate__faster"
+                    )}>
+                      {item.title}
+                      {item.badge && (
+                        <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/10 text-primary px-1.5 text-[9px]">
+                          {item.badge}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                  
+                  {/* Active indicator */}
+                  {item.isActive && (
+                    <span className={cn(
+                      "absolute inset-y-0 w-0.5 bg-primary rounded-full",
+                      isRTL ? "right-0" : "left-0"
+                    )} />
+                  )}
+                </Link>
+
+                {/* Render submenu for Company */}
+                {!isCollapsed && item.submenu && item.submenu.length > 0 && (
+                  <div className="pl-6 mt-1 space-y-1">
+                    {item.submenu.map((subItem) => (
+                      <Link
+                        key={subItem.href}
+                        href={subItem.href}
+                        className={cn(
+                          "group flex items-center gap-2 rounded-md px-3 py-2 transition-all relative text-sm",
+                          subItem.isActive 
+                            ? "bg-primary/5 text-primary font-medium" 
+                            : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                        )}
+                        aria-label={subItem.title}
+                      >
+                        <div className={cn(
+                          "flex h-4 w-4 items-center justify-center transition-colors",
+                          subItem.isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                        )}>
+                          {subItem.icon}
+                        </div>
+                        <span>{subItem.title}</span>
+                        
+                        {/* Active indicator for submenu */}
+                        {subItem.isActive && (
+                          <span className={cn(
+                            "absolute inset-y-0 w-0.5 bg-primary rounded-full opacity-70",
+                            isRTL ? "right-0" : "left-0"
+                          )} />
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            
+            {/* Other Organization items */}
+            {navItems.slice(3, 6).map((item, index) => (
               <Link
                 key={item.href}
                 href={item.href}

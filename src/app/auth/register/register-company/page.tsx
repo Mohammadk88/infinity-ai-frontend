@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Mail, Globe, Info, User, Lock, Check, AlertCircle, Loader2, ArrowLeft, Eye, EyeOff, MapPin } from 'lucide-react';
+import { Building2, Mail, Info, User, Lock, Check, AlertCircle, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,6 @@ import { AuthBackground } from '@/components/ui/auth-background';
 import api from '@/app/lib/axios';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { CountrySelect, Country } from '@/components/ui/country-select';
 
 // Form validation schema
 const companySchema = z.object({
@@ -54,13 +53,11 @@ export default function RegisterCompanyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
-    control,
     setValue,
     formState: { errors }
   } = useForm<CompanyFormData>({
@@ -87,12 +84,22 @@ export default function RegisterCompanyPage() {
       });
 
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Registration error:", error);
+      interface ErrorResponse {
+        data?: {
+          message?: string;
+        };
+      }
+      
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? ((error.response as ErrorResponse)?.data?.message || t('register.error.general', 'Something went wrong. Please try again.'))
+        : t('register.error.general', 'Something went wrong. Please try again.');
+      
       toast({
         variant: "destructive",
         title: t('register.error.title', 'Registration failed'),
-        description: error.response?.data?.message || t('register.error.general', 'Something went wrong. Please try again.'),
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -201,49 +208,6 @@ export default function RegisterCompanyPage() {
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="email">{t('register.company.companyEmail', 'Company Email')} *</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          {...register('email')}
-                          id="email"
-                          type="email"
-                          placeholder={t('register.company.emailPlaceholder', 'company@example.com')}
-                          className="pl-9 h-11"
-                        />
-                      </div>
-                      {errors.email && (
-                        <p className="text-sm text-destructive flex items-center gap-1 mt-1">
-                          <AlertCircle className="h-3 w-3" />
-                          {errors.email.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Controller
-                        name="country"
-                        control={control}
-                        render={({ field }) => (
-                          <CountrySelect
-                            label={`${t('register.company.country', 'Country')} *`}
-                            placeholder={t('register.company.countryPlaceholder', 'Select country')}
-                            onSelect={(country) => {
-                              if (country) {
-                                // Set both name (for API) and keep track of selected country
-                                field.onChange(country.name);
-                                setSelectedCountry(country);
-                                setValue('country', country.id);
-                              } else {
-                              }
-                            }}
-                            error={errors.country?.message}
-                            required
-                          />
-                        )}
-                      />
-                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="companyType">{t('register.company.companyType', 'Company Type')} *</Label>
                       <Select

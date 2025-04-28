@@ -11,7 +11,7 @@ export interface Company {
   address: string;
   website: string;
   description: string;
-  logo?: string;
+  logoUrl?: string;
   coverImage?: string;
   isActive: boolean;
   defaultRole: string;
@@ -84,9 +84,10 @@ export const useCompanyStore = create<CompanyState>()(
         updateCompany: async (id: string, formData: FormData) => {
           set({ isLoading: true, error: null });
           try {
-            const response = await axios.patch(`/companies/${id}`, formData, {
+            const response = await axios.put(`/companies/${id}`, formData, {
               headers: { 'Content-Type': 'multipart/form-data' }
             });
+            
             // Update company in companies array and current company if needed
             set((state) => ({
               companies: state.companies.map((c) => 
@@ -94,6 +95,8 @@ export const useCompanyStore = create<CompanyState>()(
               ),
               currentCompany: state.currentCompany?.id === id ? response.data : state.currentCompany
             }));
+            
+            return response.data;
           } catch (error) {
             const err = error as AxiosError<ApiErrorResponse>;
             set({ error: err.response?.data?.message || 'Failed to update company' });

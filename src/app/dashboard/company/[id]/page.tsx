@@ -52,7 +52,7 @@ export default function CompanyProfilePage({ params }: { params: { id: string } 
     } finally {
       setIsLoading(false);
     }
-  }, [params.id]);
+  }, [params?.id]);
 
   useEffect(() => {
     fetchCompanyDetails();

@@ -12,8 +12,8 @@ api.interceptors.request.use(
     const csrfToken = Cookies.get('XSRF-TOKEN');
     if (csrfToken && config.headers) {
       config.headers['X-XSRF-TOKEN'] = csrfToken;
-      config.headers['Content-Type'] = 'application/json';
-      config.headers['Accept'] = 'application/json';
+      // config.headers['Content-Type'] = 'application/json';
+      // config.headers['Accept'] = 'application/json';
     }
     return config;
   },
