@@ -2,10 +2,30 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Edit, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { 
+  Edit, 
+  MoreHorizontal, 
+  Plus, 
+  Trash2, 
+  Loader2, 
+  Check,
+  UserPlus,
+  Search,
+  AlertTriangle,
+  X
+} from 'lucide-react';
 import Link from 'next/link';
+import { useCompanyStore } from '@/store/useCompanyStore';
+
+// UI Components
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -21,17 +41,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -39,57 +56,216 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';
+
+// Api and Types
 import useCompanyMembersStore from '@/store/useCompanyMembersStore';
 import { ApiError } from '@/types/ApiError';
+import { CompanyMember } from '@/types/CompanyMember';
 
-export default function CompanyMembersPage() {
+// Form schema for adding/editing company members
+const memberFormSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Valid email is required'),
+  roleId: z.string().min(1, 'Role is required'),
+});
+
+type MemberFormValues = z.infer<typeof memberFormSchema>;
+
+export default function ManageCompanyMembersPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [addMemberOpen, setAddMemberOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [newMember, setNewMember] = useState({ userId: '', roleId: '' });
+  const { activeCompany } = useCompanyStore();
   
+  // State
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<CompanyMember | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Company members store
   const {
     members,
     roles,
     isLoading,
+    selectedMember,
     fetchMembers,
     fetchRoles,
     addMember,
     updateMember,
-    removeMember
+    removeMember,
+    setSelectedMember
   } = useCompanyMembersStore();
 
+  // Form setup with React Hook Form + Zod
+  const form = useForm<MemberFormValues>({
+    resolver: zodResolver(memberFormSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      roleId: '',
+    },
+    mode: 'onChange',
+  });
+
+  // Get company ID safely
+  const companyId = activeCompany?.id || '1';
+
+  // Initialize data on component mount
   useEffect(() => {
-    // In a real app, you'd get the company ID from context or route params
-    const companyId = '1';
     fetchMembers(companyId);
     fetchRoles(companyId);
-  }, [fetchMembers, fetchRoles]);
+  }, [fetchMembers, fetchRoles, companyId]);
 
-  const handleAddMember = async () => {
-    try {
-      await addMember('1', newMember);
-      setAddMemberOpen(false);
-      setNewMember({ userId: '', roleId: '' });
-      toast({
-        title: t('company.members.addSuccess', 'Member added successfully'),
-        variant: 'default',
+  // Update form when selected member changes (for editing)
+  useEffect(() => {
+    if (selectedMember && isEditMode) {
+      form.reset({
+        name: selectedMember.user.name,
+        email: selectedMember.user.email,
+        roleId: selectedMember.roleId,
       });
+    }
+  }, [selectedMember, form, isEditMode]);
+
+  // Filtered members based on search query
+  const filteredMembers = members.filter(member => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      member.user.name.toLowerCase().includes(searchLower) ||
+      member.user.email.toLowerCase().includes(searchLower) ||
+      member.role.name.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Handle opening the add member dialog
+  const handleAddMember = () => {
+    setIsEditMode(false);
+    setSelectedMember(null);
+    form.reset({
+      name: '',
+      email: '',
+      roleId: '',
+    });
+    setAddMemberOpen(true);
+  };
+
+  // Handle opening the edit member dialog
+  const handleEditMember = (member: CompanyMember) => {
+    setIsEditMode(true);
+    setSelectedMember(member);
+    form.reset({
+      name: member.user.name,
+      email: member.user.email,
+      roleId: member.roleId,
+    });
+    setAddMemberOpen(true);
+  };
+
+  // Handle showing the delete confirmation dialog
+  const handleShowDeleteDialog = (member: CompanyMember) => {
+    setMemberToDelete(member);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // Handle form submission for adding/editing members
+  const onSubmit = async (values: MemberFormValues) => {
+    setIsSubmitting(true);
+    
+    try {
+      if (isEditMode && selectedMember) {
+        // Update existing member
+        await updateMember(selectedMember.id, { 
+          roleId: values.roleId,
+          // In a real API, you might update more fields like name and email
+        });
+        
+        toast({
+          title: t('company.members.updateSuccess', 'Member updated successfully'),
+          description: `${values.name}'s role has been updated.`,
+          variant: 'default',
+        });
+      } else {
+        // Add new member
+        await addMember(companyId, { 
+          userId: values.email, // In a real implementation, you would look up or create the user
+          roleId: values.roleId,
+          name: values.name // Some APIs might accept additional fields
+        });
+        
+        toast({
+          title: t('company.members.addSuccess', 'Member added successfully'),
+          description: `${values.name} has been added to the company.`,
+          variant: 'default',
+        });
+      }
+      
+      setAddMemberOpen(false);
     } catch (error) {
       const apiError = error as ApiError;
       toast({
-        title: t('company.members.addError', 'Failed to add member'),
+        title: isEditMode 
+          ? t('company.members.updateError', 'Failed to update member') 
+          : t('company.members.addError', 'Failed to add member'),
+        description: apiError.response?.data?.message || 'An unexpected error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle member deletion with confirmation
+  const handleDeleteMember = async () => {
+    if (!memberToDelete) return;
+    
+    try {
+      await removeMember(memberToDelete.id);
+      toast({
+        title: t('company.members.removeSuccess', 'Member removed successfully'),
+        description: `${memberToDelete.user.name} has been removed from the company.`,
+        variant: 'default',
+      });
+      setIsDeleteDialogOpen(false);
+      setMemberToDelete(null);
+    } catch (error) {
+      const apiError = error as ApiError;
+      toast({
+        title: t('company.members.removeError', 'Failed to remove member'),
         description: apiError.response?.data?.message || 'An unexpected error occurred',
         variant: 'destructive',
       });
     }
   };
 
+  // Update member role directly from the dropdown in the table
   const handleUpdateRole = async (memberId: string, roleId: string) => {
     try {
+      // Optimistically update the UI
+      const updatedMembers = members.map(member => 
+        member.id === memberId 
+          ? { 
+              ...member, 
+              roleId, 
+              role: { ...member.role, name: roles.find(r => r.id === roleId)?.name || member.role.name } 
+            }
+          : member
+      );
+      
+      // Update in the backend
       await updateMember(memberId, { roleId });
+      
       toast({
         title: t('company.members.updateSuccess', 'Member role updated'),
         variant: 'default',
@@ -101,32 +277,12 @@ export default function CompanyMembersPage() {
         description: apiError.response?.data?.message || 'An unexpected error occurred',
         variant: 'destructive',
       });
+      // Refresh the list to get accurate data after failure
+      fetchMembers(companyId);
     }
   };
 
-  const handleRemoveMember = async (memberId: string) => {
-    try {
-      await removeMember(memberId);
-      toast({
-        title: t('company.members.removeSuccess', 'Member removed successfully'),
-        variant: 'default',
-      });
-    } catch (error) {
-      const apiError = error as ApiError;
-      toast({
-        title: t('company.members.removeError', 'Failed to remove member'),
-        description: apiError.response?.data?.message || 'An unexpected error occurred',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const filteredMembers = members.filter(member => 
-    member.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.role.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
+  // Render status badges with appropriate colors
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -147,7 +303,8 @@ export default function CompanyMembersPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate__animated animate__fadeIn">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
@@ -158,89 +315,43 @@ export default function CompanyMembersPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href="/dashboard/compani">
+          <Link href="/dashboard/company">
             <Button variant="outline">
               {t('company.members.backToCompany', 'Back to Company')}
             </Button>
           </Link>
-          <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                {t('company.members.addMember', 'Add Member')}
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{t('company.members.addNewMember', 'Add New Member')}</DialogTitle>
-                <DialogDescription>
-                  {t('company.members.addDescription', 'Add a new member to your company team.')}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <label htmlFor="userId" className="text-sm font-medium">
-                    {t('company.members.selectUser', 'Select User')}
-                  </label>
-                  <Input
-                    id="userId"
-                    placeholder={t('company.members.userIdPlaceholder', 'Enter user ID or search')}
-                    value={newMember.userId}
-                    onChange={(e) => setNewMember({ ...newMember, userId: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <label htmlFor="role" className="text-sm font-medium">
-                    {t('company.members.selectRole', 'Select Role')}
-                  </label>
-                  <Select
-                    value={newMember.roleId}
-                    onValueChange={(value) => setNewMember({ ...newMember, roleId: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('company.members.selectRolePlaceholder', 'Select a role')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roles.map((role) => (
-                        <SelectItem key={role.id} value={role.id}>
-                          {role.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setAddMemberOpen(false)}>
-                  {t('common.cancel', 'Cancel')}
-                </Button>
-                <Button onClick={handleAddMember}>
-                  {t('common.add', 'Add')}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={handleAddMember}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            {t('company.members.addMember', 'Add Member')}
+          </Button>
         </div>
       </div>
 
+      {/* Search box */}
+      <div className="relative">
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder={t('company.members.search', 'Search members by name, email or role...')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      {/* Members list card */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle>{t('company.members.membersList', 'Members List')}</CardTitle>
-            <div className="flex gap-2">
-              <Input
-                placeholder={t('company.members.search', 'Search members...')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-[300px]"
-              />
+            <div className="text-sm text-muted-foreground">
+              {filteredMembers.length} {filteredMembers.length === 1 ? 'member' : 'members'}
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="p-4 space-y-4">
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3, 4].map((i) => (
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
@@ -256,60 +367,253 @@ export default function CompanyMembersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredMembers.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell className="font-medium">{member.user.name}</TableCell>
-                    <TableCell>{member.user.email}</TableCell>
-                    <TableCell>
-                      <Select
-                        value={member.roleId}
-                        onValueChange={(value) => handleUpdateRole(member.id, value)}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue>{member.role.name}</SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roles.map((role) => (
-                            <SelectItem key={role.id} value={role.id}>
-                              {role.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(member.status)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <span className="sr-only">
-                              {t('company.members.openMenu', 'Open menu')}
-                            </span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleUpdateRole(member.id, member.roleId)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            {t('company.members.editRole', 'Edit Role')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-red-600"
-                            onClick={() => handleRemoveMember(member.id)}
+                {filteredMembers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                      <div className="flex flex-col items-center justify-center text-muted-foreground">
+                        <UserPlus className="h-8 w-8 mb-2 opacity-50" />
+                        <p>
+                          {searchQuery 
+                            ? t('company.members.noResultsFound', 'No members match your search.')
+                            : t('company.members.noMembersYet', 'No members found. Add your first team member.')}
+                        </p>
+                        {searchQuery && (
+                          <Button 
+                            variant="link" 
+                            onClick={() => setSearchQuery('')} 
+                            className="mt-2"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            {t('company.members.remove', 'Remove')}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            {t('company.members.clearSearch', 'Clear search')}
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredMembers.map((member) => (
+                    <TableRow key={member.id}>
+                      <TableCell className="font-medium">{member.user.name}</TableCell>
+                      <TableCell>{member.user.email}</TableCell>
+                      <TableCell>
+                        <Select
+                          value={member.roleId}
+                          onValueChange={(value) => handleUpdateRole(member.id, value)}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue>{member.role.name}</SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roles.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>
+                                {role.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(member.status)}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <span className="sr-only">
+                                {t('company.members.openMenu', 'Open menu')}
+                              </span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditMember(member)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              {t('company.members.editMember', 'Edit Member')}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleShowDeleteDialog(member)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              {t('company.members.remove', 'Remove Member')}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           )}
         </CardContent>
       </Card>
+
+      {/* Add/Edit Member Dialog with React Hook Form */}
+      <Dialog open={addMemberOpen} onOpenChange={setAddMemberOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              {isEditMode
+                ? t('company.members.editMember', 'Edit Member')
+                : t('company.members.addNewMember', 'Add New Member')}
+            </DialogTitle>
+            <DialogDescription>
+              {isEditMode
+                ? t('company.members.editDescription', 'Edit the member details below.')
+                : t('company.members.addDescription', 'Add a new member to your company team.')}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Name field */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('company.members.name', 'Name')}</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder={t('company.members.namePlaceholder', 'Enter member name')}
+                        {...field}
+                        disabled={isEditMode} // Can't edit name in edit mode
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Email field */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('company.members.email', 'Email')}</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder={t('company.members.emailPlaceholder', 'Enter email address')}
+                        {...field}
+                        disabled={isEditMode} // Can't edit email in edit mode
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Role field */}
+              <FormField
+                control={form.control}
+                name="roleId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('company.members.role', 'Role')}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue 
+                            placeholder={t('company.members.selectRolePlaceholder', 'Select a role')}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {roles.map((role) => (
+                          <SelectItem key={role.id} value={role.id}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      {t('company.members.roleDescription', 'This determines what permissions the member will have.')}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter className="mt-6">
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  onClick={() => setAddMemberOpen(false)}
+                >
+                  {t('common.cancel', 'Cancel')}
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t('common.saving', 'Saving...')}
+                    </>
+                  ) : isEditMode ? (
+                    <>
+                      <Check className="mr-2 h-4 w-4" />
+                      {t('common.update', 'Update')}
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      {t('common.add', 'Add')}
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              {t('company.members.confirmRemoval', 'Confirm Member Removal')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('company.members.removeWarning', 'This action cannot be undone. The member will lose access to your company.')}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {memberToDelete && (
+            <div className="my-4">
+              <div className="bg-muted/50 p-4 rounded-md">
+                <div className="font-medium text-lg">{memberToDelete.user.name}</div>
+                <div className="text-muted-foreground">{memberToDelete.user.email}</div>
+                <div className="mt-2">
+                  <Badge variant="outline" className="mt-2">
+                    {memberToDelete.role.name}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              <X className="mr-2 h-4 w-4" />
+              {t('common.cancel', 'Cancel')}
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteMember}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              {t('company.members.removeConfirm', 'Yes, Remove Member')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
