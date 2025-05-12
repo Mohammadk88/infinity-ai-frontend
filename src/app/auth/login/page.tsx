@@ -2,19 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Zap, LogIn, Lock, Mail, AlertCircle, Loader2, Sparkles, Moon, Sun, LaptopIcon } from 'lucide-react';
+import { Zap, LogIn, Lock, Mail, AlertCircle, Loader2, Sparkles, Moon, Sun, LaptopIcon, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { useUserStore } from '@/store/useUserStore';
 import api from '@/app/lib/axios';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/components/providers/theme-provider';
+import { useToast } from '@/components/ui/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,11 +24,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default function LoginPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useAuth(false);
   const router = useRouter();
   const { setUser } = useUserStore();
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,17 +38,30 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     api.get(`/auth/csrf-token`, { withCredentials: true })
       .then(res => setCsrfToken(res.data.csrfToken));
   }, []);
+  
   useEffect(() => {
     setMounted(true);
     if (user) {
       router.push('/dashboard');
     }
-  }, [user, router]);
+    
+    // Check if user is arriving from an invitation acceptance
+    const justRegistered = searchParams.get('justRegistered') === 'true';
+    if (justRegistered) {
+      toast({
+        title: t('login.welcomeToast.title', 'Welcome to Infinity AI!'),
+        description: t('login.welcomeToast.description', 'Your account has been created successfully. Please log in to continue.'),
+        variant: 'default',
+        className: 'bg-green-50 border-green-200 text-green-800',
+      });
+    }
+  }, [user, router, searchParams, toast, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,12 +69,9 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Fake login for demonstration
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
       // In a real implementation you would call your auth API here
       await api.post('/auth/login', { email, password, _csrf: csrfToken }, { withCredentials: true });
-      // بعد تسجيل الدخول:
+      // After login:
       const res = await api.get('/auth/me', { withCredentials: true });
       setUser(res.data);
       console.log('User data:', res.data);
@@ -179,7 +192,7 @@ export default function LoginPage() {
                     <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -187,6 +200,15 @@ export default function LoginPage() {
                       required
                       autoComplete="current-password"
                     />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1 h-9 w-9 text-muted-foreground hover:text-foreground"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
                   </div>
                 </div>
 
@@ -259,12 +281,20 @@ export default function LoginPage() {
                   <span>{t('login.continueWithGoogle', 'Continue with Google')}</span>
                 </Button>
 
-                <p className="text-center text-sm text-muted-foreground">
-                  {t('login.dontHaveAccount', "Don't have an account?")}{' '}
-                  <Link href="/auth/register" className="text-primary hover:text-primary/80 hover:underline transition-colors font-medium">
-                    {t('login.register', 'Create account')}
-                  </Link>
-                </p>
+                <div className="space-y-2">
+                  <p className="text-center text-sm text-muted-foreground">
+                    {t('login.dontHaveAccount', "Don't have an account?")}{' '}
+                    <Link href="/auth/register" className="text-primary hover:text-primary/80 hover:underline transition-colors font-medium">
+                      {t('login.register', 'Create account')}
+                    </Link>
+                  </p>
+                  <p className="text-center text-xs text-muted-foreground">
+                    {t('login.haveInvitation', "Have an invitation?")}{' '}
+                    <Link href="/auth/register/register-from-invitation" className="text-primary hover:text-primary/80 hover:underline transition-colors font-medium">
+                      {t('login.registerFromInvitation', 'Register with invitation')}
+                    </Link>
+                  </p>
+                </div>
               </CardFooter>
             </form>
           </Card>

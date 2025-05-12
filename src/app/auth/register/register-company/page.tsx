@@ -21,6 +21,7 @@ import { AuthBackground } from '@/components/ui/auth-background';
 import api from '@/app/lib/axios';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { CountrySelector } from '@/components/ui/country-select';
 
 // Form validation schema
 const companySchema = z.object({
@@ -53,6 +54,7 @@ export default function RegisterCompanyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState('');
 
   const {
     register,
@@ -63,7 +65,8 @@ export default function RegisterCompanyPage() {
   } = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
     defaultValues: {
-      companyType: 'COMPANY'
+      companyType: 'COMPANY',
+      country: ''
     }
   });
 
@@ -71,6 +74,8 @@ export default function RegisterCompanyPage() {
 
   const onSubmit = async (data: CompanyFormData) => {
     console.log("Form data being submitted:", data);
+    console.log("Selected country:", selectedCountry);
+    
     setIsLoading(true);
     try {
       const response = await api.post('/auth/register-company', data);
@@ -204,6 +209,46 @@ export default function RegisterCompanyPage() {
                         <p className="text-sm text-destructive flex items-center gap-1 mt-1">
                           <AlertCircle className="h-3 w-3" />
                           {errors.companyName.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">{t('register.company.email', 'Company Email')} *</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          {...register('email')}
+                          id="email"
+                          type="email"
+                          placeholder={t('register.company.emailPlaceholder', 'company@example.com')}
+                          className="pl-9 h-11"
+                        />
+                      </div>
+                      {errors.email && (
+                        <p className="text-sm text-destructive flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.email.message}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="country">{t('register.company.country', 'Country')} *</Label>
+                      <CountrySelector
+                        placeholder={t('register.company.countryPlaceholder', 'Select your country')}
+                        onSelect={(country) => {
+                          if (country) {
+                            setValue('country', country.id);
+                            setSelectedCountry(country.name);
+                          }
+                        }}
+                        error={errors.country?.message}
+                      />
+                      {errors.country && (
+                        <p className="text-sm text-destructive flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.country.message}
                         </p>
                       )}
                     </div>

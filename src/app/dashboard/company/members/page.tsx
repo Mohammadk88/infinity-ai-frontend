@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { 
   Edit, 
   MoreHorizontal, 
@@ -19,6 +16,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCompanyStore } from '@/store/useCompanyStore';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,6 +67,9 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';
 
+// Form Components and Custom Components
+import AddCompanyMemberForm from '@/components/forms/AddCompanyMemberForm';
+
 // Api and Types
 import useCompanyMembersStore from '@/store/useCompanyMembersStore';
 import { ApiError } from '@/types/ApiError';
@@ -84,7 +87,7 @@ type MemberFormValues = z.infer<typeof memberFormSchema>;
 export default function ManageCompanyMembersPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const { activeCompany } = useCompanyStore();
+  const { currentCompany } = useCompanyStore();
   
   // State
   const [addMemberOpen, setAddMemberOpen] = useState(false);
@@ -92,7 +95,16 @@ export default function ManageCompanyMembersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<CompanyMember | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Form setup for editing member role
+  const form = useForm<MemberFormValues>({
+    resolver: zodResolver(memberFormSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      roleId: '',
+    }
+  });
   
   // Company members store
   const {
@@ -108,24 +120,15 @@ export default function ManageCompanyMembersPage() {
     setSelectedMember
   } = useCompanyMembersStore();
 
-  // Form setup with React Hook Form + Zod
-  const form = useForm<MemberFormValues>({
-    resolver: zodResolver(memberFormSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      roleId: '',
-    },
-    mode: 'onChange',
-  });
-
   // Get company ID safely
-  const companyId = activeCompany?.id || '1';
+  const companyId = currentCompany?.id || '';
 
   // Initialize data on component mount
   useEffect(() => {
-    fetchMembers(companyId);
-    fetchRoles(companyId);
+    if (companyId) {
+      fetchMembers(companyId);
+      fetchRoles(companyId);
+    }
   }, [fetchMembers, fetchRoles, companyId]);
 
   // Update form when selected member changes (for editing)
@@ -153,11 +156,6 @@ export default function ManageCompanyMembersPage() {
   const handleAddMember = () => {
     setIsEditMode(false);
     setSelectedMember(null);
-    form.reset({
-      name: '',
-      email: '',
-      roleId: '',
-    });
     setAddMemberOpen(true);
   };
 
@@ -179,50 +177,35 @@ export default function ManageCompanyMembersPage() {
     setIsDeleteDialogOpen(true);
   };
 
-  // Handle form submission for adding/editing members
-  const onSubmit = async (values: MemberFormValues) => {
-    setIsSubmitting(true);
+  // Handle successful member addition
+  const handleMemberAddSuccess = () => {
+    setAddMemberOpen(false);
+    fetchMembers(companyId);
+  };
+
+  // Handle role update form submission
+  const handleRoleUpdate = async (values: MemberFormValues) => {
+    if (!selectedMember) return;
     
     try {
-      if (isEditMode && selectedMember) {
-        // Update existing member
-        await updateMember(selectedMember.id, { 
-          roleId: values.roleId,
-          // In a real API, you might update more fields like name and email
-        });
-        
-        toast({
-          title: t('company.members.updateSuccess', 'Member updated successfully'),
-          description: `${values.name}'s role has been updated.`,
-          variant: 'default',
-        });
-      } else {
-        // Add new member
-        await addMember(companyId, { 
-          userId: values.email, // In a real implementation, you would look up or create the user
-          roleId: values.roleId,
-          name: values.name // Some APIs might accept additional fields
-        });
-        
-        toast({
-          title: t('company.members.addSuccess', 'Member added successfully'),
-          description: `${values.name} has been added to the company.`,
-          variant: 'default',
-        });
-      }
+      // Update existing member's role
+      await updateMember(selectedMember.id, { roleId: values.roleId });
+      
+      toast({
+        title: t('company.members.updateSuccess', 'Rol actualizado exitosamente'),
+        description: `El rol de ${selectedMember.user.name} ha sido actualizado.`,
+        variant: 'default',
+      });
       
       setAddMemberOpen(false);
+      fetchMembers(companyId);
     } catch (error) {
       const apiError = error as ApiError;
       toast({
-        title: isEditMode 
-          ? t('company.members.updateError', 'Failed to update member') 
-          : t('company.members.addError', 'Failed to add member'),
-        description: apiError.response?.data?.message || 'An unexpected error occurred',
+        title: t('company.members.updateError', 'Error al actualizar el rol'),
+        description: apiError.response?.data?.message || 'Ocurrió un error inesperado',
         variant: 'destructive',
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -233,17 +216,18 @@ export default function ManageCompanyMembersPage() {
     try {
       await removeMember(memberToDelete.id);
       toast({
-        title: t('company.members.removeSuccess', 'Member removed successfully'),
-        description: `${memberToDelete.user.name} has been removed from the company.`,
+        title: t('company.members.removeSuccess', 'Miembro eliminado exitosamente'),
+        description: `${memberToDelete.user.name} ha sido eliminado de la empresa.`,
         variant: 'default',
       });
       setIsDeleteDialogOpen(false);
       setMemberToDelete(null);
+      fetchMembers(companyId);
     } catch (error) {
       const apiError = error as ApiError;
       toast({
-        title: t('company.members.removeError', 'Failed to remove member'),
-        description: apiError.response?.data?.message || 'An unexpected error occurred',
+        title: t('company.members.removeError', 'Error al eliminar el miembro'),
+        description: apiError.response?.data?.message || 'Ocurrió un error inesperado',
         variant: 'destructive',
       });
     }
@@ -252,29 +236,18 @@ export default function ManageCompanyMembersPage() {
   // Update member role directly from the dropdown in the table
   const handleUpdateRole = async (memberId: string, roleId: string) => {
     try {
-      // Optimistically update the UI
-      const updatedMembers = members.map(member => 
-        member.id === memberId 
-          ? { 
-              ...member, 
-              roleId, 
-              role: { ...member.role, name: roles.find(r => r.id === roleId)?.name || member.role.name } 
-            }
-          : member
-      );
-      
       // Update in the backend
       await updateMember(memberId, { roleId });
       
       toast({
-        title: t('company.members.updateSuccess', 'Member role updated'),
+        title: t('company.members.updateSuccess', 'Rol actualizado'),
         variant: 'default',
       });
     } catch (error) {
       const apiError = error as ApiError;
       toast({
-        title: t('company.members.updateError', 'Failed to update member role'),
-        description: apiError.response?.data?.message || 'An unexpected error occurred',
+        title: t('company.members.updateError', 'Error al actualizar el rol'),
+        description: apiError.response?.data?.message || 'Ocurrió un error inesperado',
         variant: 'destructive',
       });
       // Refresh the list to get accurate data after failure
@@ -463,109 +436,99 @@ export default function ManageCompanyMembersPage() {
             </DialogDescription>
           </DialogHeader>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Name field */}
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('company.members.name', 'Name')}</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder={t('company.members.namePlaceholder', 'Enter member name')}
-                        {...field}
-                        disabled={isEditMode} // Can't edit name in edit mode
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Email field */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('company.members.email', 'Email')}</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder={t('company.members.emailPlaceholder', 'Enter email address')}
-                        {...field}
-                        disabled={isEditMode} // Can't edit email in edit mode
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Role field */}
-              <FormField
-                control={form.control}
-                name="roleId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('company.members.role', 'Role')}</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+          {isEditMode ? (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleRoleUpdate)} className="space-y-4">
+                {/* Name field (disabled in edit mode) */}
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('company.members.name', 'Name')}</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue 
-                            placeholder={t('company.members.selectRolePlaceholder', 'Select a role')}
-                          />
-                        </SelectTrigger>
+                        <Input 
+                          placeholder={t('company.members.namePlaceholder', 'Enter member name')}
+                          {...field}
+                          disabled={true}
+                        />
                       </FormControl>
-                      <SelectContent>
-                        {roles.map((role) => (
-                          <SelectItem key={role.id} value={role.id}>
-                            {role.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      {t('company.members.roleDescription', 'This determines what permissions the member will have.')}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter className="mt-6">
-                <Button 
-                  variant="outline" 
-                  type="button" 
-                  onClick={() => setAddMemberOpen(false)}
-                >
-                  {t('common.cancel', 'Cancel')}
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t('common.saving', 'Saving...')}
-                    </>
-                  ) : isEditMode ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4" />
-                      {t('common.update', 'Update')}
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      {t('common.add', 'Add')}
-                    </>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+                />
+
+                {/* Email field (disabled in edit mode) */}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('company.members.email', 'Email')}</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder={t('company.members.emailPlaceholder', 'Enter email address')}
+                          {...field}
+                          disabled={true}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Role field */}
+                <FormField
+                  control={form.control}
+                  name="roleId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('company.members.role', 'Role')}</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue 
+                              placeholder={t('company.members.selectRolePlaceholder', 'Select a role')}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {t('company.members.roleDescription', 'This determines what permissions the member will have.')}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <DialogFooter className="mt-6">
+                  <Button 
+                    variant="outline" 
+                    type="button" 
+                    onClick={() => setAddMemberOpen(false)}
+                  >
+                    {t('common.cancel', 'Cancel')}
+                  </Button>
+                  <Button type="submit">
+                    <Check className="mr-2 h-4 w-4" />
+                    {t('common.update', 'Update')}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          ) : (
+            <AddCompanyMemberForm onSuccess={handleMemberAddSuccess} />
+          )}
         </DialogContent>
       </Dialog>
 
