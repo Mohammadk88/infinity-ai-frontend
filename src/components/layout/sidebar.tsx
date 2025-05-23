@@ -28,10 +28,10 @@ import {
   Target,
   Award,
   Gift,
-  Globe2,
   Eye,
   Settings2,
-  UserCog
+  UserCog,
+  Cpu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/layout/logo';
@@ -195,8 +195,17 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       title: t('sidebar.aiTools', 'AI Tools'),
       href: '/dashboard/ai-tools',
       icon: <Sparkles className="h-4 w-4" />,
-      isActive: pathname?.includes('/ai-tools'),
+      isActive: pathname?.includes('/ai-tools') && !pathname?.includes('/ai-providers'),
       badge: 'New'
+    },
+    {
+      title: t('sidebar.aiProviders', 'AI Providers'),
+      href: '/dashboard/ai-providers',
+      icon: <Cpu className="h-4 w-4" />,
+      isActive: pathname?.includes('/ai-providers'),
+       badge: 'New'
+      // Only visible for admin or developer roles
+      // hidden: user?.role !== 'admin' && user?.role !== 'developer' && user?.role !== 'owner',
     },
     {
       title: t('sidebar.rewards', 'Rewards'),
@@ -720,7 +729,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               {t('sidebar.marketing', 'Marketing')}
             </div>
             
-            {navItems.slice(9).map((item, index) => (
+            {navItems.slice(9).filter(item => !item.hidden).map((item, index) => (
               <Link
                 key={item.href}
                 href={item.href}
