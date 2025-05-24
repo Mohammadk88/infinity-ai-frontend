@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, JSX } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -104,7 +104,22 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
   }, [isCollapsed, onStateChange]);
 
   // CRM Navigation items
-  const navItems = [
+  type NavItem = {
+    title: string;
+    href: string;
+    icon: JSX.Element;
+    isActive: boolean;
+    submenu?: {
+      title: string;
+      href: string;
+      icon: JSX.Element;
+      isActive: boolean;
+    }[];
+    badge?: string;
+    hidden?: boolean;
+  };
+
+  const navItems: NavItem[] = [
     {
       title: t('sidebar.dashboard', 'Dashboard'),
       href: '/dashboard',
