@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BrainCircuit, Infinity } from 'lucide-react';
+import { Infinity, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LogoProps {
@@ -20,7 +20,7 @@ export default function Logo({ className }: LogoProps) {
     const timer = setTimeout(() => {
       setIsAnimating(false);
       setIsLoaded(true);
-    }, 1500);
+    }, 1200);
 
     return () => clearTimeout(timer);
   }, []);
@@ -29,79 +29,79 @@ export default function Logo({ className }: LogoProps) {
     <Link href="/dashboard">
       <div 
         className={cn(
-          "flex items-center gap-1.5", 
+          "flex items-center gap-3 transition-premium", 
           className,
-          isHovered ? "scale-105" : "",
-          "transition-all duration-300"
+          isHovered ? "scale-105" : ""
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <div 
           className={cn(
-            "relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600",
-            isHovered && "animate__animated animate__pulse",
-            isAnimating && "animate__animated animate__fadeIn"
+            "relative flex h-10 w-10 items-center justify-center rounded-xl bg-premium-gradient shadow-premium transition-premium",
+            isHovered && "shadow-premium-lg rotate-3",
+            isAnimating && "animate-fade-in-up"
           )}
         >
-          {/* Logo glow effect */}
+          {/* Premium glow effect */}
           <div className={cn(
-            "absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 opacity-75 blur-sm",
-            isHovered && "opacity-100 animate__animated animate__pulse"
+            "absolute inset-0 rounded-xl bg-premium-gradient opacity-0 blur-xl transition-premium",
+            isHovered && "opacity-30"
           )} />
           
-          {/* Shimmer effect */}
-          <div className="absolute inset-0 rounded-lg overflow-hidden">
-            <div className={cn(
-              "h-full w-full bg-[linear-gradient(40deg,transparent_25%,rgba(255,255,255,0.3)_50%,transparent_75%)] bg-[length:250%_100%] bg-[-100%_0]",
-              isHovered && "animate-shimmer"
-            )} />
+          {/* AI shimmer effect */}
+          <div className={cn(
+            "absolute inset-0 rounded-xl overflow-hidden",
+            isHovered && "ai-shimmer"
+          )}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           </div>
           
-          {/* Neural network lines */}
+          {/* Neural network pattern */}
           <div className={cn(
-            "absolute inset-0 rounded-lg overflow-hidden opacity-20",
-            isHovered && "opacity-40 transition-opacity duration-300"
+            "absolute inset-2 rounded-lg border border-white/20 opacity-0 transition-premium",
+            isHovered && "opacity-100"
           )}>
-            <div className="absolute top-1 left-1 w-1 h-1 bg-white rounded-full" />
-            <div className="absolute top-2 right-2 w-1 h-1 bg-white rounded-full" />
-            <div className="absolute bottom-1 right-2 w-1 h-1 bg-white rounded-full" />
-            <div className="absolute bottom-2 left-1 w-1 h-1 bg-white rounded-full" />
-            <div className="absolute top-1.5 right-1 w-[2px] h-[2px] bg-white rounded-full" />
-            <div className="absolute inset-[3px] border-[0.5px] border-white/30 rounded-md" />
-            <div className="absolute h-[1px] w-4 bg-white/60 rotate-45 top-[45%] left-[25%]" />
-            <div className="absolute h-[1px] w-4 bg-white/60 rotate-[135deg] top-[45%] left-[25%]" />
+            <div className="absolute top-1 left-1 w-1 h-1 bg-white/60 rounded-full" />
+            <div className="absolute top-1 right-1 w-1 h-1 bg-white/60 rounded-full" />
+            <div className="absolute bottom-1 left-1 w-1 h-1 bg-white/60 rounded-full" />
+            <div className="absolute bottom-1 right-1 w-1 h-1 bg-white/60 rounded-full" />
+            <div className="absolute top-2 left-1/2 w-0.5 h-0.5 bg-white/40 rounded-full transform -translate-x-1/2" />
+            <div className="absolute bottom-2 left-1/2 w-0.5 h-0.5 bg-white/40 rounded-full transform -translate-x-1/2" />
           </div>
           
           {/* Logo icon */}
           <div className={cn(
-            "relative z-10 text-white transition-all duration-300", 
+            "relative z-10 text-white transition-premium", 
             isHovered ? "scale-110" : "scale-100",
-            isLoaded && isHovered && "animate__animated animate__heartBeat"
+            isLoaded && isHovered && "animate-pulse"
           )}>
             {isLoaded ? (
-              <Infinity className="h-4 w-4" />
+              <Infinity className="h-5 w-5" />
             ) : (
-              <BrainCircuit className="h-4 w-4" />
+              <Brain className="h-5 w-5" />
             )}
           </div>
         </div>
 
         <div className="flex flex-col">
           <span className={cn(
-            "font-semibold leading-none tracking-tight",
-            isAnimating && "animate__animated animate__fadeInRight animate__faster",
+            "text-lg font-bold leading-none tracking-heading text-foreground",
+            isAnimating && "animate-fade-in-right",
           )}>
-            Infinity<span className={cn(
-              "text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600",
-              isHovered && "animate__animated animate__flash animate__faster"
-            )}>AI</span>
+            Infinity
+            <span className={cn(
+              "bg-premium-gradient bg-clip-text text-transparent ml-0.5",
+              isHovered && "animate-pulse"
+            )}>
+              AI
+            </span>
           </span>
           <span className={cn(
-            "text-[9px] text-muted-foreground/80 tracking-tight",
-            isAnimating && "animate__animated animate__fadeInRight animate__delay-1s",
+            "text-[10px] text-muted-foreground/70 tracking-wide-text font-medium",
+            isAnimating && "animate-fade-in-right",
           )}>
-            Marketing Platform
+            Intelligence Platform
           </span>
         </div>
       </div>

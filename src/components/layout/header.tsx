@@ -27,7 +27,6 @@ import {
   FileText,
   MessageSquare,
   LaptopIcon,
-  Menu,
   ImageIcon
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
@@ -38,7 +37,7 @@ import { useUserStore } from '@/store/useUserStore';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { useAuth } from '@/hooks/useAuth';
 import { CompanySwitcher } from "@/components/features/company-switcher";
-import Image from 'next/image';
+import AIProviderBadge from '@/components/layout/ai-provider-badge';
 
 type PromptType = 'text' | 'image' | 'social';
 
@@ -167,37 +166,43 @@ const Header = () => {
 
   return (
     <header className={cn(
-      "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-      "shadow-sm animate__animated animate__fadeIn animate__faster"
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+      "glass-card border-b border-white/10 backdrop-blur-xl bg-background/80",
+      "shadow-premium animate-in fade-in-0 slide-in-from-top-4 duration-500"
     )}>
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-4">
-          <CompanySwitcher />
-          <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity group">
-              <div className="relative flex items-center justify-center h-9 w-9 rounded-full bg-primary/10">
-                {/* Use a fallback icon since logo.svg might not exist */}
-                <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-primary animate-pulse"></span>
-              </div>
-              <h1 className="font-bold text-lg tracking-tight text-foreground hidden md:block">
-                <span className="text-primary bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent">Infinity</span> AI System
-              </h1>
-            </Link>
+      <div className="mx-auto max-w-[calc(100%-2rem)] lg:max-w-[calc(100%-4rem)]">
+        <div className="flex h-14 items-center justify-between px-4 lg:px-6">
+          {/* Left section */}
+          <div className="flex items-center gap-4">
+            <CompanySwitcher />
+            <div className="flex items-center">
+              <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-all duration-300 group">
+                <div className="relative flex items-center justify-center h-8 w-8 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20 group-hover:border-primary/40 transition-all duration-300">
+                  <Sparkles className="h-4 w-4 text-primary group-hover:scale-110 transition-transform duration-300" />
+                  <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse"></div>
+                </div>
+                <div className="hidden md:block">
+                  <h1 className="font-manrope font-bold text-base tracking-tight text-foreground">
+                    <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                      Infinity
+                    </span>
+                    <span className="ml-1 text-foreground/80">AI</span>
+                  </h1>
+                </div>
+              </Link>
+            </div>
           </div>
-        </div>
         
-        <div className="flex-1 flex items-center justify-center max-w-2xl mx-4">
+        <div className="flex-1 flex items-center justify-center max-w-md mx-6">
           <div className={cn(
-            "relative transition-all duration-300 ease-in-out",
-            mobileSearchVisible ? "flex w-full animate__animated animate__fadeIn" : "hidden md:flex md:w-auto"
+            "relative transition-all duration-300 ease-in-out w-full",
+            mobileSearchVisible ? "flex animate-in fade-in-0 slide-in-from-top-2 duration-300" : "hidden md:flex"
           )}>
-            <form onSubmit={handleSearchSubmit} className={cn("w-full", !searchFocused && "md:w-44")}>
-              <div className="relative flex items-center w-full">
+            <form onSubmit={handleSearchSubmit} className="w-full">
+              <div className="relative flex items-center">
                 <div className={cn(
                   "absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none transition-colors duration-300",
-                  searchFocused ? "text-primary" : "text-muted-foreground",
-                  "rtl:left-auto rtl:right-0"
+                  searchFocused ? "text-primary" : "text-muted-foreground/60"
                 )}>
                   <Search className="w-4 h-4" />
                 </div>
@@ -207,32 +212,25 @@ const Header = () => {
                   type="search" 
                   placeholder={searchFocused ? t('header.search', 'Search files, actions, or tools...') : t('header.searchShort', 'Search...')} 
                   className={cn(
-                    "py-2 pl-10 pr-4 text-sm bg-muted/50 border rounded-lg outline-none",
-                    "transition-all duration-300 ease-in-out",
+                    "w-full h-9 pl-10 pr-4 text-sm rounded-xl border",
+                    "bg-background/50 backdrop-blur-sm transition-all duration-300",
                     searchFocused 
-                      ? "border-primary ring-1 ring-primary/30 shadow-sm w-full md:w-[400px]" 
-                      : "border-border/30 hover:border-border/70 w-full md:w-[200px]",
-                    "focus:border-primary",
-                    "rtl:pl-4 rtl:pr-10",
-                    searchFocused && "animate__animated animate__pulse animate__faster"
+                      ? "border-primary/50 ring-2 ring-primary/20 shadow-lg bg-background/80" 
+                      : "border-border/30 hover:border-border/50 hover:bg-background/70",
+                    "focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20",
+                    "placeholder:text-muted-foreground/60"
                   )}
                   onFocus={handleSearchFocus}
                   onBlur={handleSearchBlur}
                   onChange={handleSearchInput}
                   value={searchValue}
-                  aria-label="Search"
                 />
                 
                 {searchValue && (
                   <button 
                     type="button"
-                    className={cn(
-                      "absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-opacity",
-                      "rtl:left-0 rtl:right-auto rtl:pl-3 rtl:pr-0",
-                      "animate__animated animate__fadeIn animate__faster"
-                    )}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground/60 hover:text-foreground transition-colors duration-200"
                     onClick={handleClearSearch}
-                    aria-label="Clear search"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -242,51 +240,57 @@ const Header = () => {
           </div>
         </div>
         
+        {/* Right section */}
         <div className="flex items-center gap-2">
+          {/* Mobile search toggle */}
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden h-9 w-9"
+            className="md:hidden h-8 w-8 rounded-lg hover:bg-primary/10 transition-colors duration-200"
             onClick={toggleMobileSearch}
-            aria-label="Toggle search"
           >
             {mobileSearchVisible ? (
-              <X className="h-[1.2rem] w-[1.2rem]" />
+              <X className="h-4 w-4" />
             ) : (
-              <Search className="h-[1.2rem] w-[1.2rem]" />
+              <Search className="h-4 w-4" />
             )}
           </Button>
+
+          {/* AI Provider Badge */}
+          <AIProviderBadge />
         
+          {/* AI Prompt Generator */}
           <Button
             variant="ghost"
             size="icon"
             className={cn(
-              "h-9 w-9 rounded-full transition-transform hover:scale-105",
-              "text-primary hover:text-primary hover:bg-primary/10",
-              (activePromptMode || promptGeneratorOpen) && "bg-primary/10"
+              "h-8 w-8 rounded-lg transition-all duration-300",
+              "hover:bg-primary/10 hover:scale-105",
+              "text-primary/80 hover:text-primary",
+              (activePromptMode || promptGeneratorOpen) && "bg-primary/10 shadow-sm"
             )}
-            aria-label={t('header.promptGenerator', 'AI Prompt Generator')}
             onClick={togglePromptGenerator}
           >
-            <Sparkles className="h-[1.2rem] w-[1.2rem]" />
+            <Sparkles className="h-4 w-4" />
           </Button>
 
+          {/* Notifications */}
           <NotificationCenter />
           
+          {/* Theme Toggle */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-full transition-transform hover:scale-105 focus-visible:ring-1 focus-visible:ring-primary"
-                aria-label="Theme options"
+                className="h-8 w-8 rounded-lg hover:bg-primary/10 transition-all duration-300 hover:scale-105"
               >
-                {theme === 'dark' && <Moon className="h-[1.2rem] w-[1.2rem]" />}
-                {theme === 'light' && <Sun className="h-[1.2rem] w-[1.2rem]" />}
-                {theme === 'system' && <LaptopIcon className="h-[1.2rem] w-[1.2rem]" />}
+                {theme === 'dark' && <Moon className="h-4 w-4" />}
+                {theme === 'light' && <Sun className="h-4 w-4" />}
+                {theme === 'system' && <LaptopIcon className="h-4 w-4" />}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="animate__animated animate__fadeInDown animate__faster">
+            <DropdownMenuContent align="end" className="animate-in fade-in-0 slide-in-from-top-2 duration-200">
               <DropdownMenuItem onClick={() => setTheme('light')} className="cursor-pointer">
                 <Sun className="mr-2 h-4 w-4" />
                 <span>{t('theme.light', 'Light')}</span>
@@ -302,25 +306,26 @@ const Header = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Language Selector */}
           <LanguageSelector variant="minimal" />
 
+          {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
-                className="relative h-9 flex items-center gap-2 px-2 rounded-full hover:bg-primary/5 transition-all hover:shadow-sm" 
-                aria-label="User menu"
+                className="relative h-8 flex items-center gap-2 px-2 rounded-lg hover:bg-primary/10 transition-all duration-300 hover:shadow-sm" 
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <User className="h-3.5 w-3.5" />
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20">
+                  <User className="h-3 w-3 text-primary" />
                 </div>
-                <span className="text-sm font-medium hidden md:inline-block max-w-[100px] truncate">
-                  {user?.name || <span className="opacity-50">User</span> || 'User'}
+                <span className="text-sm font-medium hidden md:inline-block max-w-[80px] truncate">
+                  {user?.name || 'User'}
                 </span>
-                <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 mt-1 animate__animated animate__fadeIn animate__faster">
+            <DropdownMenuContent align="end" className="w-56 mt-1 animate-in fade-in-0 slide-in-from-top-2 duration-200">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
@@ -328,59 +333,63 @@ const Header = () => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/dashboard/me')} className="cursor-pointer transition-colors hover:bg-accent/70">
-                <User className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+              <DropdownMenuItem onClick={() => router.push('/dashboard/me')} className="cursor-pointer">
+                <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer transition-colors hover:bg-accent/70">
-                <Settings className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+              <DropdownMenuItem className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={handleLogout} 
-                className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive hover:bg-destructive/10"
+                className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
               >
-                <LogOut className="mr-2 h-4 w-4 rtl:ml-2 rtl:mr-0" />
+                <LogOut className="mr-2 h-4 w-4" />
                 <span>{t('layout.logout')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
+        {/* Prompt Generator Dropdown */}
         {promptGeneratorOpen && (
-          <div className="absolute top-16 right-4 mt-2 z-40 w-72 md:w-80 animate__animated animate__fadeInDown animate__faster">
-            <div className="bg-background rounded-lg shadow-lg border p-3">
-              <div className="flex items-center justify-between mb-2">
+          <div className="absolute top-14 right-4 mt-2 z-40 w-72 md:w-80 animate-in fade-in-0 slide-in-from-top-4 duration-300">
+            <div className="glass-card rounded-xl shadow-premium border border-white/10 p-4">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
-                  <Sparkles className="h-4 w-4 text-primary" />
+                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
                   {t('header.quickPrompt', 'Quick AI Prompt')}
                 </div>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-6 w-6 p-0 rounded-full hover:bg-muted"
+                  className="h-6 w-6 p-0 rounded-lg hover:bg-white/10"
                   onClick={() => setPromptGeneratorOpen(false)}
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-3 w-3" />
                 </Button>
               </div>
-              <div>
+              <div className="space-y-3">
                 <input
                   type="text"
                   placeholder={t('header.promptPlaceholder', 'Enter your prompt here...')}
-                  className="w-full text-sm p-2 border rounded bg-muted/50 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none"
+                  className="w-full text-sm p-3 border border-white/10 rounded-xl bg-background/50 backdrop-blur-sm focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200"
                   value={miniPromptValue}
                   onChange={(e) => setMiniPromptValue(e.target.value)}
                   autoFocus
                 />
-                <div className="flex gap-1 mt-2 overflow-x-auto py-1 px-0.5 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent">
+                
+                <div className="flex gap-2 overflow-x-auto py-1">
                   <Button 
                     size="sm" 
                     variant={promptType === 'text' ? 'default' : 'outline'} 
                     className={cn(
-                      "text-xs h-6 whitespace-nowrap",
-                      promptType === 'text' ? "bg-primary text-primary-foreground" : ""
+                      "text-xs h-7 whitespace-nowrap rounded-lg",
+                      promptType === 'text' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
                     )}
                     onClick={() => handlePromptTypeChange('text')}
                   >
@@ -391,8 +400,8 @@ const Header = () => {
                     size="sm" 
                     variant={promptType === 'image' ? 'default' : 'outline'} 
                     className={cn(
-                      "text-xs h-6 whitespace-nowrap",
-                      promptType === 'image' ? "bg-primary text-primary-foreground" : ""
+                      "text-xs h-7 whitespace-nowrap rounded-lg",
+                      promptType === 'image' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
                     )}
                     onClick={() => handlePromptTypeChange('image')}
                   >
@@ -403,8 +412,8 @@ const Header = () => {
                     size="sm" 
                     variant={promptType === 'social' ? 'default' : 'outline'} 
                     className={cn(
-                      "text-xs h-6 whitespace-nowrap",
-                      promptType === 'social' ? "bg-primary text-primary-foreground" : ""
+                      "text-xs h-7 whitespace-nowrap rounded-lg",
+                      promptType === 'social' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
                     )}
                     onClick={() => handlePromptTypeChange('social')}
                   >
@@ -412,34 +421,35 @@ const Header = () => {
                     Social
                   </Button>
                 </div>
+                
                 <Button 
                   size="sm" 
-                  className="w-full mt-2 h-7 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700"
+                  className="w-full h-8 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 transition-all duration-200 rounded-lg shadow-sm"
                   onClick={handleMiniPromptSubmit}
                   disabled={!miniPromptValue.trim() || isGenerating}
                 >
                   {isGenerating ? (
-                    <>
-                      <span className="flex items-center">
-                        <span className="h-1.5 w-1.5 rounded-full bg-white/80 animate-ping mr-1"></span>
-                        <span className="h-1.5 w-1.5 rounded-full bg-white/80 animate-ping mr-1 animation-delay-200"></span>
-                        <span className="h-1.5 w-1.5 rounded-full bg-white/80 animate-ping mr-1 animation-delay-400"></span>
-                        {t('header.generating', 'Generating...')}
-                      </span>
-                    </>
+                    <div className="flex items-center">
+                      <div className="flex space-x-1 mr-2">
+                        <div className="h-1 w-1 rounded-full bg-white/80 animate-pulse"></div>
+                        <div className="h-1 w-1 rounded-full bg-white/80 animate-pulse [animation-delay:0.2s]"></div>
+                        <div className="h-1 w-1 rounded-full bg-white/80 animate-pulse [animation-delay:0.4s]"></div>
+                      </div>
+                      {t('header.generating', 'Generating...')}
+                    </div>
                   ) : (
-                    <>
-                      {t('header.generate', 'Generate')}
-                    </>
+                    t('header.generate', 'Generate')
                   )}
                 </Button>
-              </div>
-              <div className="text-xs text-muted-foreground/70 text-center mt-2">
-                {t('header.promptHelp', 'Opens full generator for more options')}
+                
+                <div className="text-xs text-muted-foreground/60 text-center">
+                  {t('header.promptHelp', 'Opens full generator for more options')}
+                </div>
               </div>
             </div>
           </div>
         )}
+        </div>
       </div>
     </header>
   );
