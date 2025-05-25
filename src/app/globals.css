@@ -522,3 +522,70 @@
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
+
+/* Mobile Sidebar Enhancements */
+@media (max-width: 768px) {
+  .mobile-nav-item {
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .mobile-nav-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .mobile-nav-text {
+    font-size: 1rem;
+  }
+  
+  .mobile-sidebar-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Enhanced touch targets for all mobile navigation */
+.mobile-nav-item {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.98);
+}
+
+/* Mobile Sidebar Enhancements */
+  @screen sm {
+    .sidebar-mobile-nav a {
+      @apply px-4 py-4 min-h-[48px] text-base;
+    }
+    
+    .sidebar-mobile-nav .nav-icon {
+      @apply h-6 w-6;
+    }
+    
+    .sidebar-mobile-toggle {
+      @apply h-14 w-14 bottom-8;
+    }
+  }
+  
+  /* Enhanced touch targets for mobile navigation */
+  .mobile-nav-item {
+    @apply min-h-[44px] touch-manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Smooth sidebar transitions on mobile */
+  .mobile-sidebar-transition {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Mobile sidebar backdrop */
+  .mobile-sidebar-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.3);
+    touch-action: none; /* Prevent scrolling behind overlay */
+  }

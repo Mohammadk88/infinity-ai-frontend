@@ -61,11 +61,16 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     setIsMounted(true);
     const checkIfMobile = () => {
       const isMobileView = window.innerWidth < 768;
+      const wasMobile = isMobile;
       setIsMobile(isMobileView);
       
       // Auto-collapse on mobile for better UX
-      if (isMobileView) {
+      if (isMobileView && !wasMobile) {
         setIsCollapsed(true);
+      }
+      // Auto-expand when switching from mobile to desktop if sidebar was collapsed only due to mobile
+      else if (!isMobileView && wasMobile && isCollapsed) {
+        setIsCollapsed(false);
       }
     };
 
@@ -75,7 +80,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     return () => {
       window.removeEventListener('resize', checkIfMobile);
     };
-  }, []);
+  }, [isMobile, isCollapsed]);
 
   // Apply RTL styling to document body when component mounts
   useEffect(() => {
@@ -281,9 +286,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     <>
       <aside 
         className={cn(
-          "fixed z-30 flex flex-col transition-premium",
+          "fixed flex flex-col transition-premium",
           "glass-card backdrop-blur-xl border-r border-border/50",
           "shadow-premium bg-background/80 dark:bg-background/90",
+          // Z-index: Higher on mobile for overlay, standard on desktop
+          isMobile ? "z-50" : "z-30",
           // Mobile: Full height with responsive positioning
           isMobile 
             ? "top-0 h-screen w-[280px] md:w-[260px]" 
@@ -328,7 +335,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               onClick={toggleSidebar}
               aria-label="Close menu"
             >
-              <ChevronLeft className="h-5 w-5" />
+              {isRTL ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
             </Button>
           </div>
         )}
@@ -389,7 +396,10 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
           "scrollable-y flex flex-col justify-between h-full",
           isMobile ? "py-4 px-4" : "py-4 px-3" // Increased padding on mobile
         )}>
-          <nav className="space-y-2">
+          <nav className={cn(
+            "space-y-2",
+            isMobile && "space-y-3" // Increased spacing on mobile for better touch targets
+          )}>
             {/* Section: Main */}
             <div className={cn(
               "mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
@@ -404,8 +414,10 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
-                  "hover:bg-background/50 hover:shadow-sm",
+                  "group flex items-center gap-3 transition-premium relative rounded-lg mobile-nav-item",
+                  "hover:bg-background/50 hover:shadow-sm active:scale-[0.98]",
+                  // Mobile-optimized padding and spacing
+                  isMobile ? "px-4 py-4 min-h-[48px]" : "px-3 py-3",
                   item.isActive 
                     ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
                     : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
@@ -419,7 +431,9 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 aria-label={item.title}
               >
                 <div className={cn(
-                  "flex h-5 w-5 items-center justify-center transition-premium",
+                  "flex items-center justify-center transition-premium",
+                  // Mobile-optimized icon sizing with CSS class
+                  isMobile ? "mobile-nav-icon" : "h-5 w-5",
                   item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                 )}>
                   {item.icon}
@@ -972,7 +986,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       {/* Enhanced Mobile overlay with better backdrop */}
       {isMobile && !isCollapsed && (
         <div 
-          className="fixed inset-0 z-20 bg-black/20 backdrop-blur-md animate-fade-in" 
+          className="fixed inset-0 z-40 mobile-sidebar-backdrop animate-fade-in" 
           onClick={toggleSidebar}
           aria-hidden="true"
         />
@@ -982,7 +996,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       {isMobile && isCollapsed && (
         <button 
           className={cn(
-            "fixed z-40 flex items-center justify-center rounded-xl",
+            "fixed z-60 flex items-center justify-center rounded-xl",
             "bg-gradient-to-br from-primary to-accent text-white shadow-premium",
             "hover:shadow-glow hover:scale-105 transition-premium active:scale-95",
             "h-12 w-12 md:h-14 md:w-14", // Responsive sizing

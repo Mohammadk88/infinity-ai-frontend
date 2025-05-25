@@ -40,17 +40,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         onStateChange={(collapsed) => setSidebarCollapsed(collapsed)}
       />
       
-      {/* Mobile overlay for sidebar */}
-      {!sidebarCollapsed && (
-        <div 
-          className={cn(
-            "fixed inset-0 z-30 bg-background/80 backdrop-blur-sm md:hidden",
-            "transition-premium animate-in fade-in-0"
-          )}
-          onClick={() => setSidebarCollapsed(true)}
-        />
-      )}
-      
       <div
         className={cn(
           "flex flex-1 flex-col transition-premium pt-16 min-h-screen", // Reduced header spacing for mobile
