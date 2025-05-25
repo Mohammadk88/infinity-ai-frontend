@@ -12,6 +12,9 @@ interface AIProviderState {
   updateProvider: (id: string, data: AIProviderUpdate) => Promise<void>;
   deleteProvider: (id: string) => Promise<void>;
   reset: () => void;
+  // Enhanced functionality for better UI integration
+  getActiveProvider: () => AIProvider | null;
+  setActiveProvider: (id: string) => Promise<void>;
 }
 
 export const useAIProviderStore = create<AIProviderState>()(
@@ -27,9 +30,10 @@ export const useAIProviderStore = create<AIProviderState>()(
           try {
             const providers = await AIProviderService.getProviders();
             set({ providers, isLoading: false });
-          } catch (error: any) {
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch AI providers';
             set({ 
-              error: error.response?.data?.message || 'Failed to fetch AI providers', 
+              error: errorMessage, 
               isLoading: false 
             });
           }
@@ -43,9 +47,10 @@ export const useAIProviderStore = create<AIProviderState>()(
               providers: [...state.providers, newProvider], 
               isLoading: false 
             }));
-          } catch (error: any) {
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to add AI provider';
             set({ 
-              error: error.response?.data?.message || 'Failed to add AI provider', 
+              error: errorMessage, 
               isLoading: false 
             });
           }
@@ -61,9 +66,10 @@ export const useAIProviderStore = create<AIProviderState>()(
               ),
               isLoading: false
             }));
-          } catch (error: any) {
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update AI provider';
             set({ 
-              error: error.response?.data?.message || 'Failed to update AI provider', 
+              error: errorMessage, 
               isLoading: false 
             });
           }
@@ -77,9 +83,10 @@ export const useAIProviderStore = create<AIProviderState>()(
               providers: state.providers.filter((provider) => provider.id !== id),
               isLoading: false
             }));
-          } catch (error: any) {
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to delete AI provider';
             set({ 
-              error: error.response?.data?.message || 'Failed to delete AI provider', 
+              error: errorMessage, 
               isLoading: false 
             });
           }
@@ -87,6 +94,36 @@ export const useAIProviderStore = create<AIProviderState>()(
 
         reset: () => {
           set({ providers: [], isLoading: false, error: null });
+        },
+
+        // Enhanced functionality for better UI integration
+        getActiveProvider: () => {
+          const { providers } = get();
+          return providers.find(p => p.isActive) || null;
+        },
+
+        setActiveProvider: async (id: string) => {
+          set({ isLoading: true, error: null });
+          try {
+            // First, deactivate all providers
+            const { providers } = get();
+            const updates = providers.map(async (provider) => {
+              if (provider.id === id) {
+                return AIProviderService.updateProvider(id, { isActive: true });
+              } else if (provider.isActive) {
+                return AIProviderService.updateProvider(provider.id, { isActive: false });
+              }
+              return provider;
+            });
+            
+            await Promise.all(updates);
+            
+            // Refresh the providers list
+            await get().fetchProviders();
+          } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to set active provider';
+            set({ error: errorMessage, isLoading: false });
+          }
         }
       }),
       {
