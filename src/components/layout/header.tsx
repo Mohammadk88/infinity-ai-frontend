@@ -166,28 +166,29 @@ const Header = () => {
 
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-      "glass-card border-b border-white/10 backdrop-blur-xl bg-background/80",
-      "shadow-premium animate-in fade-in-0 slide-in-from-top-4 duration-500"
+      "fixed top-0 left-0 right-0 z-50 transition-premium",
+      "glass-blur border-b border-white/8 backdrop-blur-xl",
+      "shadow-premium page-transition"
     )}>
-      <div className="mx-auto max-w-[calc(100%-2rem)] lg:max-w-[calc(100%-4rem)]">
-        <div className="flex h-14 items-center justify-between px-4 lg:px-6">
+      <div className="mx-auto max-w-[calc(100%-1rem)] lg:max-w-[calc(100%-2rem)]">
+        <div className="flex h-16 items-center justify-between px-4 lg:px-6">
           {/* Left section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <CompanySwitcher />
             <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-all duration-300 group">
-                <div className="relative flex items-center justify-center h-8 w-8 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20 group-hover:border-primary/40 transition-all duration-300">
-                  <Sparkles className="h-4 w-4 text-primary group-hover:scale-110 transition-transform duration-300" />
-                  <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse"></div>
+              <Link href="/dashboard" className="flex items-center gap-4 hover:opacity-90 transition-premium group">
+                <div className="relative flex items-center justify-center h-9 w-9 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 group-hover:border-primary/30 transition-premium group-hover:shadow-premium">
+                  <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-premium" />
+                  <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse-glow"></div>
                 </div>
                 <div className="hidden md:block">
-                  <h1 className="font-manrope font-bold text-base tracking-tight text-foreground">
-                    <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                  <h1 className="font-manrope font-bold text-lg tracking-heading text-foreground">
+                    <span className="gradient-text">
                       Infinity
                     </span>
-                    <span className="ml-1 text-foreground/80">AI</span>
+                    <span className="ml-1.5 text-muted-foreground/80">AI</span>
                   </h1>
+                  <p className="text-xs text-muted-foreground/60 tracking-wide-text font-medium -mt-0.5">Intelligence Platform</p>
                 </div>
               </Link>
             </div>

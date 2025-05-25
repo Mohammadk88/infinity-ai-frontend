@@ -279,29 +279,27 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     <>
       <aside 
         className={cn(
-          "fixed top-0 z-30 flex h-screen flex-col glass-card border-r-0 transition-premium duration-300 shadow-premium-lg",
+          "fixed top-0 z-30 flex h-screen flex-col transition-premium",
+          "glass-blur border-r border-white/8 backdrop-blur-xl",
+          "shadow-premium",
           isCollapsed ? "w-[70px]" : "w-[260px]",
           isMobile && isCollapsed ? "translate-x-[-100%]" : "translate-x-0",
-          isRTL ? "right-0" : "left-0",
+          isRTL ? "right-0 border-l border-r-0" : "left-0",
           isRTL && isMobile && isCollapsed ? "translate-x-[100%]" : "",
-          "animate__animated animate__fadeInLeft animate__faster",
+          "page-transition",
           className
         )}
         style={{
           // Force the correct position based on RTL
           [isRTL ? 'right' : 'left']: 0,
           [isRTL ? 'left' : 'right']: 'auto',
-          background: 'rgba(255, 255, 255, 0.02)',
-          backdropFilter: 'blur(20px)',
-          borderRight: isRTL ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
-          borderLeft: isRTL ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
         }}
       >
-        <div className="flex h-16 items-center px-4 border-b border-white/10">
+        <div className="flex h-16 items-center border-b border-white/8 px-3">
           <Link 
             href="/dashboard" 
             className={cn(
-              "flex items-center transition-premium hover:opacity-80 group",
+              "flex items-center transition-premium hover:opacity-90 group",
               isCollapsed ? "justify-center w-full" : "overflow-hidden w-[180px]"
             )}
           >
@@ -310,11 +308,12 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               isCollapsed ? "w-9 h-9" : "w-[180px]"
             )}>
               {isCollapsed ? (
-                <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-premium shadow-premium transition-premium group-hover:scale-105 group-hover:shadow-premium-lg">
-                  <Sparkles className="h-5 w-5 text-white drop-shadow-sm" />
+                <div className="relative flex items-center justify-center h-9 w-9 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 group-hover:border-primary/30 transition-premium group-hover:shadow-premium group-hover:scale-105">
+                  <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-premium" />
+                  <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse-glow"></div>
                 </div>
               ) : (
-                <Logo />
+                <Logo size="md" />
               )}
             </div>
           </Link>
@@ -322,9 +321,9 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
             variant="ghost" 
             size="icon" 
             className={cn(
-              "h-9 w-9 rounded-xl hover:bg-white/10 hover:text-white transition-premium glass-card shadow-sm",
+              "h-8 w-8 rounded-xl hover:bg-primary/10 hover:text-primary transition-premium hover:scale-105 hover:shadow-glow",
               !isCollapsed && (isRTL ? "mr-auto" : "ml-auto"),
-              "hover:shadow-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+              "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30"
             )}
             onClick={toggleSidebar}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -342,7 +341,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
           <nav className="space-y-2">
             {/* Section: Main */}
             <div className={cn(
-              "mb-3 px-3 text-xs font-semibold text-white/60 uppercase tracking-wider",
+              "mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
               isCollapsed ? "sr-only" : "flex"
             )}>
               {t('sidebar.main', 'Main')}
@@ -354,10 +353,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-3 transition-premium relative overflow-hidden",
+                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
+                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
                   item.isActive 
-                    ? "bg-gradient-premium text-white font-medium shadow-premium animate__animated animate__fadeIn animate__faster" 
-                    : "text-white/70 hover:bg-white/10 hover:text-white hover:shadow-sm",
+                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
+                    : "text-muted-foreground/80 hover:text-foreground",
                   isCollapsed ? "justify-center" : "",
                 )}
                 style={{ 
@@ -367,14 +367,13 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               >
                 <div className={cn(
                   "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-white" : "text-white/70 group-hover:text-white",
-                  item.isActive && "animate__animated animate__tada"
+                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                 )}>
                   {item.icon}
                 </div>
                 
                 <span className={cn(
-                  "text-sm transition-premium font-medium",
+                  "text-sm transition-premium font-medium tracking-text",
                   isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
                   isRTL && "mr-1"
                 )}>
@@ -383,29 +382,24 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 
                 {item.badge && !isCollapsed && (
                   <Badge variant="outline" className={cn(
-                    "ml-auto bg-white/10 text-white border-white/20 text-[10px] h-5 px-1.5 shadow-sm",
+                    "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
                     "rtl:ml-0 rtl:mr-auto",
-                    "animate__animated animate__fadeInDown animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.badge}
                   </Badge>
                 )}
                 
-                {/* Glass overlay for active state */}
-                {item.isActive && (
-                  <div className="absolute inset-0 bg-white/5 rounded-xl" />
-                )}
-                
                 {/* Tooltip for collapsed mode */}
                 {isCollapsed && (
                   <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-white opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
                     isRTL ? "right-16" : "left-16",
-                    "animate__animated animate__fadeIn animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.title}
                     {item.badge && (
-                      <span className="ml-2 inline-flex items-center justify-center rounded-full bg-white/10 text-white px-1.5 text-[9px]">
+                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
                         {item.badge}
                       </span>
                     )}
@@ -415,7 +409,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 {/* Active indicator */}
                 {item.isActive && (
                   <span className={cn(
-                    "absolute inset-y-0 w-1 bg-white rounded-full shadow-premium",
+                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
                     isRTL ? "right-0" : "left-0"
                   )} />
                 )}
@@ -424,7 +418,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
 
             {/* Section: Organization */}
             <div className={cn(
-              "mt-8 mb-3 px-3 text-xs font-semibold text-white/60 uppercase tracking-wider",
+              "mt-6 mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
               isCollapsed ? "sr-only" : "flex"
             )}>
               {t('sidebar.organization', 'Organization')}
@@ -436,10 +430,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 <Link
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 rounded-xl px-3 py-3 transition-premium relative overflow-hidden",
+                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
+                    "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
                     item.isActive 
-                      ? "bg-gradient-premium text-white font-medium shadow-premium animate__animated animate__fadeIn animate__faster" 
-                      : "text-white/70 hover:bg-white/10 hover:text-white hover:shadow-sm",
+                      ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
+                      : "text-muted-foreground/80 hover:text-foreground",
                     isCollapsed ? "justify-center" : "",
                   )}
                   style={{ 
@@ -449,14 +444,13 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 >
                   <div className={cn(
                     "flex h-5 w-5 items-center justify-center transition-premium",
-                    item.isActive ? "text-white" : "text-white/70 group-hover:text-white",
-                    item.isActive && "animate__animated animate__tada"
+                    item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                   )}>
                     {item.icon}
                   </div>
                   
                   <span className={cn(
-                    "text-sm transition-premium font-medium",
+                    "text-sm transition-premium font-medium tracking-text",
                     isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
                     isRTL && "mr-1"
                   )}>
@@ -465,29 +459,24 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                   
                   {item.badge && !isCollapsed && (
                     <Badge variant="outline" className={cn(
-                      "ml-auto bg-white/10 text-white border-white/20 text-[10px] h-5 px-1.5 shadow-sm",
+                      "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
                       "rtl:ml-0 rtl:mr-auto",
-                      "animate__animated animate__fadeInDown animate__faster"
+                      "animate-fade-in"
                     )}>
                       {item.badge}
                     </Badge>
                   )}
                   
-                  {/* Glass overlay for active state */}
-                  {item.isActive && (
-                    <div className="absolute inset-0 bg-white/5 rounded-xl" />
-                  )}
-                  
                   {/* Tooltip for collapsed mode */}
                   {isCollapsed && (
                     <span className={cn(
-                      "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-white opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                      "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
                       isRTL ? "right-16" : "left-16",
-                      "animate__animated animate__fadeIn animate__faster"
+                      "animate-fade-in"
                     )}>
                       {item.title}
                       {item.badge && (
-                        <span className="ml-2 inline-flex items-center justify-center rounded-full bg-white/10 text-white px-1.5 text-[9px]">
+                        <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
                           {item.badge}
                         </span>
                       )}
@@ -497,7 +486,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                   {/* Active indicator */}
                   {item.isActive && (
                     <span className={cn(
-                      "absolute inset-y-0 w-1 bg-white rounded-full shadow-premium",
+                      "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
                       isRTL ? "right-0" : "left-0"
                     )} />
                   )}
@@ -511,25 +500,26 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                         key={subItem.href}
                         href={subItem.href}
                         className={cn(
-                          "group flex items-center gap-2 rounded-lg px-3 py-2 transition-premium relative text-sm overflow-hidden",
+                          "group flex items-center gap-2 rounded-lg px-3 py-2 transition-premium relative text-sm",
+                          "hover:bg-white/5 hover:shadow-glow hover:scale-[1.01]",
                           subItem.isActive 
-                            ? "bg-white/10 text-white font-medium shadow-sm" 
-                            : "text-white/60 hover:bg-white/5 hover:text-white/80"
+                            ? "bg-gradient-to-r from-primary/10 to-accent/10 text-primary font-medium border border-primary/20" 
+                            : "text-muted-foreground/70 hover:text-foreground"
                         )}
                         aria-label={subItem.title}
                       >
                         <div className={cn(
                           "flex h-4 w-4 items-center justify-center transition-premium",
-                          subItem.isActive ? "text-white" : "text-white/60 group-hover:text-white/80"
+                          subItem.isActive ? "text-primary scale-105" : "text-muted-foreground/70 group-hover:text-foreground group-hover:scale-105"
                         )}>
                           {subItem.icon}
                         </div>
-                        <span className="font-medium">{subItem.title}</span>
+                        <span className="tracking-text">{subItem.title}</span>
                         
                         {/* Active indicator for submenu */}
                         {subItem.isActive && (
                           <span className={cn(
-                            "absolute inset-y-0 w-0.5 bg-white/70 rounded-full",
+                            "absolute inset-y-0 w-0.5 bg-gradient-to-b from-primary to-accent rounded-full opacity-70",
                             isRTL ? "right-0" : "left-0"
                           )} />
                         )}
@@ -546,10 +536,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-3 transition-premium relative overflow-hidden",
+                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
+                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
                   item.isActive 
-                    ? "bg-gradient-premium text-white font-medium shadow-premium animate__animated animate__fadeIn animate__faster" 
-                    : "text-white/70 hover:bg-white/10 hover:text-white hover:shadow-sm",
+                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
+                    : "text-muted-foreground/80 hover:text-foreground",
                   isCollapsed ? "justify-center" : "",
                 )}
                 style={{ 
@@ -559,14 +550,13 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               >
                 <div className={cn(
                   "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-white" : "text-white/70 group-hover:text-white",
-                  item.isActive && "animate__animated animate__tada"
+                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                 )}>
                   {item.icon}
                 </div>
                 
                 <span className={cn(
-                  "text-sm transition-premium font-medium",
+                  "text-sm transition-premium font-medium tracking-text",
                   isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
                   isRTL && "mr-1"
                 )}>
@@ -575,29 +565,24 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 
                 {item.badge && !isCollapsed && (
                   <Badge variant="outline" className={cn(
-                    "ml-auto bg-white/10 text-white border-white/20 text-[10px] h-5 px-1.5 shadow-sm",
+                    "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
                     "rtl:ml-0 rtl:mr-auto",
-                    "animate__animated animate__fadeInDown animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.badge}
                   </Badge>
                 )}
                 
-                {/* Glass overlay for active state */}
-                {item.isActive && (
-                  <div className="absolute inset-0 bg-white/5 rounded-xl" />
-                )}
-                
                 {/* Tooltip for collapsed mode */}
                 {isCollapsed && (
                   <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-white opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
                     isRTL ? "right-16" : "left-16",
-                    "animate__animated animate__fadeIn animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.title}
                     {item.badge && (
-                      <span className="ml-2 inline-flex items-center justify-center rounded-full bg-white/10 text-white px-1.5 text-[9px]">
+                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
                         {item.badge}
                       </span>
                     )}
@@ -607,7 +592,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 {/* Active indicator */}
                 {item.isActive && (
                   <span className={cn(
-                    "absolute inset-y-0 w-1 bg-white rounded-full shadow-premium",
+                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
                     isRTL ? "right-0" : "left-0"
                   )} />
                 )}
@@ -616,7 +601,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
 
             {/* Section: Sales */}
             <div className={cn(
-              "mt-8 mb-3 px-3 text-xs font-semibold text-white/60 uppercase tracking-wider",
+              "mt-6 mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
               isCollapsed ? "sr-only" : "flex"
             )}>
               {t('sidebar.sales', 'Sales')}
@@ -627,10 +612,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-3 transition-premium relative overflow-hidden",
+                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
+                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
                   item.isActive 
-                    ? "bg-gradient-premium text-white font-medium shadow-premium animate__animated animate__fadeIn animate__faster" 
-                    : "text-white/70 hover:bg-white/10 hover:text-white hover:shadow-sm",
+                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
+                    : "text-muted-foreground/80 hover:text-foreground",
                   isCollapsed ? "justify-center" : "",
                 )}
                 style={{ 
@@ -640,14 +626,13 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               >
                 <div className={cn(
                   "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-white" : "text-white/70 group-hover:text-white",
-                  item.isActive && "animate__animated animate__tada"
+                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                 )}>
                   {item.icon}
                 </div>
                 
                 <span className={cn(
-                  "text-sm transition-premium font-medium",
+                  "text-sm transition-premium font-medium tracking-text",
                   isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
                   isRTL && "mr-1"
                 )}>
@@ -656,29 +641,24 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 
                 {item.badge && !isCollapsed && (
                   <Badge variant="outline" className={cn(
-                    "ml-auto bg-white/10 text-white border-white/20 text-[10px] h-5 px-1.5 shadow-sm",
+                    "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
                     "rtl:ml-0 rtl:mr-auto",
-                    "animate__animated animate__fadeInDown animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.badge}
                   </Badge>
                 )}
                 
-                {/* Glass overlay for active state */}
-                {item.isActive && (
-                  <div className="absolute inset-0 bg-white/5 rounded-xl" />
-                )}
-                
                 {/* Tooltip for collapsed mode */}
                 {isCollapsed && (
                   <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-white opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
                     isRTL ? "right-16" : "left-16",
-                    "animate__animated animate__fadeIn animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.title}
                     {item.badge && (
-                      <span className="ml-2 inline-flex items-center justify-center rounded-full bg-white/10 text-white px-1.5 text-[9px]">
+                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
                         {item.badge}
                       </span>
                     )}
@@ -688,7 +668,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 {/* Active indicator */}
                 {item.isActive && (
                   <span className={cn(
-                    "absolute inset-y-0 w-1 bg-white rounded-full shadow-premium",
+                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
                     isRTL ? "right-0" : "left-0"
                   )} />
                 )}
@@ -699,7 +679,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
             {isActiveAffiliate && (
               <>
                 <div className={cn(
-                  "mt-8 mb-3 px-3 text-xs font-semibold text-white/60 uppercase tracking-wider",
+                  "mt-6 mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
                   isCollapsed ? "sr-only" : "flex"
                 )}>
                   {t('sidebar.affiliate', 'Affiliate')}
@@ -710,10 +690,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "group flex items-center gap-3 rounded-xl px-3 py-3 transition-premium relative overflow-hidden",
+                      "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
+                      "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
                       item.isActive 
-                        ? "bg-gradient-premium text-white font-medium shadow-premium animate__animated animate__fadeIn animate__faster" 
-                        : "text-white/70 hover:bg-white/10 hover:text-white hover:shadow-sm",
+                        ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
+                        : "text-muted-foreground/80 hover:text-foreground",
                       isCollapsed ? "justify-center" : "",
                     )}
                     style={{ 
@@ -723,31 +704,25 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                   >
                     <div className={cn(
                       "flex h-5 w-5 items-center justify-center transition-premium",
-                      item.isActive ? "text-white" : "text-white/70 group-hover:text-white",
-                      item.isActive && "animate__animated animate__tada"
+                      item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                     )}>
                       {item.icon}
                     </div>
                     
                     <span className={cn(
-                      "text-sm transition-premium font-medium",
+                      "text-sm transition-premium font-medium tracking-text",
                       isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
                       isRTL && "mr-1"
                     )}>
                       {item.title}
                     </span>
                     
-                    {/* Glass overlay for active state */}
-                    {item.isActive && (
-                      <div className="absolute inset-0 bg-white/5 rounded-xl" />
-                    )}
-                    
                     {/* Tooltip for collapsed mode */}
                     {isCollapsed && (
                       <span className={cn(
-                        "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-white opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                        "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
                         isRTL ? "right-16" : "left-16",
-                        "animate__animated animate__fadeIn animate__faster"
+                        "animate-fade-in"
                       )}>
                         {item.title}
                       </span>
@@ -756,7 +731,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                     {/* Active indicator */}
                     {item.isActive && (
                       <span className={cn(
-                        "absolute inset-y-0 w-1 bg-white rounded-full shadow-premium",
+                        "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
                         isRTL ? "right-0" : "left-0"
                       )} />
                     )}
@@ -767,7 +742,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
 
             {/* Section: Marketing */}
             <div className={cn(
-              "mt-8 mb-3 px-3 text-xs font-semibold text-white/60 uppercase tracking-wider",
+              "mt-6 mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
               isCollapsed ? "sr-only" : "flex"
             )}>
               {t('sidebar.marketing', 'Marketing')}
@@ -778,10 +753,11 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-3 transition-premium relative overflow-hidden",
+                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
+                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
                   item.isActive 
-                    ? "bg-gradient-premium text-white font-medium shadow-premium animate__animated animate__fadeIn animate__faster" 
-                    : "text-white/70 hover:bg-white/10 hover:text-white hover:shadow-sm",
+                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
+                    : "text-muted-foreground/80 hover:text-foreground",
                   isCollapsed ? "justify-center" : "",
                 )}
                 style={{ 
@@ -791,14 +767,13 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               >
                 <div className={cn(
                   "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-white" : "text-white/70 group-hover:text-white",
-                  item.isActive && "animate__animated animate__tada"
+                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                 )}>
                   {item.icon}
                 </div>
                 
                 <span className={cn(
-                  "text-sm transition-premium font-medium",
+                  "text-sm transition-premium font-medium tracking-text",
                   isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
                   isRTL && "mr-1"
                 )}>
@@ -807,29 +782,24 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 
                 {item.badge && !isCollapsed && (
                   <Badge variant="outline" className={cn(
-                    "ml-auto bg-white/10 text-white border-white/20 text-[10px] h-5 px-1.5 shadow-sm",
+                    "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
                     "rtl:ml-0 rtl:mr-auto",
-                    "animate__animated animate__fadeInDown animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.badge}
                   </Badge>
                 )}
                 
-                {/* Glass overlay for active state */}
-                {item.isActive && (
-                  <div className="absolute inset-0 bg-white/5 rounded-xl" />
-                )}
-                
                 {/* Tooltip for collapsed mode */}
                 {isCollapsed && (
                   <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-white opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
                     isRTL ? "right-16" : "left-16",
-                    "animate__animated animate__fadeIn animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.title}
                     {item.badge && (
-                      <span className="ml-2 inline-flex items-center justify-center rounded-full bg-white/10 text-white px-1.5 text-[9px]">
+                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
                         {item.badge}
                       </span>
                     )}
@@ -839,7 +809,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 {/* Active indicator */}
                 {item.isActive && (
                   <span className={cn(
-                    "absolute inset-y-0 w-1 bg-white rounded-full shadow-premium",
+                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
                     isRTL ? "right-0" : "left-0"
                   )} />
                 )}
@@ -847,27 +817,30 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
             ))}
           </nav>
           
-          <div className="mt-auto pt-4 space-y-2 border-t border-white/10">
+          <div className="mt-auto pt-4 space-y-2 border-t border-white/8">
             {utilityNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-3 transition-premium relative overflow-hidden",
-                  item.isActive ? "bg-white/10 text-white font-medium shadow-sm" : "text-white/60 hover:bg-white/5 hover:text-white",
+                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
+                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
+                  item.isActive 
+                    ? "bg-gradient-to-r from-accent/15 via-accent/10 to-secondary/15 text-foreground font-medium shadow-premium border border-accent/20" 
+                    : "text-muted-foreground/80 hover:text-foreground",
                   isCollapsed ? "justify-center" : "",
                 )}
                 aria-label={item.title}
               >
                 <div className={cn(
                   "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-white" : "text-white/60 group-hover:text-white"
+                  item.isActive ? "text-foreground scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                 )}>
                   {item.icon}
                 </div>
                 
                 <span className={cn(
-                  "text-sm transition-premium font-medium",
+                  "text-sm transition-premium font-medium tracking-text",
                   isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
                   isRTL && "mr-1"
                 )}>
@@ -877,9 +850,9 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 {/* Tooltip for collapsed mode */}
                 {isCollapsed && (
                   <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-white opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
                     isRTL ? "right-16" : "left-16",
-                    "animate__animated animate__fadeIn animate__faster"
+                    "animate-fade-in"
                   )}>
                     {item.title}
                   </span>
@@ -889,16 +862,17 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
             
             <button 
               className={cn(
-                "group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-white/60 transition-premium hover:bg-red-500/10 hover:text-red-400 relative overflow-hidden",
+                "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
+                "text-muted-foreground/80 hover:bg-destructive/10 hover:text-destructive hover:shadow-glow hover:scale-[1.02]",
                 isCollapsed ? "justify-center" : "",
               )}
               aria-label={t('sidebar.logout', 'Logout')}
             >
-              <div className="flex h-5 w-5 items-center justify-center text-white/60 group-hover:text-red-400 transition-premium">
+              <div className="flex h-5 w-5 items-center justify-center text-muted-foreground/80 group-hover:text-destructive transition-premium group-hover:scale-110">
                 <LogOut className="h-4 w-4" />
               </div>
               <span className={cn(
-                "text-sm transition-premium font-medium",
+                "text-sm transition-premium font-medium tracking-text",
                 isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
                 isRTL && "mr-1"
               )}>
@@ -908,9 +882,9 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
               {/* Tooltip for collapsed mode */}
               {isCollapsed && (
                 <span className={cn(
-                  "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-red-400 opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-red-400/20",
+                  "absolute z-50 rounded-xl bg-destructive/10 text-destructive px-3 py-2 text-xs font-medium opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-destructive/20",
                   isRTL ? "right-16" : "left-16",
-                  "animate__animated animate__fadeIn animate__faster"
+                  "animate-fade-in"
                 )}>
                   {t('sidebar.logout', 'Logout')}
                 </span>
@@ -923,7 +897,7 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       {/* Mobile overlay */}
       {isMobile && !isCollapsed && (
         <div 
-          className="fixed inset-0 z-20 bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn animate__faster" 
+          className="fixed inset-0 z-20 glass-blur animate-fade-in" 
           onClick={toggleSidebar}
           aria-hidden="true"
         />
@@ -933,14 +907,16 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
       {isMobile && isCollapsed && (
         <button 
           className={cn(
-            "fixed bottom-6 z-40 flex h-14 w-14 items-center justify-center rounded-2xl glass-card shadow-premium-lg hover:shadow-premium transition-premium hover:scale-105",
+            "fixed bottom-6 z-40 flex h-12 w-12 items-center justify-center rounded-xl",
+            "bg-gradient-to-br from-primary to-accent text-white shadow-premium",
+            "hover:shadow-glow hover:scale-105 transition-premium",
             isRTL ? "left-auto right-6" : "left-6 right-auto",
-            "animate__animated animate__fadeInUp animate__faster bg-gradient-premium"
+            "animate-fade-in-up"
           )}
           onClick={toggleSidebar}
           aria-label="Open menu"
         >
-          <Layers className="h-6 w-6 text-white drop-shadow-sm" />
+          <Layers className="h-5 w-5" />
         </button>
       )}
     </>
