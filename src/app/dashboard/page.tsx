@@ -6,23 +6,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   ArrowRight, 
-  BarChart3, 
-  Bell, 
   Briefcase, 
-  Building, 
   Calendar, 
   Clock, 
-  MessageSquare, 
   Plus, 
-  Share2, 
   Target, 
-  Users, 
   UserPlus,
   ClipboardList,
   Activity,
   User,
   CheckCircle,
-  XCircle,
   PieChart,
   Sparkles
 } from 'lucide-react';
@@ -31,7 +24,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { useUserStore } from '@/store/useUserStore';
 
 // Mock data for dashboard metrics
@@ -251,19 +243,24 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            {t('dashboard.welcome', 'Welcome back')}, {user?.name?.split(' ')[0] || t('dashboard.user', 'User')}
-          </h1>
-          <p className="text-muted-foreground">
-            {t('dashboard.summary', 'Here\'s a summary of your CRM activity')}
-          </p>
+      {/* Welcome header with glass card styling */}
+      <div className="glass-card p-6 rounded-xl border border-white/10">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 bg-clip-text text-transparent">
+              {t('dashboard.welcome', 'Welcome back')}, {user?.name?.split(' ')[0] || t('dashboard.user', 'User')}
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              {t('dashboard.summary', 'Here\'s a summary of your CRM activity')}
+            </p>
+          </div>
+          <Button 
+            onClick={() => router.push('/dashboard/tasks/create')}
+            className="bg-gradient-premium text-white shadow-premium hover:shadow-premium-lg transition-premium"
+          >
+            <Plus className="mr-2 h-4 w-4" /> {t('dashboard.newTask', 'New Task')}
+          </Button>
         </div>
-        <Button onClick={() => router.push('/dashboard/tasks/create')}>
-          <Plus className="mr-2 h-4 w-4" /> {t('dashboard.newTask', 'New Task')}
-        </Button>
       </div>
 
       {/* Tabs for different dashboard views */}

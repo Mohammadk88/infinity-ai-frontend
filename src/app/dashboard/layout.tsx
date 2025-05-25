@@ -15,9 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, isLoading } = useUserStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isRTL = i18n.dir() === 'rtl';
-
-  // Only show referral link banner if user is an active affiliate
-  const showReferralBanner = user?.affiliate?.isActive && user?.affiliate?.status === 'approved';
+  
   
   // Redirect to login if not authenticated or error
 
@@ -29,26 +27,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className={cn("flex min-h-screen flex-col bg-muted/30", isRTL && "rtl-layout")}>
+    <div className={cn("flex min-h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/30", isRTL && "rtl-layout")}>
       <Sidebar
         onStateChange={(collapsed) => setSidebarCollapsed(collapsed)}
       />
+      
+      {/* Fixed Header */}
+      <Header />
+      
       <div
         className={cn(
-          "flex flex-1 flex-col transition-all duration-300 ease-in-out",
+          "flex flex-1 flex-col transition-all duration-300 ease-in-out pt-[80px]", // Added top padding for fixed header
           sidebarCollapsed ? "md:ml-[70px]" : "md:ml-[260px]",
           isRTL && (sidebarCollapsed ? "md:mr-[70px] md:ml-0" : "md:mr-[260px] md:ml-0"),
         )}
       >
-        <Header />
+        {/* Content area with proper spacing for floating header */}
+        <div className="flex flex-col space-y-4">
+          {/* Affiliate Status Alert - shown on all pages when affiliate status is pending */}
+          <AffiliateStatusAlert status={user?.affiliate?.status} />
+          
+          {/* Referral Link Banner - only for active affiliates */}
+          <ReferralLinkBanner />
+          
+          <PromptGenerator />
+        </div>
         
-        {/* Affiliate Status Alert - shown on all pages when affiliate status is pending */}
-        <AffiliateStatusAlert status={user?.affiliate?.status} />
-        
-        {/* Referral Link Banner - only for active affiliates */}
-         <ReferralLinkBanner />
-        <PromptGenerator />
-        <main className="flex-1 p-4 md:p-6">
+        <main className="flex-1 p-4 md:p-6 space-y-6 page-transition">
           {children}
         </main>
       </div>
