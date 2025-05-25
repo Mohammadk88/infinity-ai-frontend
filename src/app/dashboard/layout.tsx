@@ -27,17 +27,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className={cn("flex min-h-screen flex-col bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/30", isRTL && "rtl-layout")}>
+    <div className={cn("flex min-h-screen bg-gradient-to-br from-neutral-50 via-blue-50/30 to-indigo-50/20 dark:from-neutral-950 dark:via-neutral-900/50 dark:to-neutral-800/20", isRTL && "rtl-layout")}>
+      {/* Fixed Header - positioned above sidebar */}
+      <Header />
+      
+      {/* Sidebar positioned below header */}
       <Sidebar
         onStateChange={(collapsed) => setSidebarCollapsed(collapsed)}
       />
       
-      {/* Fixed Header */}
-      <Header />
-      
       <div
         className={cn(
-          "flex flex-1 flex-col transition-all duration-300 ease-in-out pt-[80px]", // Added top padding for fixed header
+          "flex flex-1 flex-col transition-all duration-300 ease-in-out pt-20 min-h-screen", // Header height spacing
           sidebarCollapsed ? "md:ml-[70px]" : "md:ml-[260px]",
           isRTL && (sidebarCollapsed ? "md:mr-[70px] md:ml-0" : "md:mr-[260px] md:ml-0"),
         )}

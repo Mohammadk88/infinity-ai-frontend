@@ -167,17 +167,17 @@ const Header = () => {
   return (
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-premium",
-      "glass-blur border-b border-white/8 backdrop-blur-xl",
-      "shadow-premium page-transition"
+      "glass-card backdrop-blur-xl border-b border-border/50",
+      "shadow-premium bg-background/80 dark:bg-background/90"
     )}>
-      <div className="mx-auto max-w-[calc(100%-1rem)] lg:max-w-[calc(100%-2rem)]">
+      <div className="w-full">
         <div className="flex h-16 items-center justify-between px-4 lg:px-6">
           {/* Left section */}
           <div className="flex items-center gap-6">
             <CompanySwitcher />
             <div className="flex items-center">
               <Link href="/dashboard" className="flex items-center gap-4 hover:opacity-90 transition-premium group">
-                <div className="relative flex items-center justify-center h-9 w-9 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 group-hover:border-primary/30 transition-premium group-hover:shadow-premium">
+                <div className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 group-hover:border-primary/30 transition-premium group-hover:shadow-premium">
                   <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-premium" />
                   <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse-glow"></div>
                 </div>

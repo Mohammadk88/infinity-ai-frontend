@@ -34,7 +34,6 @@ import {
   Cpu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Logo from '@/components/layout/logo';
 import { Badge } from '@/components/ui/badge';
 import { useUserStore } from '@/store/useUserStore';
 import { useCompanyStore } from '@/store/useCompanyStore';
@@ -279,9 +278,9 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     <>
       <aside 
         className={cn(
-          "fixed top-0 z-30 flex h-screen flex-col transition-premium",
-          "glass-blur border-r border-white/8 backdrop-blur-xl",
-          "shadow-premium",
+          "fixed top-20 z-30 flex h-[calc(100vh-5rem)] flex-col transition-premium", // Position below header (80px/20rem)
+          "glass-card backdrop-blur-xl border-r border-border/50",
+          "shadow-premium bg-background/80 dark:bg-background/90",
           isCollapsed ? "w-[70px]" : "w-[260px]",
           isMobile && isCollapsed ? "translate-x-[-100%]" : "translate-x-0",
           isRTL ? "right-0 border-l border-r-0" : "left-0",
@@ -295,34 +294,42 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
           [isRTL ? 'left' : 'right']: 'auto',
         }}
       >
-        <div className="flex h-16 items-center border-b border-white/8 px-3">
-          <Link 
-            href="/dashboard" 
-            className={cn(
-              "flex items-center transition-premium hover:opacity-90 group",
-              isCollapsed ? "justify-center w-full" : "overflow-hidden w-[180px]"
-            )}
-          >
-            <div className={cn(
-              "relative flex items-center justify-center transition-premium",
-              isCollapsed ? "w-9 h-9" : "w-[180px]"
-            )}>
-              {isCollapsed ? (
-                <div className="relative flex items-center justify-center h-9 w-9 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 group-hover:border-primary/30 transition-premium group-hover:shadow-premium group-hover:scale-105">
-                  <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-premium" />
-                  <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse-glow"></div>
+        {/* Dynamic Header Context */}
+        <div className="flex h-40 justify-between items-center border-b border-border/20 px-3">
+          {isCollapsed ? (
+            <div className="flex w-full justify-center">
+              <div className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 hover:border-primary/30 transition-premium hover:shadow-premium hover:scale-105">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse-glow"></div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col space-y-1 w-full">
+              {currentCompany ? (
+                <div className="glass-card p-3 rounded-lg border border-border/30">
+                  <p className="text-xs font-medium text-muted-foreground/70 mb-1">Organization</p>
+                  <h3 className="font-semibold text-sm text-foreground truncate">{currentCompany.name}</h3>
+                  <p className="text-xs text-muted-foreground/60 truncate">
+                    {currentCompany.description || 'Business Account'}
+                  </p>
                 </div>
               ) : (
-                <Logo size="md" />
+                <div className="glass-card p-3 rounded-lg border border-border/30">
+                  <p className="text-xs font-medium text-muted-foreground/70 mb-1">Welcome</p>
+                  <h3 className="font-semibold text-sm text-foreground truncate">{user?.name}</h3>
+                  <p className="text-xs text-muted-foreground/60 truncate">Personal Account</p>
+                </div>
               )}
             </div>
-          </Link>
+          )}
+          
           <Button 
             variant="ghost" 
             size="icon" 
             className={cn(
               "h-8 w-8 rounded-xl hover:bg-primary/10 hover:text-primary transition-premium hover:scale-105 hover:shadow-glow",
-              !isCollapsed && (isRTL ? "mr-auto" : "ml-auto"),
+              !isCollapsed && (isRTL ? "mr-auto ml-2" : "ml-2"),
+              isCollapsed && "mt-2",
               "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30"
             )}
             onClick={toggleSidebar}
@@ -353,12 +360,14 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
-                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
+                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                  "hover:bg-background/50 hover:shadow-sm",
                   item.isActive 
-                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
-                    : "text-muted-foreground/80 hover:text-foreground",
+                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
                   isCollapsed ? "justify-center" : "",
+                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
                 )}
                 style={{ 
                   animationDelay: `${index * 50}ms`
@@ -430,12 +439,14 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 <Link
                   href={item.href}
                   className={cn(
-                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
-                    "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
+                    "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                    "hover:bg-background/50 hover:shadow-sm",
                     item.isActive 
-                      ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
-                      : "text-muted-foreground/80 hover:text-foreground",
+                      ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                      : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
                     isCollapsed ? "justify-center" : "",
+                    isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                    isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
                   )}
                   style={{ 
                     animationDelay: `${index * 50}ms`
@@ -536,12 +547,14 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
-                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
+                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                  "hover:bg-background/50 hover:shadow-sm",
                   item.isActive 
-                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
-                    : "text-muted-foreground/80 hover:text-foreground",
+                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
                   isCollapsed ? "justify-center" : "",
+                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
                 )}
                 style={{ 
                   animationDelay: `${index * 50}ms`
@@ -612,12 +625,14 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
-                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
+                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                  "hover:bg-background/50 hover:shadow-sm",
                   item.isActive 
-                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
-                    : "text-muted-foreground/80 hover:text-foreground",
+                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
                   isCollapsed ? "justify-center" : "",
+                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
                 )}
                 style={{ 
                   animationDelay: `${index * 50}ms`
@@ -690,12 +705,14 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
-                      "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
+                      "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                      "hover:bg-background/50 hover:shadow-sm",
                       item.isActive 
-                        ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
-                        : "text-muted-foreground/80 hover:text-foreground",
+                        ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                        : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
                       isCollapsed ? "justify-center" : "",
+                      isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                      isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
                     )}
                     style={{ 
                       animationDelay: `${index * 50}ms`
@@ -753,12 +770,14 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
-                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
+                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                  "hover:bg-background/50 hover:shadow-sm",
                   item.isActive 
-                    ? "bg-gradient-to-r from-primary/15 via-primary/10 to-accent/15 text-primary font-medium shadow-premium border border-primary/20" 
-                    : "text-muted-foreground/80 hover:text-foreground",
+                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
                   isCollapsed ? "justify-center" : "",
+                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
                 )}
                 style={{ 
                   animationDelay: `${index * 50}ms`
@@ -817,24 +836,26 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
             ))}
           </nav>
           
-          <div className="mt-auto pt-4 space-y-2 border-t border-white/8">
+          <div className="mt-auto pt-4 space-y-2 border-t border-border/20">
             {utilityNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
-                  "hover:bg-white/5 hover:shadow-glow hover:scale-[1.02]",
+                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                  "hover:bg-background/50 hover:shadow-sm",
                   item.isActive 
-                    ? "bg-gradient-to-r from-accent/15 via-accent/10 to-secondary/15 text-foreground font-medium shadow-premium border border-accent/20" 
-                    : "text-muted-foreground/80 hover:text-foreground",
+                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
                   isCollapsed ? "justify-center" : "",
+                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
                 )}
                 aria-label={item.title}
               >
                 <div className={cn(
                   "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-foreground scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
+                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                 )}>
                   {item.icon}
                 </div>
@@ -857,14 +878,24 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                     {item.title}
                   </span>
                 )}
+                
+                {/* Active indicator */}
+                {item.isActive && (
+                  <span className={cn(
+                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
+                    isRTL ? "right-0" : "left-0"
+                  )} />
+                )}
               </Link>
             ))}
             
             <button 
               className={cn(
-                "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-premium relative",
-                "text-muted-foreground/80 hover:bg-destructive/10 hover:text-destructive hover:shadow-glow hover:scale-[1.02]",
+                "group flex w-full items-center gap-3 px-3 py-3 transition-premium relative",
+                "text-muted-foreground/80 hover:bg-destructive/5 hover:text-destructive hover:shadow-sm",
+                "border-l-4 border-transparent hover:border-destructive/30",
                 isCollapsed ? "justify-center" : "",
+                isRTL ? "border-l-0 border-r-4 border-transparent hover:border-destructive/30" : ""
               )}
               aria-label={t('sidebar.logout', 'Logout')}
             >
