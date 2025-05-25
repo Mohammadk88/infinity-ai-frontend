@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { CollapsibleSection } from '@/components/ui/collapsible-section';
 import { 
   ChevronLeft, 
   ChevronRight,
@@ -400,101 +401,205 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
             "space-y-2",
             isMobile && "space-y-3" // Increased spacing on mobile for better touch targets
           )}>
-            {/* Section: Main */}
-            <div className={cn(
-              "mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
-              isCollapsed ? "sr-only" : "flex"
-            )}>
-              {t('sidebar.main', 'Main')}
-            </div>
-            
-            {/* Main nav items */}
-            {navItems.slice(0, 2).map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "group flex items-center gap-3 transition-premium relative rounded-lg mobile-nav-item",
-                  "hover:bg-background/50 hover:shadow-sm active:scale-[0.98]",
-                  // Mobile-optimized padding and spacing
-                  isMobile ? "px-4 py-4 min-h-[48px]" : "px-3 py-3",
-                  item.isActive 
-                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
-                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
-                  isCollapsed ? "justify-center" : "",
-                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
-                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
-                )}
-                style={{ 
-                  animationDelay: `${index * 50}ms`
-                }}
-                aria-label={item.title}
-              >
-                <div className={cn(
-                  "flex items-center justify-center transition-premium",
-                  // Mobile-optimized icon sizing with CSS class
-                  isMobile ? "mobile-nav-icon" : "h-5 w-5",
-                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
-                )}>
-                  {item.icon}
-                </div>
-                
-                <span className={cn(
-                  "text-sm transition-premium font-medium tracking-text",
-                  isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
-                  isRTL && "mr-1"
-                )}>
-                  {item.title}
-                </span>
-                
-                {item.badge && !isCollapsed && (
-                  <Badge variant="outline" className={cn(
-                    "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
-                    "rtl:ml-0 rtl:mr-auto",
-                    "animate-fade-in"
+            {/* Main Section - Collapsible */}
+            <CollapsibleSection
+              title={t('sidebar.main', 'Main')}
+              isCollapsed={isCollapsed}
+              defaultExpanded={true}
+            >
+              {navItems.slice(0, 2).map((item, index) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "group flex items-center gap-3 transition-premium relative rounded-lg mobile-nav-item",
+                    "hover:bg-background/50 hover:shadow-sm active:scale-[0.98]",
+                    // Mobile-optimized padding and spacing
+                    isMobile ? "px-4 py-4 min-h-[48px]" : "px-3 py-3",
+                    item.isActive 
+                      ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                      : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
+                    isCollapsed ? "justify-center" : "",
+                    isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                    isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
+                  )}
+                  style={{ 
+                    animationDelay: `${index * 50}ms`
+                  }}
+                  aria-label={item.title}
+                >
+                  <div className={cn(
+                    "flex items-center justify-center transition-premium",
+                    // Mobile-optimized icon sizing with CSS class
+                    isMobile ? "mobile-nav-icon" : "h-5 w-5",
+                    item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                   )}>
-                    {item.badge}
-                  </Badge>
-                )}
-                
-                {/* Tooltip for collapsed mode */}
-                {isCollapsed && (
+                    {item.icon}
+                  </div>
+                  
                   <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
-                    isRTL ? "right-16" : "left-16",
-                    "animate-fade-in"
+                    "text-sm transition-premium font-medium tracking-text",
+                    isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                    isRTL && "mr-1"
                   )}>
                     {item.title}
-                    {item.badge && (
-                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
+                  </span>
+                  
+                  {item.badge && !isCollapsed && (
+                    <Badge variant="outline" className={cn(
+                      "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
+                      "rtl:ml-0 rtl:mr-auto",
+                      "animate-fade-in"
+                    )}>
+                      {item.badge}
+                    </Badge>
+                  )}
+                  
+                  {/* Tooltip for collapsed mode */}
+                  {isCollapsed && (
+                    <span className={cn(
+                      "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                      isRTL ? "right-16" : "left-16",
+                      "animate-fade-in"
+                    )}>
+                      {item.title}
+                      {item.badge && (
+                        <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
+                          {item.badge}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                  
+                  {/* Active indicator */}
+                  {item.isActive && (
+                    <span className={cn(
+                      "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
+                      isRTL ? "right-0" : "left-0"
+                    )} />
+                  )}
+                </Link>
+              ))}
+            </CollapsibleSection>
+
+            {/* Organization Section - Collapsible */}
+            <CollapsibleSection
+              title={t('sidebar.organization', 'Organization')}
+              isCollapsed={isCollapsed}
+              defaultExpanded={true}
+            >
+              {/* Render Company/Agency with submenu if available */}
+              {navItems.slice(2, 3).map((item, index) => (
+                <div key={item.href} className="flex flex-col space-y-1">
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                      "hover:bg-background/50 hover:shadow-sm",
+                      item.isActive 
+                        ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                        : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
+                      isCollapsed ? "justify-center" : "",
+                      isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                      isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
+                    )}
+                    style={{ 
+                      animationDelay: `${index * 50}ms`
+                    }}
+                    aria-label={item.title}
+                  >
+                    <div className={cn(
+                      "flex h-5 w-5 items-center justify-center transition-premium",
+                      item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
+                    )}>
+                      {item.icon}
+                    </div>
+                    
+                    <span className={cn(
+                      "text-sm transition-premium font-medium tracking-text",
+                      isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                      isRTL && "mr-1"
+                    )}>
+                      {item.title}
+                    </span>
+                    
+                    {item.badge && !isCollapsed && (
+                      <Badge variant="outline" className={cn(
+                        "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
+                        "rtl:ml-0 rtl:mr-auto",
+                        "animate-fade-in"
+                      )}>
                         {item.badge}
+                      </Badge>
+                    )}
+                    
+                    {/* Tooltip for collapsed mode */}
+                    {isCollapsed && (
+                      <span className={cn(
+                        "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                        isRTL ? "right-16" : "left-16",
+                        "animate-fade-in"
+                      )}>
+                        {item.title}
+                        {item.badge && (
+                          <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
+                            {item.badge}
+                          </span>
+                        )}
                       </span>
                     )}
-                  </span>
-                )}
-                
-                {/* Active indicator */}
-                {item.isActive && (
-                  <span className={cn(
-                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
-                    isRTL ? "right-0" : "left-0"
-                  )} />
-                )}
-              </Link>
-            ))}
+                    
+                    {/* Active indicator */}
+                    {item.isActive && (
+                      <span className={cn(
+                        "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
+                        isRTL ? "right-0" : "left-0"
+                      )} />
+                    )}
+                  </Link>
 
-            {/* Section: Organization */}
-            <div className={cn(
-              "mt-6 mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
-              isCollapsed ? "sr-only" : "flex"
-            )}>
-              {t('sidebar.organization', 'Organization')}
-            </div>
-            
-            {/* Render Company/Agency with submenu if available */}
-            {navItems.slice(2, 3).map((item, index) => (
-              <div key={item.href} className="flex flex-col space-y-1">
+                  {/* Render submenu for Company */}
+                  {!isCollapsed && item.submenu && item.submenu.length > 0 && (
+                    <div className="pl-6 space-y-1">
+                      {item.submenu.map((subItem) => (
+                        <Link
+                          key={subItem.href}
+                          href={subItem.href}
+                          className={cn(
+                            "group flex items-center gap-2 rounded-lg px-3 py-2 transition-premium relative text-sm",
+                            "hover:bg-white/5 hover:shadow-glow hover:scale-[1.01]",
+                            subItem.isActive 
+                              ? "bg-gradient-to-r from-primary/10 to-accent/10 text-primary font-medium border border-primary/20" 
+                              : "text-muted-foreground/70 hover:text-foreground"
+                          )}
+                          aria-label={subItem.title}
+                        >
+                          <div className={cn(
+                            "flex h-4 w-4 items-center justify-center transition-premium",
+                            subItem.isActive ? "text-primary scale-105" : "text-muted-foreground/70 group-hover:text-foreground group-hover:scale-105"
+                          )}>
+                            {subItem.icon}
+                          </div>
+                          <span className="tracking-text">{subItem.title}</span>
+                          
+                          {/* Active indicator for submenu */}
+                          {subItem.isActive && (
+                            <span className={cn(
+                              "absolute inset-y-0 w-0.5 bg-gradient-to-b from-primary to-accent rounded-full opacity-70",
+                              isRTL ? "right-0" : "left-0"
+                            )} />
+                          )}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* Other Organization items */}
+              {navItems.slice(3, 6).map((item, index) => (
                 <Link
+                  key={item.href}
                   href={item.href}
                   className={cn(
                     "group flex items-center gap-3 px-3 py-3 transition-premium relative",
@@ -560,204 +665,93 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                     )} />
                   )}
                 </Link>
+              ))}
+            </CollapsibleSection>
 
-                {/* Render submenu for Company */}
-                {!isCollapsed && item.submenu && item.submenu.length > 0 && (
-                  <div className="pl-6 space-y-1">
-                    {item.submenu.map((subItem) => (
-                      <Link
-                        key={subItem.href}
-                        href={subItem.href}
-                        className={cn(
-                          "group flex items-center gap-2 rounded-lg px-3 py-2 transition-premium relative text-sm",
-                          "hover:bg-white/5 hover:shadow-glow hover:scale-[1.01]",
-                          subItem.isActive 
-                            ? "bg-gradient-to-r from-primary/10 to-accent/10 text-primary font-medium border border-primary/20" 
-                            : "text-muted-foreground/70 hover:text-foreground"
-                        )}
-                        aria-label={subItem.title}
-                      >
-                        <div className={cn(
-                          "flex h-4 w-4 items-center justify-center transition-premium",
-                          subItem.isActive ? "text-primary scale-105" : "text-muted-foreground/70 group-hover:text-foreground group-hover:scale-105"
-                        )}>
-                          {subItem.icon}
-                        </div>
-                        <span className="tracking-text">{subItem.title}</span>
-                        
-                        {/* Active indicator for submenu */}
-                        {subItem.isActive && (
-                          <span className={cn(
-                            "absolute inset-y-0 w-0.5 bg-gradient-to-b from-primary to-accent rounded-full opacity-70",
-                            isRTL ? "right-0" : "left-0"
-                          )} />
-                        )}
-                      </Link>
-                    ))}
+            {/* Sales Section - Collapsible */}
+            <CollapsibleSection
+              title={t('sidebar.sales', 'Sales')}
+              isCollapsed={isCollapsed}
+              defaultExpanded={true}
+            >
+              {navItems.slice(6, 9).map((item, index) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                    "hover:bg-background/50 hover:shadow-sm",
+                    item.isActive 
+                      ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                      : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
+                    isCollapsed ? "justify-center" : "",
+                    isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                    isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
+                  )}
+                  style={{ 
+                    animationDelay: `${index * 50}ms`
+                  }}
+                  aria-label={item.title}
+                >
+                  <div className={cn(
+                    "flex h-5 w-5 items-center justify-center transition-premium",
+                    item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
+                  )}>
+                    {item.icon}
                   </div>
-                )}
-              </div>
-            ))}
-            
-            {/* Other Organization items */}
-            {navItems.slice(3, 6).map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
-                  "hover:bg-background/50 hover:shadow-sm",
-                  item.isActive 
-                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
-                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
-                  isCollapsed ? "justify-center" : "",
-                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
-                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
-                )}
-                style={{ 
-                  animationDelay: `${index * 50}ms`
-                }}
-                aria-label={item.title}
-              >
-                <div className={cn(
-                  "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
-                )}>
-                  {item.icon}
-                </div>
-                
-                <span className={cn(
-                  "text-sm transition-premium font-medium tracking-text",
-                  isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
-                  isRTL && "mr-1"
-                )}>
-                  {item.title}
-                </span>
-                
-                {item.badge && !isCollapsed && (
-                  <Badge variant="outline" className={cn(
-                    "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
-                    "rtl:ml-0 rtl:mr-auto",
-                    "animate-fade-in"
-                  )}>
-                    {item.badge}
-                  </Badge>
-                )}
-                
-                {/* Tooltip for collapsed mode */}
-                {isCollapsed && (
+                  
                   <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
-                    isRTL ? "right-16" : "left-16",
-                    "animate-fade-in"
+                    "text-sm transition-premium font-medium tracking-text",
+                    isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                    isRTL && "mr-1"
                   )}>
                     {item.title}
-                    {item.badge && (
-                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
-                        {item.badge}
-                      </span>
-                    )}
                   </span>
-                )}
-                
-                {/* Active indicator */}
-                {item.isActive && (
-                  <span className={cn(
-                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
-                    isRTL ? "right-0" : "left-0"
-                  )} />
-                )}
-              </Link>
-            ))}
-
-            {/* Section: Sales */}
-            <div className={cn(
-              "mt-6 mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
-              isCollapsed ? "sr-only" : "flex"
-            )}>
-              {t('sidebar.sales', 'Sales')}
-            </div>
+                  
+                  {item.badge && !isCollapsed && (
+                    <Badge variant="outline" className={cn(
+                      "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
+                      "rtl:ml-0 rtl:mr-auto",
+                      "animate-fade-in"
+                    )}>
+                      {item.badge}
+                    </Badge>
+                  )}
+                  
+                  {/* Tooltip for collapsed mode */}
+                  {isCollapsed && (
+                    <span className={cn(
+                      "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                      isRTL ? "right-16" : "left-16",
+                      "animate-fade-in"
+                    )}>
+                      {item.title}
+                      {item.badge && (
+                        <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
+                          {item.badge}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                  
+                  {/* Active indicator */}
+                  {item.isActive && (
+                    <span className={cn(
+                      "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
+                      isRTL ? "right-0" : "left-0"
+                    )} />
+                  )}
+                </Link>
+              ))}
+            </CollapsibleSection>
             
-            {navItems.slice(6, 9).map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
-                  "hover:bg-background/50 hover:shadow-sm",
-                  item.isActive 
-                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
-                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
-                  isCollapsed ? "justify-center" : "",
-                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
-                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
-                )}
-                style={{ 
-                  animationDelay: `${index * 50}ms`
-                }}
-                aria-label={item.title}
-              >
-                <div className={cn(
-                  "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
-                )}>
-                  {item.icon}
-                </div>
-                
-                <span className={cn(
-                  "text-sm transition-premium font-medium tracking-text",
-                  isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
-                  isRTL && "mr-1"
-                )}>
-                  {item.title}
-                </span>
-                
-                {item.badge && !isCollapsed && (
-                  <Badge variant="outline" className={cn(
-                    "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
-                    "rtl:ml-0 rtl:mr-auto",
-                    "animate-fade-in"
-                  )}>
-                    {item.badge}
-                  </Badge>
-                )}
-                
-                {/* Tooltip for collapsed mode */}
-                {isCollapsed && (
-                  <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
-                    isRTL ? "right-16" : "left-16",
-                    "animate-fade-in"
-                  )}>
-                    {item.title}
-                    {item.badge && (
-                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
-                        {item.badge}
-                      </span>
-                    )}
-                  </span>
-                )}
-                
-                {/* Active indicator */}
-                {item.isActive && (
-                  <span className={cn(
-                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
-                    isRTL ? "right-0" : "left-0"
-                  )} />
-                )}
-              </Link>
-            ))}
-            
-            {/* Section: Affiliate - Only shown for active affiliates */}
+            {/* Affiliate Section - Only shown for active affiliates */}
             {isActiveAffiliate && (
-              <>
-                <div className={cn(
-                  "mt-6 mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
-                  isCollapsed ? "sr-only" : "flex"
-                )}>
-                  {t('sidebar.affiliate', 'Affiliate')}
-                </div>
-                
+              <CollapsibleSection
+                title={t('sidebar.affiliate', 'Affiliate')}
+                isCollapsed={isCollapsed}
+                defaultExpanded={true}
+              >
                 {affiliateItems.map((item, index) => (
                   <Link
                     key={item.href}
@@ -812,86 +806,85 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
                     )}
                   </Link>
                 ))}
-              </>
+              </CollapsibleSection>
             )}
 
-            {/* Section: Marketing */}
-            <div className={cn(
-              "mt-6 mb-3 px-2 text-xs font-semibold text-muted-foreground/80 tracking-wide-text",
-              isCollapsed ? "sr-only" : "flex"
-            )}>
-              {t('sidebar.marketing', 'Marketing')}
-            </div>
-            
-            {navItems.slice(9).filter(item => !item.hidden).map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "group flex items-center gap-3 px-3 py-3 transition-premium relative",
-                  "hover:bg-background/50 hover:shadow-sm",
-                  item.isActive 
-                    ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
-                    : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
-                  isCollapsed ? "justify-center" : "",
-                  isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
-                  isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
-                )}
-                style={{ 
-                  animationDelay: `${index * 50}ms`
-                }}
-                aria-label={item.title}
-              >
-                <div className={cn(
-                  "flex h-5 w-5 items-center justify-center transition-premium",
-                  item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
-                )}>
-                  {item.icon}
-                </div>
-                
-                <span className={cn(
-                  "text-sm transition-premium font-medium tracking-text",
-                  isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
-                  isRTL && "mr-1"
-                )}>
-                  {item.title}
-                </span>
-                
-                {item.badge && !isCollapsed && (
-                  <Badge variant="outline" className={cn(
-                    "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
-                    "rtl:ml-0 rtl:mr-auto",
-                    "animate-fade-in"
+            {/* Marketing Section - Collapsible */}
+            <CollapsibleSection
+              title={t('sidebar.marketing', 'Marketing')}
+              isCollapsed={isCollapsed}
+              defaultExpanded={true}
+            >
+              {navItems.slice(9).filter(item => !item.hidden).map((item, index) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "group flex items-center gap-3 px-3 py-3 transition-premium relative",
+                    "hover:bg-background/50 hover:shadow-sm",
+                    item.isActive 
+                      ? "bg-primary/5 text-primary font-medium border-l-4 border-primary ml-0 pl-3" 
+                      : "text-muted-foreground/80 hover:text-foreground border-l-4 border-transparent hover:border-muted/30",
+                    isCollapsed ? "justify-center" : "",
+                    isRTL && item.isActive ? "border-l-0 border-r-4 border-primary mr-0 pr-3" : "",
+                    isRTL && !item.isActive ? "border-l-0 border-r-4 border-transparent hover:border-muted/30" : ""
+                  )}
+                  style={{ 
+                    animationDelay: `${index * 50}ms`
+                  }}
+                  aria-label={item.title}
+                >
+                  <div className={cn(
+                    "flex h-5 w-5 items-center justify-center transition-premium",
+                    item.isActive ? "text-primary scale-110" : "text-muted-foreground/80 group-hover:text-foreground group-hover:scale-110"
                   )}>
-                    {item.badge}
-                  </Badge>
-                )}
-                
-                {/* Tooltip for collapsed mode */}
-                {isCollapsed && (
+                    {item.icon}
+                  </div>
+                  
                   <span className={cn(
-                    "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
-                    isRTL ? "right-16" : "left-16",
-                    "animate-fade-in"
+                    "text-sm transition-premium font-medium tracking-text",
+                    isCollapsed ? "w-0 opacity-0 absolute" : "w-auto opacity-100",
+                    isRTL && "mr-1"
                   )}>
                     {item.title}
-                    {item.badge && (
-                      <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
-                        {item.badge}
-                      </span>
-                    )}
                   </span>
-                )}
-                
-                {/* Active indicator */}
-                {item.isActive && (
-                  <span className={cn(
-                    "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
-                    isRTL ? "right-0" : "left-0"
-                  )} />
-                )}
-              </Link>
-            ))}
+                  
+                  {item.badge && !isCollapsed && (
+                    <Badge variant="outline" className={cn(
+                      "ml-auto bg-primary/10 text-primary border-primary/30 text-[10px] h-5 px-1.5 rounded-lg shadow-sm",
+                      "rtl:ml-0 rtl:mr-auto",
+                      "animate-fade-in"
+                    )}>
+                      {item.badge}
+                    </Badge>
+                  )}
+                  
+                  {/* Tooltip for collapsed mode */}
+                  {isCollapsed && (
+                    <span className={cn(
+                      "absolute z-50 rounded-xl glass-card px-3 py-2 text-xs font-medium text-foreground opacity-0 shadow-premium transition-premium group-hover:opacity-100 whitespace-nowrap border border-white/10",
+                      isRTL ? "right-16" : "left-16",
+                      "animate-fade-in"
+                    )}>
+                      {item.title}
+                      {item.badge && (
+                        <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary/20 text-primary px-1.5 text-[9px]">
+                          {item.badge}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                  
+                  {/* Active indicator */}
+                  {item.isActive && (
+                    <span className={cn(
+                      "absolute inset-y-0 w-1 bg-gradient-to-b from-primary to-accent rounded-full",
+                      isRTL ? "right-0" : "left-0"
+                    )} />
+                  )}
+                </Link>
+              ))}
+            </CollapsibleSection>
           </nav>
           
           <div className="mt-auto pt-4 space-y-2 border-t border-border/20">

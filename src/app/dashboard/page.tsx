@@ -24,7 +24,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useUserStore } from '@/store/useUserStore';
+
+// Import new premium components
+import DynamicGreetingBlock from '@/components/features/dynamic-greeting-block';
+import AnimatedKPICounters from '@/components/features/animated-kpi-counters';
+import AIRecommendationsBlock from '@/components/features/ai-recommendations-block';
+import BreadcrumbTrail from '@/components/features/breadcrumb-trail';
 
 // Mock data for dashboard metrics
 const metrics = {
@@ -149,7 +154,6 @@ const leadStatusData: LeadStatusData[] = [
 export default function Dashboard() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { user } = useUserStore();
   const [activeTab, setActiveTab] = useState('overview');
   const [mounted, setMounted] = useState(false);
 
@@ -243,24 +247,29 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome header with glass card styling */}
-      <div className="glass-card p-6 rounded-xl border border-white/10">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 bg-clip-text text-transparent">
-              {t('dashboard.welcome', 'Welcome back')}, {user?.name?.split(' ')[0] || t('dashboard.user', 'User')}
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              {t('dashboard.summary', 'Here\'s a summary of your CRM activity')}
-            </p>
-          </div>
-          <Button 
-            onClick={() => router.push('/dashboard/tasks/create')}
-            className="bg-gradient-premium text-white shadow-premium hover:shadow-premium-lg transition-premium"
-          >
-            <Plus className="mr-2 h-4 w-4" /> {t('dashboard.newTask', 'New Task')}
-          </Button>
+      {/* Breadcrumb Navigation */}
+      <BreadcrumbTrail />
+
+      {/* Dynamic Greeting Block */}
+      <DynamicGreetingBlock />
+
+      {/* AI Recommendations Block */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <AIRecommendationsBlock />
         </div>
+        <div className="space-y-4">
+          {/* This space can be used for other widgets */}
+        </div>
+      </div>
+
+      {/* Animated KPI Counters */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-foreground flex items-center">
+          <PieChart className="h-5 w-5 mr-2 text-primary" />
+          Key Performance Indicators
+        </h2>
+        <AnimatedKPICounters />
       </div>
 
       {/* Tabs for different dashboard views */}

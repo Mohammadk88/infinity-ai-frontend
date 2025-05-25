@@ -557,7 +557,7 @@
 }
 
 /* Mobile Sidebar Enhancements */
-  @screen sm {
+  @media (min-width: 640px) {
     .sidebar-mobile-nav a {
       @apply px-4 py-4 min-h-[48px] text-base;
     }
