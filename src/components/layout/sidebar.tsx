@@ -56,12 +56,15 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
   // Check if user is an active affiliate
   const isActiveAffiliate = user?.affiliate && user?.affiliate.status === 'approved' && user?.affiliate.isActive;
 
-  // Check if current device is mobile
+  // Check if current device is mobile and handle responsive behavior
   useEffect(() => {
     setIsMounted(true);
     const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth < 768) {
+      const isMobileView = window.innerWidth < 768;
+      setIsMobile(isMobileView);
+      
+      // Auto-collapse on mobile for better UX
+      if (isMobileView) {
         setIsCollapsed(true);
       }
     };
@@ -278,11 +281,18 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
     <>
       <aside 
         className={cn(
-          "fixed top-20 z-30 flex h-[calc(100vh-5rem)] flex-col transition-premium", // Position below header (80px/20rem)
+          "fixed z-30 flex flex-col transition-premium",
           "glass-card backdrop-blur-xl border-r border-border/50",
           "shadow-premium bg-background/80 dark:bg-background/90",
-          isCollapsed ? "w-[70px]" : "w-[260px]",
+          // Mobile: Full height with responsive positioning
+          isMobile 
+            ? "top-0 h-screen w-[280px] md:w-[260px]" 
+            : "top-16 md:top-20 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]",
+          // Width and collapse behavior
+          !isMobile && (isCollapsed ? "w-[70px]" : "w-[260px]"),
+          // Transform for mobile overlay
           isMobile && isCollapsed ? "translate-x-[-100%]" : "translate-x-0",
+          // RTL support
           isRTL ? "right-0 border-l border-r-0" : "left-0",
           isRTL && isMobile && isCollapsed ? "translate-x-[100%]" : "",
           "page-transition",
@@ -294,8 +304,38 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
           [isRTL ? 'left' : 'right']: 'auto',
         }}
       >
-        {/* Dynamic Header Context */}
-        <div className="flex h-40 justify-between items-center border-b border-border/20 px-3">
+        {/* Mobile Header - Only shown on mobile */}
+        {isMobile && (
+          <div className="flex h-16 md:h-20 items-center justify-between border-b border-border/20 px-4 bg-background/95 backdrop-blur-sm">
+            <div className="flex items-center space-x-3">
+              <div className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse-glow"></div>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-semibold text-sm text-foreground">
+                  {currentCompany?.name || user?.name || 'Infinity AI'}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {currentCompany ? 'Business Account' : 'Personal Account'}
+                </span>
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary transition-premium hover:scale-105"
+              onClick={toggleSidebar}
+              aria-label="Close menu"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+          </div>
+        )}
+
+        {/* Desktop Header Context - Hidden on mobile */}
+        {!isMobile && (
+          <div className="flex h-40 justify-between items-center border-b border-border/20 px-3">
           {isCollapsed ? (
             <div className="flex w-full justify-center">
               <div className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 hover:border-primary/30 transition-premium hover:shadow-premium hover:scale-105">
@@ -343,8 +383,12 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
             )}
           </Button>
         </div>
+        )}
         
-        <div className="scrollable-y flex flex-col justify-between py-4 px-3 h-full">
+        <div className={cn(
+          "scrollable-y flex flex-col justify-between h-full",
+          isMobile ? "py-4 px-4" : "py-4 px-3" // Increased padding on mobile
+        )}>
           <nav className="space-y-2">
             {/* Section: Main */}
             <div className={cn(
@@ -925,29 +969,33 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
         </div>
       </aside>
       
-      {/* Mobile overlay */}
+      {/* Enhanced Mobile overlay with better backdrop */}
       {isMobile && !isCollapsed && (
         <div 
-          className="fixed inset-0 z-20 glass-blur animate-fade-in" 
+          className="fixed inset-0 z-20 bg-black/20 backdrop-blur-md animate-fade-in" 
           onClick={toggleSidebar}
           aria-hidden="true"
         />
       )}
       
-      {/* Mobile toggle button */}
+      {/* Enhanced Mobile toggle button with better positioning and accessibility */}
       {isMobile && isCollapsed && (
         <button 
           className={cn(
-            "fixed bottom-6 z-40 flex h-12 w-12 items-center justify-center rounded-xl",
+            "fixed z-40 flex items-center justify-center rounded-xl",
             "bg-gradient-to-br from-primary to-accent text-white shadow-premium",
-            "hover:shadow-glow hover:scale-105 transition-premium",
-            isRTL ? "left-auto right-6" : "left-6 right-auto",
-            "animate-fade-in-up"
+            "hover:shadow-glow hover:scale-105 transition-premium active:scale-95",
+            "h-12 w-12 md:h-14 md:w-14", // Responsive sizing
+            "bottom-6 md:bottom-8", // Responsive bottom positioning
+            isRTL ? "left-auto right-4 md:right-6" : "left-4 md:left-6 right-auto", // Responsive side positioning
+            "animate-fade-in-up",
+            "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background"
           )}
           onClick={toggleSidebar}
-          aria-label="Open menu"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
         >
-          <Layers className="h-5 w-5" />
+          <Layers className="h-5 w-5 md:h-6 md:w-6" />
         </button>
       )}
     </>

@@ -27,7 +27,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className={cn("flex min-h-screen bg-gradient-to-br from-neutral-50 via-blue-50/30 to-indigo-50/20 dark:from-neutral-950 dark:via-neutral-900/50 dark:to-neutral-800/20", isRTL && "rtl-layout")}>
+    <div className={cn(
+      "flex min-h-screen bg-gradient-to-br from-neutral-50 via-blue-50/30 to-indigo-50/20 dark:from-neutral-950 dark:via-neutral-900/50 dark:to-neutral-800/20",
+      "transition-premium",
+      isRTL && "rtl-layout"
+    )}>
       {/* Fixed Header - positioned above sidebar */}
       <Header />
       
@@ -36,25 +40,44 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         onStateChange={(collapsed) => setSidebarCollapsed(collapsed)}
       />
       
+      {/* Mobile overlay for sidebar */}
+      {!sidebarCollapsed && (
+        <div 
+          className={cn(
+            "fixed inset-0 z-30 bg-background/80 backdrop-blur-sm md:hidden",
+            "transition-premium animate-in fade-in-0"
+          )}
+          onClick={() => setSidebarCollapsed(true)}
+        />
+      )}
+      
       <div
         className={cn(
-          "flex flex-1 flex-col transition-all duration-300 ease-in-out pt-20 min-h-screen", // Header height spacing
-          sidebarCollapsed ? "md:ml-[70px]" : "md:ml-[260px]",
+          "flex flex-1 flex-col transition-premium pt-16 min-h-screen", // Reduced header spacing for mobile
+          "ml-0", // No margin on mobile - sidebar overlays
+          // Desktop spacing
+          sidebarCollapsed ? "md:ml-[70px] md:pt-20" : "md:ml-[260px] md:pt-20",
+          // RTL adjustments
           isRTL && (sidebarCollapsed ? "md:mr-[70px] md:ml-0" : "md:mr-[260px] md:ml-0"),
         )}
       >
-        {/* Content area with proper spacing for floating header */}
-        <div className="flex flex-col space-y-4">
-          {/* Affiliate Status Alert - shown on all pages when affiliate status is pending */}
+        {/* Content area with improved mobile spacing */}
+        <div className="flex flex-col space-y-2 md:space-y-4 px-2 md:px-0">
+          {/* Affiliate Status Alert - responsive spacing */}
           <AffiliateStatusAlert status={user?.affiliate?.status} />
           
-          {/* Referral Link Banner - only for active affiliates */}
+          {/* Referral Link Banner - responsive design */}
           <ReferralLinkBanner />
           
+          {/* Prompt Generator - mobile optimized */}
           <PromptGenerator />
         </div>
         
-        <main className="flex-1 p-4 md:p-6 space-y-6 page-transition">
+        <main className={cn(
+          "flex-1 space-y-4 md:space-y-6 page-transition",
+          "p-3 md:p-4 lg:p-6", // Responsive padding
+          "pb-safe" // Safe area for mobile browsers
+        )}>
           {children}
         </main>
       </div>

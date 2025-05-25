@@ -168,44 +168,51 @@ const Header = () => {
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-premium",
       "glass-card backdrop-blur-xl border-b border-border/50",
-      "shadow-premium bg-background/80 dark:bg-background/90"
+      "shadow-premium bg-background/90 dark:bg-background/95",
+      "h-16 md:h-20" // Responsive height
     )}>
-      <div className="w-full">
-        <div className="flex h-16 items-center justify-between px-4 lg:px-6">
-          {/* Left section */}
-          <div className="flex items-center gap-6">
-            <CompanySwitcher />
+      <div className="w-full h-full">
+        <div className="flex h-full items-center justify-between px-3 md:px-4 lg:px-6">
+          {/* Left section - Mobile optimized */}
+          <div className="flex items-center gap-2 md:gap-6">
+            <div className="flex md:hidden">
+              <CompanySwitcher />
+            </div>
             <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center gap-4 hover:opacity-90 transition-premium group">
-                <div className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 group-hover:border-primary/30 transition-premium group-hover:shadow-premium">
-                  <Sparkles className="h-5 w-5 text-primary group-hover:scale-110 transition-premium" />
-                  <div className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse-glow"></div>
+              <Link href="/dashboard" className="flex items-center gap-2 md:gap-4 hover:opacity-90 transition-premium group">
+                <div className="relative flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 border border-primary/20 group-hover:border-primary/30 transition-premium group-hover:shadow-premium">
+                  <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-primary group-hover:scale-110 transition-premium" />
+                  <div className="absolute -top-1 -right-1 h-2 w-2 md:h-2.5 md:w-2.5 rounded-full bg-gradient-to-r from-primary to-accent animate-pulse-glow"></div>
                 </div>
-                <div className="hidden md:block">
-                  <h1 className="font-manrope font-bold text-lg tracking-heading text-foreground">
+                <div className="hidden sm:block">
+                  <h1 className="font-manrope font-bold text-base md:text-lg tracking-heading text-foreground">
                     <span className="gradient-text">
                       Infinity
                     </span>
-                    <span className="ml-1.5 text-muted-foreground/80">AI</span>
+                    <span className="ml-1 md:ml-1.5 text-muted-foreground/80">AI</span>
                   </h1>
                   <p className="text-xs text-muted-foreground/60 tracking-wide-text font-medium -mt-0.5">Intelligence Platform</p>
                 </div>
               </Link>
             </div>
+            <div className="hidden md:flex">
+              <CompanySwitcher />
+            </div>
           </div>
         
-        <div className="flex-1 flex items-center justify-center max-w-md mx-6">
+        {/* Search section - Mobile optimized */}
+        <div className="flex-1 flex items-center justify-center max-w-xs md:max-w-md mx-2 md:mx-6">
           <div className={cn(
-            "relative transition-all duration-300 ease-in-out w-full",
+            "relative transition-premium w-full",
             mobileSearchVisible ? "flex animate-in fade-in-0 slide-in-from-top-2 duration-300" : "hidden md:flex"
           )}>
             <form onSubmit={handleSearchSubmit} className="w-full">
               <div className="relative flex items-center">
                 <div className={cn(
-                  "absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none transition-colors duration-300",
+                  "absolute inset-y-0 left-0 flex items-center pl-2 md:pl-3 pointer-events-none transition-colors duration-300",
                   searchFocused ? "text-primary" : "text-muted-foreground/60"
                 )}>
-                  <Search className="w-4 h-4" />
+                  <Search className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </div>
                 
                 <input 
@@ -213,12 +220,12 @@ const Header = () => {
                   type="search" 
                   placeholder={searchFocused ? t('header.search', 'Search files, actions, or tools...') : t('header.searchShort', 'Search...')} 
                   className={cn(
-                    "w-full h-9 pl-10 pr-4 text-sm rounded-xl border",
-                    "bg-background/50 backdrop-blur-sm transition-all duration-300",
+                    "w-full h-8 md:h-9 pl-8 md:pl-10 pr-3 md:pr-4 text-sm rounded-lg md:rounded-xl border",
+                    "bg-background/50 backdrop-blur-sm transition-premium",
                     searchFocused 
-                      ? "border-primary/50 ring-2 ring-primary/20 shadow-lg bg-background/80" 
+                      ? "border-primary/50 ring-1 md:ring-2 ring-primary/20 shadow-sm md:shadow-lg bg-background/80" 
                       : "border-border/30 hover:border-border/50 hover:bg-background/70",
-                    "focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20",
+                    "focus:outline-none focus:border-primary/50 focus:ring-1 md:focus:ring-2 focus:ring-primary/20",
                     "placeholder:text-muted-foreground/60"
                   )}
                   onFocus={handleSearchFocus}
@@ -230,24 +237,23 @@ const Header = () => {
                 {searchValue && (
                   <button 
                     type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground/60 hover:text-foreground transition-colors duration-200"
+                    className="absolute inset-y-0 right-0 flex items-center pr-2 md:pr-3 text-muted-foreground/60 hover:text-foreground transition-colors duration-200"
                     onClick={handleClearSearch}
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </button>
                 )}
               </div>
             </form>
           </div>
         </div>
-        
-        {/* Right section */}
-        <div className="flex items-center gap-2">
+        {/* Right section - Mobile optimized */}
+        <div className="flex items-center gap-1 md:gap-2">
           {/* Mobile search toggle */}
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden h-8 w-8 rounded-lg hover:bg-primary/10 transition-colors duration-200"
+            className="md:hidden h-8 w-8 rounded-lg hover:bg-primary/10 transition-premium"
             onClick={toggleMobileSearch}
           >
             {mobileSearchVisible ? (
@@ -257,15 +263,17 @@ const Header = () => {
             )}
           </Button>
 
-          {/* AI Provider Badge */}
-          <AIProviderBadge />
+          {/* AI Provider Badge - Hide on small mobile */}
+          <div className="hidden sm:block">
+            <AIProviderBadge className="scale-90 md:scale-100" />
+          </div>
         
           {/* AI Prompt Generator */}
           <Button
             variant="ghost"
             size="icon"
             className={cn(
-              "h-8 w-8 rounded-lg transition-all duration-300",
+              "h-8 w-8 rounded-lg transition-premium",
               "hover:bg-primary/10 hover:scale-105",
               "text-primary/80 hover:text-primary",
               (activePromptMode || promptGeneratorOpen) && "bg-primary/10 shadow-sm"
@@ -278,52 +286,56 @@ const Header = () => {
           {/* Notifications */}
           <NotificationCenter />
           
-          {/* Theme Toggle */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-lg hover:bg-primary/10 transition-all duration-300 hover:scale-105"
-              >
-                {theme === 'dark' && <Moon className="h-4 w-4" />}
-                {theme === 'light' && <Sun className="h-4 w-4" />}
-                {theme === 'system' && <LaptopIcon className="h-4 w-4" />}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="animate-in fade-in-0 slide-in-from-top-2 duration-200">
-              <DropdownMenuItem onClick={() => setTheme('light')} className="cursor-pointer">
-                <Sun className="mr-2 h-4 w-4" />
-                <span>{t('theme.light', 'Light')}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('dark')} className="cursor-pointer">
-                <Moon className="mr-2 h-4 w-4" />
-                <span>{t('theme.dark', 'Dark')}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('system')} className="cursor-pointer">
-                <LaptopIcon className="mr-2 h-4 w-4" />
-                <span>{t('theme.system', 'System')}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Theme Toggle - Hide on mobile */}
+          <div className="hidden sm:block">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg hover:bg-primary/10 transition-premium hover:scale-105"
+                >
+                  {theme === 'dark' && <Moon className="h-4 w-4" />}
+                  {theme === 'light' && <Sun className="h-4 w-4" />}
+                  {theme === 'system' && <LaptopIcon className="h-4 w-4" />}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="animate-in fade-in-0 slide-in-from-top-2 duration-200">
+                <DropdownMenuItem onClick={() => setTheme('light')} className="cursor-pointer">
+                  <Sun className="mr-2 h-4 w-4" />
+                  <span>{t('theme.light', 'Light')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('dark')} className="cursor-pointer">
+                  <Moon className="mr-2 h-4 w-4" />
+                  <span>{t('theme.dark', 'Dark')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('system')} className="cursor-pointer">
+                  <LaptopIcon className="mr-2 h-4 w-4" />
+                  <span>{t('theme.system', 'System')}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
-          {/* Language Selector */}
-          <LanguageSelector variant="minimal" />
+          {/* Language Selector - Hide on mobile */}
+          <div className="hidden md:block">
+            <LanguageSelector variant="minimal" />
+          </div>
 
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
-                className="relative h-8 flex items-center gap-2 px-2 rounded-lg hover:bg-primary/10 transition-all duration-300 hover:shadow-sm" 
+                className="relative h-8 flex items-center gap-1 md:gap-2 px-1 md:px-2 rounded-lg hover:bg-primary/10 transition-premium hover:shadow-sm" 
               >
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20">
                   <User className="h-3 w-3 text-primary" />
                 </div>
-                <span className="text-sm font-medium hidden md:inline-block max-w-[80px] truncate">
+                <span className="text-sm font-medium hidden lg:inline-block max-w-[80px] truncate">
                   {user?.name || 'User'}
                 </span>
-                <ChevronDown className="h-3 w-3 opacity-50" />
+                <ChevronDown className="h-3 w-3 opacity-50 hidden md:block" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 mt-1 animate-in fade-in-0 slide-in-from-top-2 duration-200">
@@ -342,6 +354,14 @@ const Header = () => {
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
+              {/* Mobile only options */}
+              <div className="sm:hidden">
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="cursor-pointer">
+                  {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+                  <span>{theme === 'dark' ? t('theme.light', 'Light') : t('theme.dark', 'Dark')}</span>
+                </DropdownMenuItem>
+              </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={handleLogout} 
@@ -354,10 +374,10 @@ const Header = () => {
           </DropdownMenu>
         </div>
 
-        {/* Prompt Generator Dropdown */}
+        {/* Prompt Generator Dropdown - Mobile optimized */}
         {promptGeneratorOpen && (
-          <div className="absolute top-14 right-4 mt-2 z-40 w-72 md:w-80 animate-in fade-in-0 slide-in-from-top-4 duration-300">
-            <div className="glass-card rounded-xl shadow-premium border border-white/10 p-4">
+          <div className="absolute top-14 md:top-16 right-2 md:right-4 mt-2 z-40 w-[calc(100vw-1rem)] max-w-sm md:w-72 lg:w-80 animate-in fade-in-0 slide-in-from-top-4 duration-300">
+            <div className="glass-card rounded-xl shadow-premium border border-white/10 p-3 md:p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20">
@@ -378,18 +398,18 @@ const Header = () => {
                 <input
                   type="text"
                   placeholder={t('header.promptPlaceholder', 'Enter your prompt here...')}
-                  className="w-full text-sm p-3 border border-white/10 rounded-xl bg-background/50 backdrop-blur-sm focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200"
+                  className="w-full text-sm p-2 md:p-3 border border-white/10 rounded-xl bg-background/50 backdrop-blur-sm focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-premium"
                   value={miniPromptValue}
                   onChange={(e) => setMiniPromptValue(e.target.value)}
                   autoFocus
                 />
                 
-                <div className="flex gap-2 overflow-x-auto py-1">
+                <div className="flex gap-1 md:gap-2 overflow-x-auto py-1">
                   <Button 
                     size="sm" 
                     variant={promptType === 'text' ? 'default' : 'outline'} 
                     className={cn(
-                      "text-xs h-7 whitespace-nowrap rounded-lg",
+                      "text-xs h-7 whitespace-nowrap rounded-lg flex-shrink-0",
                       promptType === 'text' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
                     )}
                     onClick={() => handlePromptTypeChange('text')}
@@ -401,7 +421,7 @@ const Header = () => {
                     size="sm" 
                     variant={promptType === 'image' ? 'default' : 'outline'} 
                     className={cn(
-                      "text-xs h-7 whitespace-nowrap rounded-lg",
+                      "text-xs h-7 whitespace-nowrap rounded-lg flex-shrink-0",
                       promptType === 'image' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
                     )}
                     onClick={() => handlePromptTypeChange('image')}
@@ -413,7 +433,7 @@ const Header = () => {
                     size="sm" 
                     variant={promptType === 'social' ? 'default' : 'outline'} 
                     className={cn(
-                      "text-xs h-7 whitespace-nowrap rounded-lg",
+                      "text-xs h-7 whitespace-nowrap rounded-lg flex-shrink-0",
                       promptType === 'social' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
                     )}
                     onClick={() => handlePromptTypeChange('social')}
@@ -425,7 +445,7 @@ const Header = () => {
                 
                 <Button 
                   size="sm" 
-                  className="w-full h-8 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 transition-all duration-200 rounded-lg shadow-sm"
+                  className="w-full h-8 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 transition-premium rounded-lg shadow-sm"
                   onClick={handleMiniPromptSubmit}
                   disabled={!miniPromptValue.trim() || isGenerating}
                 >
