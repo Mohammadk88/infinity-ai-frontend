@@ -42,9 +42,10 @@ import { useCompanyStore } from '@/store/useCompanyStore';
 interface SidebarProps {
   className?: string;
   onStateChange?: (isCollapsed: boolean) => void;
+  mobileSidebarToggle?: number; // Counter to trigger mobile sidebar toggle
 }
 
-export default function Sidebar({ className, onStateChange }: SidebarProps) {
+export default function Sidebar({ className, onStateChange, mobileSidebarToggle }: SidebarProps) {
   const { t, i18n } = useTranslation();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -56,6 +57,13 @@ export default function Sidebar({ className, onStateChange }: SidebarProps) {
   
   // Check if user is an active affiliate
   const isActiveAffiliate = user?.affiliate && user?.affiliate.status === 'approved' && user?.affiliate.isActive;
+
+  // Handle mobile sidebar toggle from parent
+  useEffect(() => {
+    if (mobileSidebarToggle && mobileSidebarToggle > 0 && isMobile) {
+      setIsCollapsed(!isCollapsed);
+    }
+  }, [mobileSidebarToggle, isMobile, isCollapsed]);
 
   // Check if current device is mobile and handle responsive behavior
   useEffect(() => {

@@ -241,7 +241,7 @@ const AnimatedKPICounters = () => {
                   "bg-gradient-to-br shadow-lg transition-premium group-hover:scale-110",
                   gradientFrom.replace('from-', 'from-') + ' ' + gradientTo
                 )}>
-                  <div className="text-white">
+                  <div className="text-white drop-shadow-sm [text-shadow:_0_1px_2px_rgb(0_0_0_/_25%)]">
                     {kpi.icon}
                   </div>
                 </div>

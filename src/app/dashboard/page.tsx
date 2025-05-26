@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  ArrowRight, 
-  Briefcase, 
-  Calendar, 
-  Clock, 
-  Plus, 
-  Target, 
+import {
+  ArrowRight,
+  Briefcase,
+  Calendar,
+  Clock,
+  Plus,
+  Target,
   UserPlus,
   ClipboardList,
   Activity,
@@ -220,7 +220,7 @@ export default function Dashboard() {
 
   const getStatusBadge = (status?: string) => {
     if (!status) return null;
-    
+
     switch (status) {
       case 'completed':
         return (
@@ -250,71 +250,14 @@ export default function Dashboard() {
       {/* Breadcrumb Navigation */}
       <BreadcrumbTrail />
 
-      {/* Dynamic Greeting Block */}
-      <DynamicGreetingBlock />
+
 
       {/* AI Recommendations Block */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <AIRecommendationsBlock />
-        </div>
-        <div className="space-y-4">
-          {/* This space can be used for other widgets */}
-        </div>
-      </div>
-
-      {/* Animated KPI Counters */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground flex items-center">
-          <PieChart className="h-5 w-5 mr-2 text-primary" />
-          Key Performance Indicators
-        </h2>
-        <AnimatedKPICounters />
-      </div>
-
-      {/* Tabs for different dashboard views */}
-      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">{t('dashboard.tabs.overview', 'Overview')}</TabsTrigger>
-          <TabsTrigger value="projects">{t('dashboard.tabs.projects', 'Projects')}</TabsTrigger>
-          <TabsTrigger value="clients">{t('dashboard.tabs.clients', 'Clients')}</TabsTrigger>
-          <TabsTrigger value="leads">{t('dashboard.tabs.leads', 'Leads')}</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview" className="space-y-4">
-          {/* Status Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {statusCards.map((card) => (
-              <Card key={card.title} className="overflow-hidden border-muted/40">
-                <CardHeader className="pb-2 pt-4">
-                  <div className="flex justify-between">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      {t(`dashboard.metrics.${card.title.toLowerCase().replace(/\s/g, '')}`, card.title)}
-                    </CardTitle>
-                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center text-primary">
-                      {card.icon}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pb-2">
-                  <div className="text-2xl font-bold">{card.value}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t(card.description, card.description)}
-                  </p>
-                </CardContent>
-                {card.change !== undefined && (
-                  <CardFooter className="pt-0 pb-4">
-                    <div className={`text-xs flex items-center ${card.indicator === 'up' ? 'text-green-500' : card.indicator === 'down' ? 'text-red-500' : 'text-muted-foreground'}`}>
-                      {card.indicator === 'up' ? '↑' : card.indicator === 'down' ? '↓' : '•'}
-                      <span className="ml-1">{formatChange(card.change)} {t('dashboard.fromLastMonth', 'from last month')}</span>
-                    </div>
-                  </CardFooter>
-                )}
-              </Card>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Dynamic Greeting Block */}
+          <DynamicGreetingBlock />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
             {/* Project Progress Card */}
             <Card className="border-muted/40 col-span-1">
               <CardHeader className="pb-3">
@@ -339,8 +282,8 @@ export default function Dashboard() {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                          <div 
-                            className={`h-full ${getProgressColor(project.status)}`} 
+                          <div
+                            className={`h-full ${getProgressColor(project.status)}`}
                             style={{ width: `${project.progress}%` }}
                           />
                         </div>
@@ -385,7 +328,64 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
+        </div>
+        <div className="space-y-4">
+          {/* This space can be used for other widgets */}
+          <AIRecommendationsBlock />
 
+        </div>
+      </div>
+
+      {/* Animated KPI Counters */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-foreground flex items-center">
+          <PieChart className="h-5 w-5 mr-2 text-primary" />
+          Key Performance Indicators
+        </h2>
+        <AnimatedKPICounters />
+      </div>
+
+      {/* Tabs for different dashboard views */}
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">{t('dashboard.tabs.overview', 'Overview')}</TabsTrigger>
+          <TabsTrigger value="projects">{t('dashboard.tabs.projects', 'Projects')}</TabsTrigger>
+          <TabsTrigger value="clients">{t('dashboard.tabs.clients', 'Clients')}</TabsTrigger>
+          <TabsTrigger value="leads">{t('dashboard.tabs.leads', 'Leads')}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          {/* Status Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {statusCards.map((card) => (
+              <Card key={card.title} className="overflow-hidden border-muted/40">
+                <CardHeader className="pb-2 pt-4">
+                  <div className="flex justify-between">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {t(`dashboard.metrics.${card.title.toLowerCase().replace(/\s/g, '')}`, card.title)}
+                    </CardTitle>
+                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center text-primary">
+                      {card.icon}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="text-2xl font-bold">{card.value}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t(card.description, card.description)}
+                  </p>
+                </CardContent>
+                {card.change !== undefined && (
+                  <CardFooter className="pt-0 pb-4">
+                    <div className={`text-xs flex items-center ${card.indicator === 'up' ? 'text-green-500' : card.indicator === 'down' ? 'text-red-500' : 'text-muted-foreground'}`}>
+                      {card.indicator === 'up' ? '↑' : card.indicator === 'down' ? '↓' : '•'}
+                      <span className="ml-1">{formatChange(card.change)} {t('dashboard.fromLastMonth', 'from last month')}</span>
+                    </div>
+                  </CardFooter>
+                )}
+              </Card>
+            ))}
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Recent Activity Card */}
             <Card className="border-muted/40 lg:col-span-2">
@@ -480,7 +480,7 @@ export default function Dashboard() {
                 </CardHeader>
               </Card>
             </Link>
-            
+
             <Link href="/dashboard/projects">
               <Card className="border-muted/40 transition-all hover:border-primary/50 hover:shadow-md">
                 <CardHeader>
@@ -494,7 +494,7 @@ export default function Dashboard() {
                 </CardHeader>
               </Card>
             </Link>
-            
+
             <Link href="/dashboard/tasks">
               <Card className="border-muted/40 transition-all hover:border-primary/50 hover:shadow-md">
                 <CardHeader>
@@ -508,7 +508,7 @@ export default function Dashboard() {
                 </CardHeader>
               </Card>
             </Link>
-            
+
             <Link href="/dashboard/leads">
               <Card className="border-muted/40 transition-all hover:border-primary/50 hover:shadow-md">
                 <CardHeader>
@@ -524,7 +524,7 @@ export default function Dashboard() {
             </Link>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="projects" className="space-y-4">
           {/* Projects Tab Content */}
           <div className="flex items-center justify-between">
@@ -533,7 +533,7 @@ export default function Dashboard() {
               <Plus className="mr-2 h-4 w-4" /> {t('projects.createNew', 'New Project')}
             </Button>
           </div>
-          
+
           {/* Projects content would go here */}
           <Card className="border-muted/40">
             <CardContent className="pt-6">
@@ -550,7 +550,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="clients" className="space-y-4">
           {/* Clients Tab Content */}
           <div className="flex items-center justify-between">
@@ -559,7 +559,7 @@ export default function Dashboard() {
               <Plus className="mr-2 h-4 w-4" /> {t('clients.addClient', 'Add Client')}
             </Button>
           </div>
-          
+
           {/* Clients content would go here */}
           <Card className="border-muted/40">
             <CardContent className="pt-6">
@@ -576,7 +576,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="leads" className="space-y-4">
           {/* Leads Tab Content */}
           <div className="flex items-center justify-between">
@@ -585,7 +585,7 @@ export default function Dashboard() {
               <Plus className="mr-2 h-4 w-4" /> {t('leads.addLead', 'Add Lead')}
             </Button>
           </div>
-          
+
           {/* Leads content would go here */}
           <Card className="border-muted/40">
             <CardContent className="pt-6">

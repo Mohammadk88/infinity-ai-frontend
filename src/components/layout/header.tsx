@@ -24,10 +24,8 @@ import {
   Search,
   X,
   Sparkles,
-  FileText,
-  MessageSquare,
   LaptopIcon,
-  ImageIcon
+  Bot
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
@@ -38,8 +36,7 @@ import { LanguageSelector } from '@/components/ui/language-selector';
 import { useAuth } from '@/hooks/useAuth';
 import { CompanySwitcher } from "@/components/features/company-switcher";
 import AIProviderBadge from '@/components/layout/ai-provider-badge';
-
-type PromptType = 'text' | 'image' | 'social';
+import AIAssistantPanel from '@/components/features/ai-assistant-panel';
 
 const Header = () => {
   useSessionLoader();
@@ -49,14 +46,9 @@ const Header = () => {
   const [mobileSearchVisible, setMobileSearchVisible] = useState<boolean>(false);
   const [searchFocused, setSearchFocused] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>('');
-  const [promptGeneratorOpen, setPromptGeneratorOpen] = useState<boolean>(false);
+  const [aiAssistantOpen, setAiAssistantOpen] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { clearUser } = useUserStore();
-  const [activePromptMode, setActivePromptMode] = useState<boolean>(false);
-  const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [, setGeneratedResult] = useState<string | null>(null);
-  const [promptType, setPromptType] = useState<PromptType>('text');
-  const [miniPromptValue, setMiniPromptValue] = useState<string>('');
 
   const {loading, user} = useAuth(true);
   const [mounted, setMounted] = useState(false);
@@ -119,49 +111,8 @@ const Header = () => {
     console.log("Search submitted:", searchValue);
   };
 
-  const togglePromptGenerator = () => {
-    setPromptGeneratorOpen(!promptGeneratorOpen);
-  };
-
-  const handleMiniPromptSubmit = async () => {
-    if (!miniPromptValue.trim() || isGenerating) return;
-
-    try {
-      setPromptGeneratorOpen(false);
-      setActivePromptMode(true);
-      setIsGenerating(true);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      let mockResponse = '';
-      
-      switch (promptType) {
-        case 'text':
-          mockResponse = `Generated marketing text for: "${miniPromptValue}".\n\nThis is a sample text content from the Infinity AI System optimized for marketing copy.`;
-          break;
-        case 'image':
-          mockResponse = `Generated image content for: "${miniPromptValue}".\n\nThis is a placeholder for image generation. In a production environment, this would generate an image based on your description.`;
-          break;
-        case 'social':
-          mockResponse = `Generated social media post for: "${miniPromptValue}".\n\nThis is a sample social media content from the Infinity AI System optimized for engagement and reach.`;
-          break;
-        default:
-          mockResponse = `Generated content for: "${miniPromptValue}".\n\nThis is a sample response from the Infinity AI System based on your prompt.`;
-      }
-      
-      setGeneratedResult(mockResponse);
-    } catch (error) {
-      console.error('Error generating content:', error);
-      setGeneratedResult('Error generating content. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-  
-  
-
-  const handlePromptTypeChange = (type: PromptType) => {
-    setPromptType(type);
+  const toggleAIAssistant = () => {
+    setAiAssistantOpen(!aiAssistantOpen);
   };
 
   return (
@@ -268,7 +219,7 @@ const Header = () => {
             <AIProviderBadge className="scale-90 md:scale-100" />
           </div>
         
-          {/* AI Prompt Generator */}
+          {/* AI Assistant Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -276,11 +227,13 @@ const Header = () => {
               "h-8 w-8 rounded-lg transition-premium",
               "hover:bg-primary/10 hover:scale-105",
               "text-primary/80 hover:text-primary",
-              (activePromptMode || promptGeneratorOpen) && "bg-primary/10 shadow-sm"
+              aiAssistantOpen && "bg-primary/10 shadow-sm"
             )}
-            onClick={togglePromptGenerator}
+            onClick={toggleAIAssistant}
           >
-            <Sparkles className="h-4 w-4" />
+            <Bot className="h-6 w-6 text-white group-hover:animate-bounce" />
+
+            {/* <Sparkles className="h-4 w-4" /> */}
           </Button>
 
           {/* Notifications */}
@@ -374,102 +327,12 @@ const Header = () => {
           </DropdownMenu>
         </div>
 
-        {/* Prompt Generator Dropdown - Mobile optimized */}
-        {promptGeneratorOpen && (
-          <div className="absolute top-14 md:top-16 right-2 md:right-4 mt-2 z-40 w-[calc(100vw-1rem)] max-w-sm md:w-72 lg:w-80 animate-in fade-in-0 slide-in-from-top-4 duration-300">
-            <div className="glass-card rounded-xl shadow-premium border border-white/10 p-3 md:p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20">
-                    <Sparkles className="h-3 w-3 text-primary" />
-                  </div>
-                  {t('header.quickPrompt', 'Quick AI Prompt')}
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-6 w-6 p-0 rounded-lg hover:bg-white/10"
-                  onClick={() => setPromptGeneratorOpen(false)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  placeholder={t('header.promptPlaceholder', 'Enter your prompt here...')}
-                  className="w-full text-sm p-2 md:p-3 border border-white/10 rounded-xl bg-background/50 backdrop-blur-sm focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-premium"
-                  value={miniPromptValue}
-                  onChange={(e) => setMiniPromptValue(e.target.value)}
-                  autoFocus
-                />
-                
-                <div className="flex gap-1 md:gap-2 overflow-x-auto py-1">
-                  <Button 
-                    size="sm" 
-                    variant={promptType === 'text' ? 'default' : 'outline'} 
-                    className={cn(
-                      "text-xs h-7 whitespace-nowrap rounded-lg flex-shrink-0",
-                      promptType === 'text' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
-                    )}
-                    onClick={() => handlePromptTypeChange('text')}
-                  >
-                    <FileText className="h-3 w-3 mr-1" />
-                    Text
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={promptType === 'image' ? 'default' : 'outline'} 
-                    className={cn(
-                      "text-xs h-7 whitespace-nowrap rounded-lg flex-shrink-0",
-                      promptType === 'image' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
-                    )}
-                    onClick={() => handlePromptTypeChange('image')}
-                  >
-                    <ImageIcon className="h-3 w-3 mr-1" />
-                    Image
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={promptType === 'social' ? 'default' : 'outline'} 
-                    className={cn(
-                      "text-xs h-7 whitespace-nowrap rounded-lg flex-shrink-0",
-                      promptType === 'social' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-primary/10"
-                    )}
-                    onClick={() => handlePromptTypeChange('social')}
-                  >
-                    <MessageSquare className="h-3 w-3 mr-1" />
-                    Social
-                  </Button>
-                </div>
-                
-                <Button 
-                  size="sm" 
-                  className="w-full h-8 bg-gradient-to-r from-primary to-accent text-white hover:from-primary/90 hover:to-accent/90 transition-premium rounded-lg shadow-sm"
-                  onClick={handleMiniPromptSubmit}
-                  disabled={!miniPromptValue.trim() || isGenerating}
-                >
-                  {isGenerating ? (
-                    <div className="flex items-center">
-                      <div className="flex space-x-1 mr-2">
-                        <div className="h-1 w-1 rounded-full bg-white/80 animate-pulse"></div>
-                        <div className="h-1 w-1 rounded-full bg-white/80 animate-pulse [animation-delay:0.2s]"></div>
-                        <div className="h-1 w-1 rounded-full bg-white/80 animate-pulse [animation-delay:0.4s]"></div>
-                      </div>
-                      {t('header.generating', 'Generating...')}
-                    </div>
-                  ) : (
-                    t('header.generate', 'Generate')
-                  )}
-                </Button>
-                
-                <div className="text-xs text-muted-foreground/60 text-center">
-                  {t('header.promptHelp', 'Opens full generator for more options')}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* AI Assistant Panel positioned outside header */}
+        <AIAssistantPanel 
+          externalOpen={aiAssistantOpen} 
+          onExternalOpenChange={setAiAssistantOpen}
+          showTrigger={false}
+        />
         </div>
       </div>
     </header>

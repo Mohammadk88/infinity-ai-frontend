@@ -10,17 +10,22 @@ import { ReferralLinkBanner } from '@/components/features/referral-link-banner';
 import AffiliateStatusAlert from '@/components/features/affiliate-status-alert';
 import PromptGenerator from '@/components/features/prompt-generator';
 import AIAssistantPanel from '@/components/features/ai-assistant-panel';
-import { ThemeCustomizer } from '@/components/features/theme-customizer';
+// import { ThemeCustomizer } from '@/components/features/theme-customizer';
 import { MobileBottomNav } from '@/components/features/mobile-bottom-nav';
-import { Button } from '@/components/ui/button';
-import { Palette } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation();
   const { user, isLoading } = useUserStore();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [showThemeCustomizer, setShowThemeCustomizer] = useState(false);
+  // const [showThemeCustomizer, setShowThemeCustomizer] = useState(false);
+  const [mobileSidebarToggle, setMobileSidebarToggle] = useState(0); // Counter to trigger sidebar toggle
   const isRTL = i18n.dir() === 'rtl';
+  
+  // Function to handle mobile sidebar toggle
+  const handleMobileSidebarToggle = () => {
+    // Increment counter to trigger sidebar toggle
+    setMobileSidebarToggle(prev => prev + 1);
+  };
   
   
   // Redirect to login if not authenticated or error
@@ -44,6 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar positioned below header */}
       <Sidebar
         onStateChange={(collapsed) => setSidebarCollapsed(collapsed)}
+        mobileSidebarToggle={mobileSidebarToggle}
       />
       
       <div
@@ -81,16 +87,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         
         {/* Mobile Bottom Navigation - Only show on mobile */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-30">
-          <MobileBottomNav onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
+          <MobileBottomNav onToggleSidebar={handleMobileSidebarToggle} />
         </div>
         
         {/* Floating Action Buttons Stack */}
         <div className="fixed bottom-20 right-4 z-50 flex-col-reverse gap-4 hidden md:flex md:bottom-8 md:right-6">
           {/* AI Assistant Panel with built-in trigger - positioned at bottom */}
-          <AIAssistantPanel />
+          {/* <AIAssistantPanel /> */}
           
           {/* Theme Customizer Button - positioned at top */}
-          <Button
+          {/* <Button
             size="icon"
             onClick={() => setShowThemeCustomizer(!showThemeCustomizer)}
             className={cn(
@@ -101,14 +107,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             )}
           >
             <Palette className="h-5 w-5" />
-          </Button>
+          </Button> */}
         </div>
         
         {/* Theme Customizer Panel */}
-        <ThemeCustomizer 
+        {/* <ThemeCustomizer 
           isOpen={showThemeCustomizer} 
           onClose={() => setShowThemeCustomizer(false)} 
-        />
+        /> */}
       </div>
     </div>
   );

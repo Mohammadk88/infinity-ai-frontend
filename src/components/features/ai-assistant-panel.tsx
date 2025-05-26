@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Sheet,
@@ -18,16 +17,15 @@ import {
   MessageSquare,
   Sparkles,
   TrendingUp,
-  Calendar,
   Target,
   FileText,
   Send,
   Lightbulb,
-  Clock,
   ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/useUserStore';
+import { AIAssistantTrigger } from './ai-assistant-trigger';
 
 interface Suggestion {
   id: string;
@@ -39,10 +37,19 @@ interface Suggestion {
   priority: 'high' | 'medium' | 'low';
 }
 
-const AIAssistantPanel = () => {
-  const { t } = useTranslation();
+interface AIAssistantPanelProps {
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
+}
+
+const AIAssistantPanel = ({ externalOpen, onExternalOpenChange, showTrigger = true }: AIAssistantPanelProps) => {
   const { user } = useUserStore();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // Use external control if provided, otherwise use internal state
+  const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setIsOpen = onExternalOpenChange || setInternalOpen;
   const [isTyping, setIsTyping] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
 
@@ -155,23 +162,12 @@ const AIAssistantPanel = () => {
 
   return (
     <>
-      {/* AI Assistant Trigger - positioned by parent container */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild>
-          <Button
-            className={cn(
-              "h-14 w-14 rounded-full shadow-premium",
-              "bg-gradient-to-br from-primary via-purple-500 to-accent",
-              "hover:shadow-glow hover:scale-110 transition-premium",
-              "animate-pulse-glow group"
-            )}
-            size="icon"
-          >
-            <Bot className="h-6 w-6 text-white group-hover:animate-bounce" />
-            <div className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full animate-ping" />
-            <div className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full" />
-          </Button>
-        </SheetTrigger>
+        {showTrigger && (
+          <SheetTrigger asChild>
+            <AIAssistantTrigger onClick={() => setIsOpen(true)} />
+          </SheetTrigger>
+        )}
 
         <SheetContent className="w-[400px] sm:w-[540px] p-0 overflow-hidden">
           <div className="h-full flex flex-col bg-gradient-to-br from-background via-blue-50/30 to-purple-50/20 dark:from-background dark:via-purple-950/20 dark:to-blue-950/20">
