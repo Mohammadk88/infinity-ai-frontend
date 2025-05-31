@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
-import api from '@/app/lib/axios';
-import { useUserStore } from '@/store/useUserStore';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -24,7 +22,6 @@ import {
   Youtube, 
   Play,
   ImageIcon, 
-  Globe, 
   ArrowRight, 
   Check, 
   RefreshCw,
@@ -38,6 +35,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { connectSocial } from '@/utils/oauthConnect';
+import { useOAuthMessageListener } from '@/hooks/useOAuthMessageListener';
 
 // Type definitions
 interface PlatformType {
@@ -53,7 +52,6 @@ interface PlatformType {
 
 export default function CreateSocialAccountPage() {
   const { t } = useTranslation();
-  const { user } = useUserStore();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
@@ -67,6 +65,27 @@ export default function CreateSocialAccountPage() {
     accessToken: '',
   });
   const [authError, setAuthError] = useState<string | null>(null);
+  
+  // ✅ Handle OAuth success messages from popup window using custom hook
+  useOAuthMessageListener({
+    onSuccess: (data, provider) => {
+      console.log('✅ OAuth success from', provider || selectedPlatform);
+      
+      // Move to configure step after successful OAuth
+      setStep('configure');
+      setAuthError(null);
+      setIsProcessing(false);
+      
+      // Optional: Show success message
+      console.log('OAuth completed successfully');
+    },
+    onError: (error) => {
+      console.error('❌ OAuth error:', error);
+      setAuthError(error || 'OAuth authorization failed');
+      setIsProcessing(false);
+    },
+    enabled: isProcessing && !!selectedPlatform
+  });
   
   // Available platforms to connect
   const platforms: PlatformType[] = [
@@ -193,22 +212,38 @@ export default function CreateSocialAccountPage() {
 
   // Handle OAuth authorization
   const handleOAuthAuthorize = async () => {
+    if (!selectedPlatform) return;
+    
     setIsProcessing(true);
     setAuthError(null);
     
     try {
-      // In a real implementation, we would redirect to the OAuth flow
-      // For this demo, we'll simulate the OAuth process with a delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // ✅ Open OAuth popup - the useEffect will handle the response
+      await connectSocial(selectedPlatform);
       
-      // Simulate a successful OAuth connection
-      setStep('configure');
+      // Note: The actual flow completion will be handled by the useEffect message listener
+      // We only handle the immediate popup opening here
+      
     } catch (error) {
-      console.error('OAuth authorization error:', error);
-      setAuthError('Failed to connect to the platform. Please try again.');
-    } finally {
+      console.error('❌ OAuth authorization error:', error);
+      let errorMessage = 'Failed to connect to the platform. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('popup')) {
+          errorMessage = 'Please allow popups for this site and try again.';
+        } else if (error.message.includes('closed')) {
+          errorMessage = 'Authorization was cancelled. Please try again.';
+        } else if (error.message.includes('timed out')) {
+          errorMessage = 'Authorization timed out. Please try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setAuthError(errorMessage);
       setIsProcessing(false);
     }
+    // Note: Don't set setIsProcessing(false) here - let the message listener handle it
   };
 
   // Handle credential-based authorization
@@ -494,6 +529,9 @@ export default function CreateSocialAccountPage() {
                         value={credentialInputs.username}
                         onChange={(e) => setCredentialInputs({...credentialInputs, username: e.target.value})}
                         placeholder={t('socialAccounts.create.usernamePlaceholder', 'Enter your username or email')}
+                        suppressHydrationWarning
+                        autoComplete="username"
+                        spellCheck={false}
                       />
                     </div>
                     
@@ -506,6 +544,9 @@ export default function CreateSocialAccountPage() {
                           value={credentialInputs.password}
                           onChange={(e) => setCredentialInputs({...credentialInputs, password: e.target.value})}
                           placeholder={t('socialAccounts.create.passwordPlaceholder', 'Enter your password')}
+                          suppressHydrationWarning
+                          autoComplete="current-password"
+                          spellCheck={false}
                         />
                       </div>
                     )}
@@ -519,6 +560,9 @@ export default function CreateSocialAccountPage() {
                             value={credentialInputs.apiKey}
                             onChange={(e) => setCredentialInputs({...credentialInputs, apiKey: e.target.value})}
                             placeholder={t('socialAccounts.create.apiKeyPlaceholder', 'Enter your API key')}
+                            suppressHydrationWarning
+                            autoComplete="off"
+                            spellCheck={false}
                           />
                         </div>
                         
@@ -529,6 +573,9 @@ export default function CreateSocialAccountPage() {
                             value={credentialInputs.apiSecret}
                             onChange={(e) => setCredentialInputs({...credentialInputs, apiSecret: e.target.value})}
                             placeholder={t('socialAccounts.create.apiSecretPlaceholder', 'Enter your API secret')}
+                            suppressHydrationWarning
+                            autoComplete="off"
+                            spellCheck={false}
                           />
                         </div>
                       </>
@@ -613,6 +660,9 @@ export default function CreateSocialAccountPage() {
                       id="accountName"
                       placeholder={t('socialAccounts.create.accountNamePlaceholder', 'E.g., Company {{platform}}', { platform: platform.name })}
                       defaultValue={`Infinity ${platform.name}`}
+                      suppressHydrationWarning
+                      autoComplete="off"
+                      spellCheck={false}
                     />
                     <p className="text-xs text-muted-foreground">{t('socialAccounts.create.accountNameHelp', 'This name is only visible to you and your team')}</p>
                   </div>

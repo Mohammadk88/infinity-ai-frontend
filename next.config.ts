@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['localhost'], // 👈 السماح بتحميل الصور من localhost
+    domains: ['localhost', 'images.unsplash.com'], // Allow images from localhost and Unsplash
   },
   /* config options here */
 };
