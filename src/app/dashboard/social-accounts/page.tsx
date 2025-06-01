@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,8 @@ import {
   Users,
   AlertCircle,
   RefreshCw,
-  Settings
+  Settings,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
@@ -293,7 +295,7 @@ export default function SocialAccountsPage() {
             </CardContent>
           </Card>
           
-          {/* <Card>
+           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -301,31 +303,47 @@ export default function SocialAccountsPage() {
                     {t('socialAccounts.stats.totalFollowers', 'Total Followers')}
                   </p>
                   <p className="text-2xl font-bold">
-                    {stats.totalFollowers >= 1000000 
+                    1M
+                    {/* {stats.totalFollowers >= 1000000 
                       ? `${(stats.totalFollowers / 1000000).toFixed(1)}M`
                       : stats.totalFollowers >= 1000
                       ? `${(stats.totalFollowers / 1000).toFixed(1)}K`
                       : stats.totalFollowers.toString()
-                    }
+                    } */}
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
-          </Card> */}
+          </Card> 
         </div>
       )}
 
       {/* Available Platforms */}
       <Card id="available-platforms">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <PlusCircle className="h-5 w-5" />
-            {t('socialAccounts.availablePlatforms', 'Available Platforms')}
-          </CardTitle>
-          <CardDescription>
-            {t('socialAccounts.availablePlatformsDescription', 'Connect your social media accounts to start managing your content.')}
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <PlusCircle className="h-5 w-5" />
+                <Link 
+                  href="/dashboard/social-accounts/create"
+                  className="hover:text-primary transition-colors cursor-pointer"
+                >
+                  {t('socialAccounts.availablePlatforms', 'Available Platforms')}
+                </Link>
+              </CardTitle>
+              <CardDescription>
+                {t('socialAccounts.availablePlatformsDescription', 'Connect your social media accounts to start managing your content.')}
+              </CardDescription>
+            </div>
+            <Link href="/dashboard/social-accounts/create">
+              <Button variant="outline" size="sm">
+                <PlusCircle className="h-4 w-4 mr-2" />
+                {t('socialAccounts.createAccount', 'Create Account')}
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -467,16 +485,22 @@ export default function SocialAccountsPage() {
                     🔍 Debug Information (Development Only)
                   </h4>
                   <div className="text-xs text-yellow-700 dark:text-yellow-300 space-y-1">
-                    <p>• API Endpoint: <code>GET /social-accounts</code></p>
+                    <p>• API Endpoint: <code>GET /social-accounts/my-social-accounts</code></p>
+                    <p>• Full URL: <code>http://localhost:4040/social-accounts/my-social-accounts</code></p>
                     <p>• Total Accounts: <code>{accounts.length}</code></p>
                     <p>• Loading State: <code>{accountsLoading ? 'true' : 'false'}</code></p>
                     <p>• Error State: <code>{accountsError ? 'has error' : 'no error'}</code></p>
+                    {accountsError && (
+                      <p>• Error Details: <code>{String(accountsError)}</code></p>
+                    )}
                     <p className="mt-2 font-medium">Troubleshooting:</p>
                     <ul className="list-disc list-inside space-y-1 ml-2">
-                      <li>Check if user is authenticated</li>
-                      <li>Verify userId is sent to backend</li>
+                      <li>Check if user is authenticated (login first)</li>
+                      <li>Verify backend API is running on port 4040</li>
+                      <li>Check if userId is sent to backend</li>
                       <li>Confirm user has connected social accounts</li>
                       <li>Check backend logs for API call</li>
+                      <li>Test API directly: <code>curl http://localhost:4040/social-accounts/my-social-accounts</code></li>
                     </ul>
                   </div>
                 </div>

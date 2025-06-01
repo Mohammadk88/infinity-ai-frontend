@@ -14,7 +14,9 @@ import {
   UserPlus,
   MessageSquare,
   Calendar,
-  Store
+  Store,
+  BrainCircuit,
+  Cpu
 } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,15 +25,20 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MetricCard } from '@/components/features/metric-card';
+import AIProviderStatus from '@/components/features/ai-provider-status';
 import { cn } from "@/lib/utils";
 
 // Types for rewards data
 interface PointEvent {
   id: string;
-  type: 'signup' | 'referral' | 'daily_login' | 'purchase' | 'review' | 'other';
+  type: 'signup' | 'referral' | 'daily_login' | 'purchase' | 'review' | 'ai_provider_redeem' | 'other';
   description?: string;
   points: number;
   createdAt: string;
+  aiProvider?: {
+    name: string;
+    duration: number;
+  };
 }
 
 interface RewardsStats {
@@ -77,13 +84,35 @@ export default function RewardsPointsPage() {
         },
         {
           id: '2',
+          type: 'ai_provider_redeem',
+          points: -1000,
+          createdAt: '2025-05-28T16:45:00Z',
+          description: 'Redeemed Claude 3 Pro Access',
+          aiProvider: {
+            name: 'Anthropic Claude 3',
+            duration: 30
+          }
+        },
+        {
+          id: '3',
           type: 'referral',
           points: 200,
           createdAt: '2025-04-15T14:30:00Z',
           description: 'Referred Sarah Miller'
         },
         {
-          id: '3',
+          id: '4',
+          type: 'ai_provider_redeem',
+          points: -750,
+          createdAt: '2025-05-20T11:20:00Z',
+          description: 'Redeemed Gemini 2.5 Trial',
+          aiProvider: {
+            name: 'Google Gemini 2.5',
+            duration: 7
+          }
+        },
+        {
+          id: '5',
           type: 'daily_login',
           points: 50,
           createdAt: '2025-04-21T09:15:00Z',
@@ -116,6 +145,7 @@ export default function RewardsPointsPage() {
       daily_login: { icon: Calendar, color: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/30' },
       purchase: { icon: Store, color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-900/30' },
       review: { icon: MessageSquare, color: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900/30' },
+      ai_provider_redeem: { icon: BrainCircuit, color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-900/30' },
       other: { icon: Star, color: 'bg-slate-50 dark:bg-slate-900/20 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-900/30' }
     };
 
@@ -269,11 +299,23 @@ export default function RewardsPointsPage() {
                       <TableCell>
                         {getEventTypeBadge(event.type)}
                       </TableCell>
-                      <TableCell className="max-w-md truncate">
-                        {event.description || t(`rewards.eventType.${event.type}.defaultDesc`, 'Points earned')}
+                      <TableCell className="max-w-md">
+                        <div className="space-y-1">
+                          <p className="truncate">
+                            {event.description || t(`rewards.eventType.${event.type}.defaultDesc`, 'Points earned')}
+                          </p>
+                          {event.type === 'ai_provider_redeem' && event.aiProvider && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Cpu className="h-3 w-3" />
+                              <span>{event.aiProvider.name} - {event.aiProvider.duration} days</span>
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        +{event.points}
+                        <span className={event.points < 0 ? 'text-red-600' : 'text-green-600'}>
+                          {event.points > 0 ? '+' : ''}{event.points}
+                        </span>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -296,6 +338,9 @@ export default function RewardsPointsPage() {
           </span>
         </CardFooter>
       </Card>
+
+      {/* Active AI Providers */}
+      <AIProviderStatus />
     </div>
   );
 }

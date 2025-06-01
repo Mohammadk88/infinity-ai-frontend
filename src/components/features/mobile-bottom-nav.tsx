@@ -8,21 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
-  Home,
-  BarChart2,
-  MessageSquare,
-  Settings,
-  Plus,
-  Users,
+  FileText,
   Sparkles,
-  Bell,
+  Plus,
   Menu,
-  X,
-  Layers,
-  Target,
   Calendar,
-  Megaphone,
-  TrendingUp
+  Gift
 } from 'lucide-react';
 
 interface MobileNavItem {
@@ -51,62 +42,56 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   const pathname = usePathname();
   const [showFAB, setShowFAB] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(3);
+  const [unreadNotifications] = useState(3);
 
   // Quick actions for the floating action button
   const floatingActions: FloatingAction[] = [
     {
-      title: 'New Campaign',
-      icon: <Megaphone className="h-5 w-5" />,
-      onClick: () => console.log('New Campaign'),
+      title: 'Create Post',
+      icon: <Plus className="h-5 w-5" />,
+      onClick: () => console.log('Create Post'),
       color: 'bg-primary'
     },
     {
-      title: 'Add Lead',
-      icon: <Target className="h-5 w-5" />,
-      onClick: () => console.log('Add Lead'),
-      color: 'bg-green-500'
+      title: 'Generate Content',
+      icon: <Sparkles className="h-5 w-5" />,
+      onClick: () => console.log('Generate Content'),
+      color: 'bg-purple-500'
     },
     {
-      title: 'Schedule Meeting',
+      title: 'Schedule Content',
       icon: <Calendar className="h-5 w-5" />,
-      onClick: () => console.log('Schedule Meeting'),
+      onClick: () => console.log('Schedule Content'),
       color: 'bg-blue-500'
-    },
-    {
-      title: 'Create Task',
-      icon: <Plus className="h-5 w-5" />,
-      onClick: () => console.log('Create Task'),
-      color: 'bg-orange-500'
     }
   ];
 
-  // Main navigation items for bottom bar
+  // Main navigation items for bottom bar - MVP focused
   const mainNavItems: MobileNavItem[] = [
     {
-      title: 'Dashboard',
-      href: '/dashboard',
-      icon: <Home className="h-5 w-5" />,
-      isActive: pathname === '/dashboard'
-    },
-    {
-      title: 'Analytics',
-      href: '/dashboard/analytics',
-      icon: <BarChart2 className="h-5 w-5" />,
-      isActive: pathname?.includes('/analytics')
+      title: 'Posts',
+      href: '/dashboard/posts',
+      icon: <FileText className="h-5 w-5" />,
+      isActive: pathname?.includes('/posts')
     },
     {
       title: 'AI Tools',
-      href: '/dashboard/ai-tools',
+      href: '/dashboard/ai-generator',
       icon: <Sparkles className="h-5 w-5" />,
       badge: 2,
-      isActive: pathname?.includes('/ai-tools')
+      isActive: pathname?.includes('/ai-generator')
     },
     {
-      title: 'Activity',
-      href: '/dashboard/lead-activities',
-      icon: <MessageSquare className="h-5 w-5" />,
-      isActive: pathname?.includes('/activities')
+      title: 'Schedule',
+      href: '/dashboard/scheduler',
+      icon: <Calendar className="h-5 w-5" />,
+      isActive: pathname?.includes('/scheduler')
+    },
+    {
+      title: 'Points',
+      href: '/dashboard/points',
+      icon: <Gift className="h-5 w-5" />,
+      isActive: pathname?.includes('/points') || pathname?.includes('/rewards')
     },
     {
       title: 'Menu',
@@ -154,7 +139,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         )}
       >
         <div className="flex items-center justify-around px-2 py-3 max-w-md mx-auto">
-          {mainNavItems.map((item, index) => (
+          {mainNavItems.map((item) => (
             <div key={item.href} className="relative">
               {item.title === 'Menu' ? (
                 <Button
@@ -239,7 +224,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 )}
                 onClick={() => setShowFAB(false)}
               >
-                <TrendingUp className="h-6 w-6" />
+                <Plus className="h-6 w-6" />
               </Button>
 
               {/* Quick Action Items */}

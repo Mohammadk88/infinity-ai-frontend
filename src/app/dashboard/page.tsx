@@ -3,606 +3,618 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
-  ArrowRight,
-  Briefcase,
+  Sparkles,
+  FileText,
   Calendar,
+  Gift,
+  Users,
+  TrendingUp,
   Clock,
-  Plus,
+  Bell,
+  Zap,
+  ArrowRight,
+  Coins,
+  CrownIcon,
   Target,
-  UserPlus,
-  ClipboardList,
   Activity,
-  User,
-  CheckCircle,
-  PieChart,
-  Sparkles
+  CheckCircle2,
+  Timer,
+  BrainCircuit,
+  Settings,
+  Cpu,
+  Wifi,
+  Globe,
+  Facebook,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Play
 } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useUserStore } from '@/store/useUserStore';
+import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 
-// Import new premium components
-import DynamicGreetingBlock from '@/components/features/dynamic-greeting-block';
-import AnimatedKPICounters from '@/components/features/animated-kpi-counters';
-import AIRecommendationsBlock from '@/components/features/ai-recommendations-block';
-import BreadcrumbTrail from '@/components/features/breadcrumb-trail';
-
-// Mock data for dashboard metrics
-const metrics = {
-  activeClients: 24,
-  activeProjects: 18,
-  pendingTasks: 43,
-  openLeads: 12,
-  upcomingDeadlines: 8,
-  totalRevenue: '$142,500',
-  growth: 15.2
+// MVP Metrics Data
+const mvpMetrics = {
+  totalPosts: 156,
+  scheduledPosts: 24,
+  aiGenerations: 89,
+  totalPoints: 2450,
+  referralEarnings: 156.80,
+  activeNotifications: 7
 };
 
+// Recent Activity Data (MVP focused)
 interface ActivityItem {
   id: string;
-  type: 'task' | 'lead' | 'project' | 'meeting';
+  type: 'post' | 'ai-generation' | 'schedule' | 'reward' | 'referral';
   title: string;
-  status?: string;
   time: string;
-  user: string;
+  status: 'completed' | 'scheduled' | 'pending';
 }
 
 const recentActivity: ActivityItem[] = [
-  { id: '1', type: 'task', title: 'Landing page design completed', status: 'completed', time: '35m ago', user: 'Sarah Miller' },
-  { id: '2', type: 'lead', title: 'New lead from TechCorp', time: '1h ago', user: 'Michael Brown' },
-  { id: '3', type: 'project', title: 'Website Redesign Phase 1 started', status: 'in-progress', time: '2h ago', user: 'David Wilson' },
-  { id: '4', type: 'meeting', title: 'Client onboarding call scheduled', time: '3h ago', user: 'Emma Davis' },
-  { id: '5', type: 'task', title: 'Content calendar updated', status: 'completed', time: '5h ago', user: 'Sarah Miller' },
+  { id: '1', type: 'post', title: 'Instagram post published successfully', time: '2h ago', status: 'completed' },
+  { id: '2', type: 'ai-generation', title: 'AI content generated for LinkedIn', time: '4h ago', status: 'completed' },
+  { id: '3', type: 'schedule', title: 'Twitter post scheduled for tomorrow', time: '6h ago', status: 'scheduled' },
+  { id: '4', type: 'reward', title: 'Earned 50 points for daily activity', time: '1d ago', status: 'completed' },
+  { id: '5', type: 'referral', title: 'New referral bonus: $25.00', time: '2d ago', status: 'completed' }
 ];
 
-interface UpcomingTask {
-  id: string;
-  title: string;
-  dueDate: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  project?: string;
-}
-
-const upcomingTasks: UpcomingTask[] = [
-  { id: '1', title: 'Finalize Q2 marketing strategy', dueDate: 'Apr 15', priority: 'high', project: 'Marketing Planning' },
-  { id: '2', title: 'Review website design mockups', dueDate: 'Apr 16', priority: 'medium', project: 'Website Redesign' },
-  { id: '3', title: 'Prepare client presentation', dueDate: 'Apr 17', priority: 'high', project: 'Client Onboarding' },
-  { id: '4', title: 'Social media content approval', dueDate: 'Apr 18', priority: 'medium', project: 'Social Media Campaign' },
-  { id: '5', title: 'Update product roadmap', dueDate: 'Apr 21', priority: 'low', project: 'Product Development' },
-];
-
-interface StatusCard {
-  title: string;
-  value: number;
-  description: string;
-  icon: React.ReactNode;
-  change?: number;
-  indicator?: 'up' | 'down' | 'neutral';
-}
-
-const statusCards: StatusCard[] = [
+// Quick Actions for MVP
+const quickActions = [
   {
-    title: 'Active Clients',
-    value: metrics.activeClients,
-    description: 'dashboard.totalActiveClients',
-    icon: <UserPlus className="h-4 w-4" />,
-    change: 4,
-    indicator: 'up'
+    title: 'Create Post',
+    description: 'Share content across your social platforms',
+    href: '/dashboard/posts',
+    icon: <FileText className="h-6 w-6" />,
+    gradient: 'from-blue-500 to-blue-600',
+    stats: `${mvpMetrics.totalPosts} posts created`
   },
   {
-    title: 'Active Projects',
-    value: metrics.activeProjects,
-    description: 'dashboard.ongoingProjects',
-    icon: <Briefcase className="h-4 w-4" />,
-    change: 2,
-    indicator: 'up'
+    title: 'AI Generator',
+    description: 'Generate content with AI assistance',
+    href: '/dashboard/ai-generator',
+    icon: <Sparkles className="h-6 w-6" />,
+    gradient: 'from-purple-500 to-purple-600',
+    stats: `${mvpMetrics.aiGenerations} AI generations`
   },
   {
-    title: 'Pending Tasks',
-    value: metrics.pendingTasks,
-    description: 'dashboard.tasksToComplete',
-    icon: <ClipboardList className="h-4 w-4" />,
-    change: 12,
-    indicator: 'up'
+    title: 'Schedule Content',
+    description: 'Plan and schedule your content',
+    href: '/dashboard/scheduler',
+    icon: <Calendar className="h-6 w-6" />,
+    gradient: 'from-green-500 to-green-600',
+    stats: `${mvpMetrics.scheduledPosts} scheduled`
   },
   {
-    title: 'Open Leads',
-    value: metrics.openLeads,
-    description: 'dashboard.leadsToContact',
-    icon: <Target className="h-4 w-4" />,
-    change: -3,
-    indicator: 'down'
+    title: 'Points & Rewards',
+    description: 'Track your points and rewards',
+    href: '/dashboard/me/rewards/points',
+    icon: <Gift className="h-6 w-6" />,
+    gradient: 'from-amber-500 to-amber-600',
+    stats: `${mvpMetrics.totalPoints} points earned`
   },
-];
-
-// Project progress data for chart
-interface ProjectProgress {
-  id: string;
-  name: string;
-  progress: number;
-  status: 'on-track' | 'at-risk' | 'delayed';
-}
-
-const projectProgress: ProjectProgress[] = [
-  { id: '1', name: 'Website Redesign', progress: 65, status: 'on-track' },
-  { id: '2', name: 'Mobile App Development', progress: 42, status: 'at-risk' },
-  { id: '3', name: 'Marketing Campaign', progress: 78, status: 'on-track' },
-  { id: '4', name: 'CRM Integration', progress: 30, status: 'delayed' },
-];
-
-// Lead status data for chart
-interface LeadStatusData {
-  label: string;
-  value: number;
-  color: string;
-}
-
-const leadStatusData: LeadStatusData[] = [
-  { label: 'New', value: 24, color: 'rgb(59, 130, 246)' },
-  { label: 'Contacted', value: 35, color: 'rgb(168, 85, 247)' },
-  { label: 'Qualified', value: 18, color: 'rgb(16, 185, 129)' },
-  { label: 'Proposal', value: 12, color: 'rgb(245, 158, 11)' },
-  { label: 'Negotiation', value: 9, color: 'rgb(239, 68, 68)' },
-  { label: 'Closed Won', value: 15, color: 'rgb(22, 163, 74)' },
-  { label: 'Closed Lost', value: 7, color: 'rgb(120, 113, 108)' },
+  {
+    title: 'Referral Program',
+    description: 'Earn money by referring friends',
+    href: '/dashboard/referrals',
+    icon: <Users className="h-6 w-6" />,
+    gradient: 'from-rose-500 to-rose-600',
+    stats: `$${mvpMetrics.referralEarnings} earned`
+  },
+  {
+    title: 'Notifications',
+    description: 'Stay updated with your activities',
+    href: '/dashboard/notifications',
+    icon: <Bell className="h-6 w-6" />,
+    gradient: 'from-indigo-500 to-indigo-600',
+    stats: `${mvpMetrics.activeNotifications} unread`
+  }
 ];
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState('overview');
+  const { user } = useUserStore();
   const [mounted, setMounted] = useState(false);
+
+  // Fetch social accounts data
+  const { data: socialAccounts, isLoading: socialAccountsLoading } = useSocialAccounts();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Don't render the dashboard until it's mounted to avoid hydration issues
   if (!mounted) {
     return null;
   }
 
-  const getStatusColor = (status: ProjectProgress['status']) => {
-    switch (status) {
-      case 'on-track': return 'text-green-500';
-      case 'at-risk': return 'text-amber-500';
-      case 'delayed': return 'text-red-500';
-      default: return 'text-muted-foreground';
+  // Helper function to get platform icons
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case 'facebook':
+        return <Facebook className="h-4 w-4 text-blue-600" />;
+      case 'instagram':
+        return <Instagram className="h-4 w-4 text-pink-600" />;
+      case 'twitter':
+        return <Twitter className="h-4 w-4 text-sky-500" />;
+      case 'linkedin':
+        return <Linkedin className="h-4 w-4 text-blue-700" />;
+      case 'youtube':
+        return <Youtube className="h-4 w-4 text-red-600" />;
+      case 'tiktok':
+        return <Play className="h-4 w-4 text-black" />;
+      default:
+        return <Globe className="h-4 w-4 text-gray-500" />;
     }
   };
 
-  const getProgressColor = (status: ProjectProgress['status']) => {
-    switch (status) {
-      case 'on-track': return 'bg-green-500';
-      case 'at-risk': return 'bg-amber-500';
-      case 'delayed': return 'bg-red-500';
-      default: return 'bg-primary';
-    }
-  };
-
-  const getPriorityColor = (priority: UpcomingTask['priority']) => {
-    switch (priority) {
-      case 'urgent': return 'text-red-500 bg-red-500/10 border-red-500/20';
-      case 'high': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
-      case 'medium': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
-      case 'low': return 'text-slate-500 bg-slate-500/10 border-slate-500/20';
-      default: return 'text-slate-500 bg-slate-500/10 border-slate-500/20';
-    }
-  };
-
-  const getPriorityLabel = (priority: UpcomingTask['priority']) => {
-    switch (priority) {
-      case 'urgent': return t('priority.urgent', 'Urgent');
-      case 'high': return t('priority.high', 'High');
-      case 'medium': return t('priority.medium', 'Medium');
-      case 'low': return t('priority.low', 'Low');
-      default: return t('priority.medium', 'Medium');
-    }
-  };
-
-  const formatChange = (change: number) => {
-    return `${change > 0 ? '+' : ''}${change}%`;
-  };
+  // Get connected social accounts stats
+  const connectedAccounts = socialAccounts?.filter(account => account.status === 'connected') || [];
 
   const getActivityIcon = (type: ActivityItem['type']) => {
     switch (type) {
-      case 'task': return <ClipboardList className="h-4 w-4" />;
-      case 'lead': return <Target className="h-4 w-4" />;
-      case 'project': return <Briefcase className="h-4 w-4" />;
-      case 'meeting': return <Calendar className="h-4 w-4" />;
+      case 'post': return <FileText className="h-4 w-4" />;
+      case 'ai-generation': return <Sparkles className="h-4 w-4" />;
+      case 'schedule': return <Calendar className="h-4 w-4" />;
+      case 'reward': return <Gift className="h-4 w-4" />;
+      case 'referral': return <Users className="h-4 w-4" />;
       default: return <Activity className="h-4 w-4" />;
     }
   };
 
-  const getStatusBadge = (status?: string) => {
-    if (!status) return null;
-
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
         return (
           <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20 text-xs">
-            <CheckCircle className="h-3 w-3 mr-1" />
+            <CheckCircle2 className="h-3 w-3 mr-1" />
             {t('status.completed', 'Completed')}
           </Badge>
         );
-      case 'in-progress':
+      case 'scheduled':
         return (
           <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20 text-xs">
-            <Activity className="h-3 w-3 mr-1" />
-            {t('status.inProgress', 'In Progress')}
+            <Timer className="h-3 w-3 mr-1" />
+            {t('status.scheduled', 'Scheduled')}
+          </Badge>
+        );
+      case 'pending':
+        return (
+          <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-xs">
+            <Clock className="h-3 w-3 mr-1" />
+            {t('status.pending', 'Pending')}
           </Badge>
         );
       default:
-        return (
-          <Badge variant="outline" className="text-xs">
-            {status}
-          </Badge>
-        );
+        return null;
     }
   };
 
+  const userName = user?.name?.split(' ')[0] || 'there';
+  const greeting = (() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return t('dashboard.goodMorning', 'Good morning');
+    if (hour < 17) return t('dashboard.goodAfternoon', 'Good afternoon');
+    return t('dashboard.goodEvening', 'Good evening');
+  })();
+
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb Navigation */}
-      <BreadcrumbTrail />
-
-
-
-      {/* AI Recommendations Block */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          {/* Dynamic Greeting Block */}
-          <DynamicGreetingBlock />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-            {/* Project Progress Card */}
-            <Card className="border-muted/40 col-span-1">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>{t('dashboard.projectProgress', 'Project Progress')}</CardTitle>
-                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
-                    {t('dashboard.viewAll', 'View all')} <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {projectProgress.map(project => (
-                    <div key={project.id} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium text-sm">{project.name}</div>
-                        <div className={`text-xs ${getStatusColor(project.status)}`}>
-                          {project.status === 'on-track' && t('project.status.onTrack', 'On Track')}
-                          {project.status === 'at-risk' && t('project.status.atRisk', 'At Risk')}
-                          {project.status === 'delayed' && t('project.status.delayed', 'Delayed')}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                          <div
-                            className={`h-full ${getProgressColor(project.status)}`}
-                            style={{ width: `${project.progress}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-muted-foreground w-8 text-right">{project.progress}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Lead Status Card */}
-            <Card className="border-muted/40">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>{t('dashboard.leadStatus', 'Lead Status')}</CardTitle>
-                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
-                    {t('dashboard.viewAll', 'View all')} <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="relative h-[150px] w-full">
-                  {/* Showing a placeholder for a pie chart - in a real app you'd use a chart library */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <PieChart className="h-32 w-32 text-primary opacity-10" />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <div className="text-2xl font-bold">{leadStatusData.reduce((acc, item) => acc + item.value, 0)}</div>
-                      <div className="text-xs text-muted-foreground">{t('dashboard.totalLeads', 'Total Leads')}</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  {leadStatusData.map(item => (
-                    <div key={item.label} className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-                      <span className="text-xs">{t(`lead.status.${item.label.toLowerCase().replace(/\s/g, '')}`, item.label)}</span>
-                      <span className="text-xs text-muted-foreground ml-auto">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+    <div className="space-y-8 page-transition">
+      {/* Welcome Section */}
+      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+        <div className="space-y-2">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-heading gradient-text">
+            {greeting}, {userName}! 👋
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            {t('dashboard.welcomeMessage', 'Ready to supercharge your social media presence with AI?')}
+          </p>
         </div>
-        <div className="space-y-4">
-          {/* This space can be used for other widgets */}
-          <AIRecommendationsBlock />
-
+        <div className="flex gap-3 self-start">
+          <Link href="/dashboard/ai-generator">
+            <Button className="gap-2 bg-gradient-to-r from-primary to-accent hover:shadow-glow transition-premium">
+              <Sparkles className="h-4 w-4" />
+              {t('dashboard.generateContent', 'Generate Content')}
+            </Button>
+          </Link>
+          <Link href="/dashboard/plans">
+            <Button variant="outline" className="gap-2">
+              <CrownIcon className="h-4 w-4" />
+              {t('dashboard.upgradePlan', 'Upgrade Plan')}
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Animated KPI Counters */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground flex items-center">
-          <PieChart className="h-5 w-5 mr-2 text-primary" />
-          Key Performance Indicators
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="glass-card hover:shadow-premium transition-premium">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
+              <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200">
+                +12%
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold">{mvpMetrics.totalPosts}</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.metrics.totalPosts', 'Total Posts')}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card hover:shadow-premium transition-premium">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200">
+                +23%
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold">{mvpMetrics.aiGenerations}</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.metrics.aiGenerations', 'AI Generations')}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card hover:shadow-premium transition-premium">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+                <Coins className="h-5 w-5 text-white" />
+              </div>
+              <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200">
+                +8%
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold">{mvpMetrics.totalPoints.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.metrics.totalPoints', 'Total Points')}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card hover:shadow-premium transition-premium">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-white" />
+              </div>
+              <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200">
+                +15%
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold">${mvpMetrics.referralEarnings}</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.metrics.referralEarnings', 'Referral Earnings')}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions Grid */}
+      <div>
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+          <Zap className="h-6 w-6 text-primary" />
+          {t('dashboard.quickActions', 'Quick Actions')}
         </h2>
-        <AnimatedKPICounters />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {quickActions.map((action) => (
+            <Link key={action.title} href={action.href}>
+              <Card className="glass-card hover:shadow-premium transition-premium group cursor-pointer h-full">
+                <CardHeader>
+                  <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center text-white mb-3 group-hover:scale-110 transition-premium`}>
+                    {action.icon}
+                  </div>
+                  <CardTitle className="group-hover:text-primary transition-premium">
+                    {t(`dashboard.actions.${action.title.toLowerCase().replace(/\s+/g, '')}`, action.title)}
+                  </CardTitle>
+                  <CardDescription>
+                    {t(`dashboard.actions.${action.title.toLowerCase().replace(/\s+/g, '')}Desc`, action.description)}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{action.stats}</span>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-premium" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* Tabs for different dashboard views */}
-      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">{t('dashboard.tabs.overview', 'Overview')}</TabsTrigger>
-          <TabsTrigger value="projects">{t('dashboard.tabs.projects', 'Projects')}</TabsTrigger>
-          <TabsTrigger value="clients">{t('dashboard.tabs.clients', 'Clients')}</TabsTrigger>
-          <TabsTrigger value="leads">{t('dashboard.tabs.leads', 'Leads')}</TabsTrigger>
-        </TabsList>
+      {/* AI Provider Summary */}
+      <div>
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+          <BrainCircuit className="h-6 w-6 text-primary" />
+          {t('dashboard.aiProvider', 'AI Provider Status')}
+        </h2>
+        <Card className="glass-card hover:shadow-premium transition-premium">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                  <BrainCircuit className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    {t('dashboard.aiProvider.title', 'Active AI Provider')}
+                    <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
+                      <div className="h-2 w-2 rounded-full bg-green-500 mr-1.5" />
+                      {t('dashboard.aiProvider.connected', 'Connected')}
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription>
+                    {t('dashboard.aiProvider.description', 'Manage your AI providers and monitor usage')}
+                  </CardDescription>
+                </div>
+              </div>
+              <Link href="/dashboard/ai-providers">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Settings className="h-4 w-4" />
+                  {t('dashboard.aiProvider.manage', 'Manage')}
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Cpu className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">OpenAI GPT-4</p>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.aiProvider.primary', 'Primary Provider')}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <Wifi className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">8,450 Tokens</p>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.aiProvider.remaining', 'Remaining this month')}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                  <TrendingUp className="h-4 w-4 text-amber-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">75% Usage</p>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.aiProvider.usage', 'This billing cycle')}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value="overview" className="space-y-4">
-          {/* Status Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {statusCards.map((card) => (
-              <Card key={card.title} className="overflow-hidden border-muted/40">
-                <CardHeader className="pb-2 pt-4">
-                  <div className="flex justify-between">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      {t(`dashboard.metrics.${card.title.toLowerCase().replace(/\s/g, '')}`, card.title)}
-                    </CardTitle>
-                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center text-primary">
-                      {card.icon}
+      {/* Social Media Accounts Summary */}
+      <div>
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+          <Globe className="h-6 w-6 text-primary" />
+          {t('dashboard.socialAccounts', 'Connected Social Accounts')}
+        </h2>
+        <Card className="glass-card hover:shadow-premium transition-premium">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                  <Globe className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    {t('dashboard.socialAccounts.title', 'Connected Social Accounts')}
+                    <Badge variant="outline" className={`${connectedAccounts.length > 0 ? 'bg-green-500/10 text-green-600 border-green-500/20' : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}`}>
+                      <div className={`h-2 w-2 rounded-full mr-1.5 ${connectedAccounts.length > 0 ? 'bg-green-500' : 'bg-amber-500'}`} />
+                      {connectedAccounts.length > 0 
+                        ? t('dashboard.socialAccounts.connected', '{count} Connected', { count: connectedAccounts.length })
+                        : t('dashboard.socialAccounts.noAccounts', 'No Accounts')
+                      }
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription>
+                    {connectedAccounts.length > 0 
+                      ? t('dashboard.socialAccounts.description', 'Manage your connected social media platforms')
+                      : t('dashboard.socialAccounts.descriptionEmpty', 'Connect your social media accounts to start publishing')
+                    }
+                  </CardDescription>
+                </div>
+              </div>
+              <Link href="/dashboard/social-accounts">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Settings className="h-4 w-4" />
+                  {t('dashboard.socialAccounts.manage', 'Manage Accounts')}
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {socialAccountsLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 animate-pulse">
+                    <div className="h-8 w-8 rounded-lg bg-muted" />
+                    <div className="space-y-1">
+                      <div className="h-4 w-20 bg-muted rounded" />
+                      <div className="h-3 w-16 bg-muted rounded" />
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="pb-2">
-                  <div className="text-2xl font-bold">{card.value}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t(card.description, card.description)}
-                  </p>
-                </CardContent>
-                {card.change !== undefined && (
-                  <CardFooter className="pt-0 pb-4">
-                    <div className={`text-xs flex items-center ${card.indicator === 'up' ? 'text-green-500' : card.indicator === 'down' ? 'text-red-500' : 'text-muted-foreground'}`}>
-                      {card.indicator === 'up' ? '↑' : card.indicator === 'down' ? '↓' : '•'}
-                      <span className="ml-1">{formatChange(card.change)} {t('dashboard.fromLastMonth', 'from last month')}</span>
+                ))}
+              </div>
+            ) : connectedAccounts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {connectedAccounts.slice(0, 6).map((account) => (
+                  <div key={account.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <div className="h-8 w-8 rounded-lg bg-white flex items-center justify-center shadow-sm">
+                      {getPlatformIcon(account.platform)}
                     </div>
-                  </CardFooter>
+                    <div>
+                      <p className="font-medium text-sm">{account.profileName || account.username}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{account.platform}</p>
+                    </div>
+                  </div>
+                ))}
+                {connectedAccounts.length > 6 && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <span className="text-xs font-medium text-primary">+{connectedAccounts.length - 6}</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{t('dashboard.socialAccounts.moreAccounts', 'More accounts')}</p>
+                      <p className="text-xs text-muted-foreground">{t('dashboard.socialAccounts.viewAll', 'View all connected')}</p>
+                    </div>
+                  </div>
                 )}
-              </Card>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Recent Activity Card */}
-            <Card className="border-muted/40 lg:col-span-2">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>{t('dashboard.recentActivity', 'Recent Activity')}</CardTitle>
-                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
-                    {t('dashboard.viewAll', 'View all')} <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y divide-border">
-                  {recentActivity.map(item => (
-                    <div key={item.id} className="flex items-start gap-3 p-4">
-                      <div className="mt-0.5 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        {getActivityIcon(item.type)}
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                          <p className="text-sm font-medium">{item.title}</p>
-                          {getStatusBadge(item.status)}
-                        </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs text-muted-foreground">
-                          <div className="flex items-center">
-                            <User className="mr-1 h-3 w-3" />
-                            {item.user}
-                          </div>
-                          <div className="hidden sm:block">•</div>
-                          <div className="flex items-center">
-                            <Clock className="mr-1 h-3 w-3" />
-                            {item.time}
-                          </div>
-                        </div>
-                      </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {['facebook', 'instagram', 'twitter', 'linkedin'].map((platform) => (
+                  <div key={platform} className="flex items-center gap-2 p-3 rounded-lg bg-muted/20 opacity-60">
+                    <div className="h-6 w-6 rounded bg-muted flex items-center justify-center">
+                      {getPlatformIcon(platform)}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    <span className="text-sm text-muted-foreground capitalize">{platform}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-            {/* Upcoming Tasks Card */}
-            <Card className="border-muted/40">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>{t('dashboard.upcomingTasks', 'Upcoming Tasks')}</CardTitle>
-                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
-                    {t('dashboard.viewAll', 'View all')} <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y divide-border">
-                  {upcomingTasks.map(task => (
-                    <div key={task.id} className="py-2 px-4">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className={`text-[10px] h-5 px-1.5 ${getPriorityColor(task.priority)}`}>
-                          {getPriorityLabel(task.priority)}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground ml-auto flex items-center">
-                          <Calendar className="mr-1 h-3 w-3" />
-                          {task.dueDate}
-                        </span>
-                      </div>
-                      <p className="font-medium text-sm mt-1.5">{task.title}</p>
-                      {task.project && (
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          <Briefcase className="inline h-3 w-3 mr-1" />
-                          {task.project}
-                        </div>
-                      )}
+      {/* Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 glass-card">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" />
+                {t('dashboard.recentActivity', 'Recent Activity')}
+              </CardTitle>
+              <Button variant="ghost" size="sm" className="text-xs">
+                {t('dashboard.viewAll', 'View all')}
+                <ArrowRight className="ml-1 h-3 w-3" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {recentActivity.map((item) => (
+                <div key={item.id} className="flex items-start gap-3 p-4 hover:bg-muted/30 transition-premium">
+                  <div className="mt-0.5 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    {getActivityIcon(item.type)}
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                      <p className="text-sm font-medium">{item.title}</p>
+                      {getStatusBadge(item.status)}
                     </div>
-                  ))}
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {item.time}
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* CRM Module Quick Access */}
-          <h2 className="mt-8 text-xl font-semibold">{t('dashboard.quickAccess', 'Quick Access')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link href="/dashboard/clients">
-              <Card className="border-muted/40 transition-all hover:border-primary/50 hover:shadow-md">
-                <CardHeader>
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2">
-                    <UserPlus className="h-6 w-6" />
-                  </div>
-                  <CardTitle>{t('dashboard.modules.clients', 'Client Management')}</CardTitle>
-                  <CardDescription>
-                    {t('dashboard.modules.clientsDesc', 'Manage clients, contacts, and interactions')}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            <Link href="/dashboard/projects">
-              <Card className="border-muted/40 transition-all hover:border-primary/50 hover:shadow-md">
-                <CardHeader>
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2">
-                    <Briefcase className="h-6 w-6" />
-                  </div>
-                  <CardTitle>{t('dashboard.modules.projects', 'Projects & Sprints')}</CardTitle>
-                  <CardDescription>
-                    {t('dashboard.modules.projectsDesc', 'Track projects, milestones, and deliverables')}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            <Link href="/dashboard/tasks">
-              <Card className="border-muted/40 transition-all hover:border-primary/50 hover:shadow-md">
-                <CardHeader>
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2">
-                    <ClipboardList className="h-6 w-6" />
-                  </div>
-                  <CardTitle>{t('dashboard.modules.tasks', 'Tasks')}</CardTitle>
-                  <CardDescription>
-                    {t('dashboard.modules.tasksDesc', 'Manage tasks with Kanban and list views')}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            <Link href="/dashboard/leads">
-              <Card className="border-muted/40 transition-all hover:border-primary/50 hover:shadow-md">
-                <CardHeader>
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2">
-                    <Target className="h-6 w-6" />
-                  </div>
-                  <CardTitle>{t('dashboard.modules.leads', 'Lead Management')}</CardTitle>
-                  <CardDescription>
-                    {t('dashboard.modules.leadsDesc', 'Capture, track, and convert sales leads')}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="projects" className="space-y-4">
-          {/* Projects Tab Content */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">{t('dashboard.activeProjects', 'Active Projects')}</h2>
-            <Button size="sm" onClick={() => router.push('/dashboard/projects/create')}>
-              <Plus className="mr-2 h-4 w-4" /> {t('projects.createNew', 'New Project')}
-            </Button>
-          </div>
-
-          {/* Projects content would go here */}
-          <Card className="border-muted/40">
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Sparkles className="h-16 w-16 text-primary opacity-20 mb-4" />
-                <h3 className="text-lg font-medium mb-2">{t('dashboard.projectsTabPromo', 'Enhance Your Project Management')}</h3>
-                <p className="text-sm text-muted-foreground max-w-md mb-6">
-                  {t('dashboard.projectsTabDescription', 'Track project progress, manage team resources, and deliver on time with our powerful project management tools.')}
-                </p>
-                <Button onClick={() => router.push('/dashboard/projects')}>
-                  {t('dashboard.exploreProjects', 'Explore Projects')}
+        {/* Productivity Tip */}
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              {t('dashboard.productivityTip', 'Productivity Tip')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
+              <h3 className="font-semibold mb-2 flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                {t('dashboard.tip.title', 'AI Content Strategy')}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                {t('dashboard.tip.description', 'Generate content in batches using AI, then schedule them throughout the week for consistent engagement.')}
+              </p>
+              <Link href="/dashboard/ai-generator">
+                <Button size="sm" className="w-full">
+                  {t('dashboard.tip.action', 'Try AI Generator')}
                 </Button>
+              </Link>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">{t('dashboard.quickStats', 'Quick Stats')}</h4>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{t('dashboard.stats.thisWeek', 'Posts this week')}</span>
+                  <span className="font-medium">12</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{t('dashboard.stats.avgEngagement', 'Avg. engagement')}</span>
+                  <span className="font-medium text-green-600">+23%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{t('dashboard.stats.aiSavings', 'Time saved with AI')}</span>
+                  <span className="font-medium text-blue-600">4.2h</span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value="clients" className="space-y-4">
-          {/* Clients Tab Content */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">{t('dashboard.clientOverview', 'Client Overview')}</h2>
-            <Button size="sm" onClick={() => router.push('/dashboard/clients/create')}>
-              <Plus className="mr-2 h-4 w-4" /> {t('clients.addClient', 'Add Client')}
-            </Button>
-          </div>
-
-          {/* Clients content would go here */}
-          <Card className="border-muted/40">
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <UserPlus className="h-16 w-16 text-primary opacity-20 mb-4" />
-                <h3 className="text-lg font-medium mb-2">{t('dashboard.clientsTabPromo', 'Centralize Client Information')}</h3>
-                <p className="text-sm text-muted-foreground max-w-md mb-6">
-                  {t('dashboard.clientsTabDescription', 'Keep all your client information in one place. Track interactions, manage contacts, and improve your client relationships.')}
+      {/* Subscription CTA */}
+      <Card className="glass-card bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <CrownIcon className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">
+                  {t('dashboard.upgrade.title', 'Unlock More AI Power')}
+                </h3>
+                <p className="text-muted-foreground">
+                  {t('dashboard.upgrade.description', 'Upgrade your plan to access advanced AI features and unlimited generations.')}
                 </p>
-                <Button onClick={() => router.push('/dashboard/clients')}>
-                  {t('dashboard.manageClients', 'Manage Clients')}
-                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="leads" className="space-y-4">
-          {/* Leads Tab Content */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">{t('dashboard.leadGeneration', 'Lead Generation')}</h2>
-            <Button size="sm" onClick={() => router.push('/dashboard/leads/create')}>
-              <Plus className="mr-2 h-4 w-4" /> {t('leads.addLead', 'Add Lead')}
-            </Button>
+            </div>
+            <Link href="/dashboard/plans">
+              <Button className="bg-gradient-to-r from-primary to-accent hover:shadow-glow transition-premium">
+                {t('dashboard.upgrade.action', 'View Plans')}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
-
-          {/* Leads content would go here */}
-          <Card className="border-muted/40">
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Target className="h-16 w-16 text-primary opacity-20 mb-4" />
-                <h3 className="text-lg font-medium mb-2">{t('dashboard.leadsTabPromo', 'Optimize Lead Conversion')}</h3>
-                <p className="text-sm text-muted-foreground max-w-md mb-6">
-                  {t('dashboard.leadsTabDescription', 'Capture, nurture, and convert leads efficiently with automated workflows and customizable pipelines.')}
-                </p>
-                <Button onClick={() => router.push('/dashboard/leads')}>
-                  {t('dashboard.exploreLeads', 'Explore Leads')}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 }

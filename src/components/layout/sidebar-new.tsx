@@ -8,16 +8,15 @@ import { Button } from '@/components/ui/button';
 import { 
   ChevronLeft, 
   ChevronRight,
+  Home,
   LogOut,
-  FileText,
+  Share2,
   Sparkles,
   Layers,
   Bell,
-  Users,
+  Award,
   Gift,
   Clock,
-  CreditCard,
-  BrainCircuit,
   Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -38,6 +37,9 @@ export default function Sidebar({ className, onStateChange, mobileSidebarToggle 
   const [isMobile, setIsMobile] = useState(false);
   const isRTL = i18n.dir() === 'rtl';
   const { user } = useUserStore();
+  
+  // Check if user is an active affiliate
+  const isActiveAffiliate = user?.affiliate && user?.affiliate.status === 'approved' && user?.affiliate.isActive;
 
   // Handle mobile sidebar toggle from parent
   useEffect(() => {
@@ -117,33 +119,27 @@ export default function Sidebar({ className, onStateChange, mobileSidebarToggle 
     {
       title: t('sidebar.dashboard', 'Dashboard'),
       href: '/dashboard',
-      icon: <Sparkles className="h-4 w-4" />,
-      isActive: pathname?.includes('/dashboard'),
+      icon: <Home className="h-4 w-4" />,
+      isActive: pathname === '/dashboard',
     },
     {
       title: t('sidebar.posts', 'Posts'),
       href: '/dashboard/posts',
-      icon: <FileText className="h-4 w-4" />,
+      icon: <Share2 className="h-4 w-4" />,
       isActive: pathname?.includes('/posts'),
-    },
-    {
-      title: t('sidebar.aiGenerator', 'AI Generator'),
-      href: '/dashboard/ai-generator',
-      icon: <Sparkles className="h-4 w-4" />,
-      isActive: pathname?.includes('/ai-generator'),
-      badge: 'New'
-    },
-    {
-      title: t('sidebar.aiProviders', 'AI Providers'),
-      href: '/dashboard/ai-providers',
-      icon: <BrainCircuit className="h-4 w-4" />,
-      isActive: pathname?.includes('/ai-providers'),
     },
     {
       title: t('sidebar.socialAccounts', 'Social Accounts'),
       href: '/dashboard/social-accounts',
       icon: <Globe className="h-4 w-4" />,
       isActive: pathname?.includes('/social-accounts'),
+    },
+    {
+      title: t('sidebar.aiGenerator', 'AI Content Generator'),
+      href: '/dashboard/ai-tools',
+      icon: <Sparkles className="h-4 w-4" />,
+      isActive: pathname?.includes('/ai-tools') && !pathname?.includes('/ai-providers'),
+      badge: 'New'
     },
     {
       title: t('sidebar.scheduler', 'Scheduler'),
@@ -158,24 +154,22 @@ export default function Sidebar({ className, onStateChange, mobileSidebarToggle 
       isActive: pathname?.includes('/points') || pathname?.includes('/rewards'),
     },
     {
-      title: t('sidebar.referrals', 'Affiliate Program'),
-      href: '/dashboard/referrals',
-      icon: <Users className="h-4 w-4" />,
-      isActive: pathname?.includes('/referrals'),
-    },
-    {
-      title: t('sidebar.plans', 'Subscription Plans'),
-      href: '/dashboard/plans',
-      icon: <CreditCard className="h-4 w-4" />,
-      isActive: pathname?.includes('/plans'),
-    },
-    {
       title: t('sidebar.notifications', 'Notifications'),
       href: '/dashboard/notifications',
       icon: <Bell className="h-4 w-4" />,
       isActive: pathname?.includes('/notifications'),
     },
   ];
+
+  // Add referrals for active affiliates
+  if (isActiveAffiliate) {
+    navItems.push({
+      title: t('sidebar.referrals', 'Referrals'),
+      href: '/dashboard/referrals',
+      icon: <Award className="h-4 w-4" />,
+      isActive: pathname?.includes('/referrals'),
+    });
+  }
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);

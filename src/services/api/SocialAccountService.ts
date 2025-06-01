@@ -16,8 +16,10 @@ export const SocialAccountService = {
    */
   getAccounts: async (): Promise<SocialAccount[]> => {
     console.log('🔍 SocialAccountService: Requesting social accounts from API...');
+    console.log('🌐 API Endpoint: POST /social-accounts/my-social-accounts');
+    
     try {
-      const response = await axios.get('social-accounts/my-social-accounts');
+      const response = await axios.post('social-accounts/my-social-accounts');
       console.log('✅ SocialAccountService: API response received:', {
         status: response.status,
         dataLength: response.data?.length || 0,
@@ -29,7 +31,13 @@ export const SocialAccountService = {
       
       if (accounts.length === 0) {
         console.log('⚠️ SocialAccountService: No social accounts found for user');
-        console.log('💡 Check if userId is properly sent to backend and user has connected accounts');
+        console.log('💡 Troubleshooting tips:');
+        console.log('  - Check if user is properly authenticated');
+        console.log('  - Verify userId is sent to backend');
+        console.log('  - Confirm user has connected social accounts');
+        console.log('  - Check backend logs for API call');
+      } else {
+        console.log(`✅ Successfully fetched ${accounts.length} social accounts`);
       }
       
       return accounts;
@@ -40,14 +48,22 @@ export const SocialAccountService = {
         const axiosError = error as { response?: { status?: number; data?: unknown } };
         console.error('📋 Error details:', {
           status: axiosError.response?.status,
-          data: axiosError.response?.data
+          data: axiosError.response?.data,
+          url: 'social-accounts/my-social-accounts'
         });
         
         if (axiosError.response?.status === 401) {
           console.error('🔒 Authentication error - user may not be logged in');
+          console.error('💡 User needs to authenticate to access social accounts');
         } else if (axiosError.response?.status === 403) {
           console.error('🚫 Authorization error - user may not have access');
+        } else if (axiosError.response?.status === 404) {
+          console.error('🔍 Endpoint not found - check if backend API is running');
+        } else if (axiosError.response?.status && axiosError.response.status >= 500) {
+          console.error('🔥 Server error - check backend logs');
         }
+      } else {
+        console.error('🌐 Network error or API unavailable');
       }
       
       throw error;
@@ -58,10 +74,15 @@ export const SocialAccountService = {
    * Get social account statistics
    */
   getStats: async (): Promise<SocialAccountStats> => {
-    console.log('Fetching social account stats...');
-    const response = await axios.post('/social-accounts/get-account-stats');
-    console.log('Social account stats:', response.data);
-    return response.data;
+    console.log('🔍 Fetching social account stats...');
+    try {
+      const response = await axios.post('social-accounts/get-account-stats');
+      console.log('✅ Social account stats received:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to fetch social account stats:', error);
+      throw error;
+    }
   },
 
   /**

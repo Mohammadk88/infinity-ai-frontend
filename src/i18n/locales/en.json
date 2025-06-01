@@ -52,6 +52,18 @@
         "changeLanguage": "Change Language",
         "logout": "Logout"
     },
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "posts": "Posts",
+        "aiGenerator": "AI Generator",
+        "aiProviders": "AI Providers",
+        "socialAccounts": "Social Accounts",
+        "scheduler": "Scheduler",
+        "rewards": "Points & Rewards",
+        "referrals": "Affiliate Program",
+        "plans": "Subscription Plans",
+        "notifications": "Notifications"
+    },
     "socialAccounts": {
         "title": "Social Accounts",
         "platform": "Platform",
