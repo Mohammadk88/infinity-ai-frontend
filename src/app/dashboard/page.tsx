@@ -38,6 +38,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useUserStore } from '@/store/useUserStore';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
+import DynamicGreetingBlock from '@/components/features/dynamic-greeting-block';
 
 // MVP Metrics Data
 const mvpMetrics = {
@@ -231,7 +232,7 @@ export default function Dashboard() {
           </Link>
         </div>
       </div>
-
+    <DynamicGreetingBlock />
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="glass-card hover:shadow-premium transition-premium">
