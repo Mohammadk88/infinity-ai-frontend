@@ -39,6 +39,7 @@ import { Badge } from '@/components/ui/badge';
 import { useUserStore } from '@/store/useUserStore';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import DynamicGreetingBlock from '@/components/features/dynamic-greeting-block';
+import UsageSummaryCard from '@/components/features/UsageSummaryCard';
 
 // MVP Metrics Data
 const mvpMetrics = {
@@ -310,6 +311,43 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Usage Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <TrendingUp className="h-6 w-6 text-primary" />
+            {t('dashboard.usageSummary', 'Usage & Plan Overview')}
+          </h2>
+          <UsageSummaryCard />
+        </div>
+        <div className="space-y-6">
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="text-lg">Plan Benefits</CardTitle>
+              <CardDescription>What you get with your current plan</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>Unlimited AI generations</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>Advanced post scheduling</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>Priority support</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>Team collaboration</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Quick Actions Grid */}

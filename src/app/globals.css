@@ -517,75 +517,186 @@
     background-size: 24px 24px;
   }
 
-@keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Mobile Sidebar Enhancements */
-@media (max-width: 768px) {
-  .mobile-nav-item {
-    min-height: 48px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
+/* Custom animations for plans page */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  
-  .mobile-nav-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-  
-  .mobile-nav-text {
-    font-size: 1rem;
-  }
-  
-  .mobile-sidebar-backdrop {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background: rgba(0, 0, 0, 0.2);
+  50% {
+    transform: translateY(-10px);
   }
 }
 
-/* Enhanced touch targets for all mobile navigation */
-.mobile-nav-item {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+@keyframes glow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
-.mobile-nav-item:active {
-  transform: scale(0.98);
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
 }
 
-/* Mobile Sidebar Enhancements */
-  @media (min-width: 640px) {
-    .sidebar-mobile-nav a {
-      @apply px-4 py-4 min-h-[48px] text-base;
-    }
-    
-    .sidebar-mobile-nav .nav-icon {
-      @apply h-6 w-6;
-    }
-    
-    .sidebar-mobile-toggle {
-      @apply h-14 w-14 bottom-8;
-    }
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
   }
-  
-  /* Enhanced touch targets for mobile navigation */
-  .mobile-nav-item {
-    @apply min-h-[44px] touch-manipulation;
-    -webkit-tap-highlight-color: transparent;
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  /* Smooth sidebar transitions on mobile */
-  .mobile-sidebar-transition {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  /* Mobile sidebar backdrop */
-  .mobile-sidebar-backdrop {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background: rgba(0, 0, 0, 0.3);
-    touch-action: none; /* Prevent scrolling behind overlay */
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+/* Custom utility classes */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
+}
+
+/* Plans page specific styles */
+.plan-card-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.plan-card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.gradient-border {
+  position: relative;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Enhanced scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  opacity: 0.8;
+}
+
+/* Modern plans page animations */
+.hover-lift {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.plan-card-modern {
+  backdrop-filter: blur(16px);
+  background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.plan-card-modern:hover {
+  background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08));
+  border-color: rgba(var(--primary), 0.4);
+  transform: translateY(-8px);
+}
+
+.premium-glow {
+  position: relative;
+}
+
+.premium-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: linear-gradient(45deg, var(--primary), var(--accent), var(--primary));
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: subtract;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.premium-glow:hover::before {
+  opacity: 1;
+}
+
+.animate-float-delayed {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-float-delayed-2 {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 4s;
+}
